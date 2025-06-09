@@ -41,7 +41,7 @@ global.yukiJadibts = true
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
 global.packname = '⪛✰ 𝑴𝑨𝑹𝑰𝑨-𝑲𝑶𝑱𝑶𝑼-𝑩𝑶𝑻 ✰⪜'
-global.botname = 'ᥡᥙkі-sᥙ᥆ᥙ-ᑲ᥆𝗍'
+global.botname = '𝒎𝒂𝒓𝒊𝒂-𝒌𝒐𝒋𝒐𝒖-𝒃𝒐𝒕'
 global.wm = 'ৎ୭࠭͢𝐘𝐮𝐤𝐢_𝐒𝐮𝐨𝐮-𝐁𝐨𝐭ⷭ𓆪͟͞ '
 global.author = 'Made By ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'
 global.dev = '© 𝑬𝑺𝑶𝑿-𝑪𝑳𝑼𝑩 ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜'

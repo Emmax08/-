@@ -1,6 +1,6 @@
 <h1 align="center">✦ 𝑴𝑨𝑹𝑰𝑨 𝑲𝑼𝑱𝑶𝑼ƚ ✦</h1>
 
- <img src= "https://files.catbox.moe/om9jai.jpg">
+ <img src= "https://files.catbox.moe/goxeeh.jpg">
     </p>
 
 ### **`❕️ Información importante`**
@@ -168,7 +168,7 @@ href="https://dahs.hostingpy.shop/home"><img src="https://files.catbox.moe/lr92z
 * Dashboard: [`Dash`](https://bronxyshost.com)
 * Panel: [`Panel`](https://bronxyshost.com)
 * Canal de WhatsApp: [`Canal Bronxy`](https://whatsapp.com/channel/0029Va9l48kHbFV6SQFKz93B)
-* Grupo Oficial: [`Aquí`](https://chat.whatsapp.com/GVQsAe6CAjoJLuotkpnAqq)
+* Grupo Oficial: [`Aquí`](https://chat.whatsapp.com/JnnZpCuoQNiKLJ0fCmREeu)
 * Grupo Soporte: [`Soporte`](https://wa.me/message/OMZQOH4YZ765K1) 
 
 </details>

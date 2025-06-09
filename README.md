@@ -182,7 +182,7 @@ href="https://dahs.hostingpy.shop/home"><img src="https://files.catbox.moe/lr92z
 
 ### **`👑 Propietario`**
 <a
-href="https://github.com/Emmax08"><img src="https://github.com/The-King-Destroy.png" width="130" height="130" alt="
+href="https://github.com/Emmax08"><img src="https://github.com/Emmax08.png" width="130" height="130" alt="
 ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜"/></a>
 
 ### **`🪐 Créditos`**

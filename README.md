@@ -1,4 +1,4 @@
-<h1 align="center">✦ 𝑴𝑨𝑹𝑰𝑨 𝑱𝑶𝑺𝑶𝑼ƚ ✦</h1>
+<h1 align="center">✦ 𝑴𝑨𝑹𝑰𝑨 𝑲𝑼𝑱𝑶𝑼ƚ ✦</h1>
 
  <img src= "https://files.catbox.moe/om9jai.jpg">
     </p>

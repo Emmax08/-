@@ -1,6 +1,6 @@
 <h1 align="center">✦ 𝑴𝑨𝑹𝑰𝑨 𝑲𝑼𝑱𝑶𝑼ƚ ✦</h1>
 
- <img src= "https://files.catbox.moe/oj2lny">
+ <img src= "https://files.catbox.moe/goxeeh.jpg">
     </p>
 
 ### **`❕️ Información importante`**

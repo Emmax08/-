@@ -169,7 +169,7 @@ href="https://dahs.hostingpy.shop/home"><img src="https://files.catbox.moe/lr92z
 * Panel: [`Panel`](https://bronxyshost.com)
 * (https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D)
 * Grupo Oficial: [`Aquí`](https://chat.whatsapp.com/JnnZpCuoQNiKLJ0fCmREeu)
-* Grupo Soporte: [`Soporte`](https://wa.me/message/OMZQOH4YZ765K1) 
+* Grupo Soporte: [`Soporte`](https://chat.whatsapp.com/K6GYgit4u4cFetSHPIjM04) 
 
 </details>
 

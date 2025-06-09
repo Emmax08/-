@@ -167,7 +167,7 @@ href="https://dahs.hostingpy.shop/home"><img src="https://files.catbox.moe/lr92z
 
 * Dashboard: [`Dash`](https://bronxyshost.com)
 * Panel: [`Panel`](https://bronxyshost.com)
-* Canal de WhatsApp: [`Canal Bronxy`](https://whatsapp.com/channel/0029Va9l48kHbFV6SQFKz93B)
+* (https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D)
 * Grupo Oficial: [`Aquí`](https://chat.whatsapp.com/JnnZpCuoQNiKLJ0fCmREeu)
 * Grupo Soporte: [`Soporte`](https://wa.me/message/OMZQOH4YZ765K1) 
 

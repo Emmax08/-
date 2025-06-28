@@ -108,7 +108,7 @@ npm start
  <summary><b> 🍭 Grupos Oficiales </b></summary>
 
  * Canal Oficial  [`¡Click aquí!`](https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T)
-* Grupo Oficial [`¡Click aquí!`](https://chat.whatsapp.com/Ecz881bBgqPIWjDOaKkp7E)
+* Grupo Oficial [`¡Click aquí!`](https://chat.whatsapp.com/JnnZpCuoQNiKLJ0fCmREeu?mode=r_c)
 * Comunidad Oficial [`¡Click aquí!`](https://chat.whatsapp.com/EwrwcGvpLf1BnMhP3B4axD)
 </details>
 

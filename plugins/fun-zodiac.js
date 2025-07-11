@@ -26,11 +26,11 @@ let totalreg = Object.keys(global.db.data.users).length
 let rtotalreg = Object.values(global.db.data.users).filter(user => user.registered == true).length
 let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 let mentionedJid = [who]
-let perfil = await conn.profilePictureUrl(who, 'image').catch(_ => 'https://files.catbox.moe/mqtxvp.jpg')
+let perfil = await conn.profilePictureUrl(who, 'image').catch(_ => 'https://files.catbox.moe/w45den.jpg')
 let taguser = '@' + m.sender.split("@s.whatsapp.net")[0]
-const vid = ['https://files.catbox.moe/falp8a.mp4', 'https://files.catbox.moe/falp8a.mp4', 'https://files.catbox.moe/falp8a.mp4']
+const vid = ['https://files.catbox.moe/j36r26.mp4', 'https://files.catbox.moe/41b5ux.mp4', 'https://files.catbox.moe/2i0w86.mp4']
 
-let menu = `¡Hola! *${taguser}* soy *Makima ( ${(conn.user.jid == global.conn.user.jid ? 'OficialBot' : 'Prem-Bot')} ).* 
+let menu = `¡Hola! *${taguser}* soy *${bot ame} ( ${(conn.user.jid == global.conn.user.jid ? 'OficialBot' : 'Prem-Bot')} ).* 
 
 ╭━━I N F O-B O T━━
 ┃Creador: Emmanuel 

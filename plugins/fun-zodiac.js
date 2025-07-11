@@ -1,52 +1,296 @@
-let handler = (m, { usedPrefix, command, text }) => {
-if (!text) return conn.reply(m.chat, `${emoji} Por favor, ingresa tu fecha de nacimiento de esta manera.\n> Ejemplo: ${usedPrefix + command} 2007 06 01`, m)
-
-    const date = new Date(text)
-    if (date == 'Fecha invalida, prueba con el siguiente formato AAAA MM DD Ejemplo: 2003 02 07 ') throw date
-    const d = new Date()
-    const [tahun, bulan, tanggal] = [d.getFullYear(), d.getMonth() + 1, d.getDate()]
-    const birth = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
-
-    const zodiac = getZodiac(birth[1], birth[2])
-    const ageD = new Date(d - date)
-    const age = ageD.getFullYear() - new Date(1970, 0, 1).getFullYear()
-
-    const birthday = [tahun + (birth[1] < bulan), ...birth.slice(1)]
-    const cekusia = bulan === birth[1] && tanggal === birth[2] ? `${age} - Feliz cumpleaños ☁️` : age
-
-    const teks = `
-Fecha de nacimiento: : ${birth.join('-')}
-Proximo cumpleaños : ${birthday.join('-')}
-Edad : ${cekusia}
-Signo zodical : ${zodiac}
-`.trim()
-    m.reply(teks)
+import fs from 'fs'
+import fetch from 'node-fetch'
+import { xpRange } from '../lib/levelling.js'
+const { levelling } = '../lib/levelling.js'
+import { promises } from 'fs'
+import { join } from 'path'
+let handler = async (m, { conn, usedPrefix, usedPrefix: _p, __dirname, text, command }) => {
+try {        
+/*let _package = JSON.parse(await promises.readFile(join(__dirname, '../package.json')).catch(_ => ({}))) || {}*/
+let { exp, chocolates, level, role } = global.db.data.users[m.sender]
+let { min, xp, max } = xpRange(level, global.multiplier)
+let name = await conn.getName(m.sender)
+let _uptime = process.uptime() * 1000
+let _muptime
+if (process.send) {
+process.send('uptime')
+_muptime = await new Promise(resolve => {
+process.once('message', resolve)
+setTimeout(resolve, 1000)
+}) * 1000
 }
-handler.help = ['zodiac *2002 02 25*']
-handler.tags = ['fun']
-handler.group = true;
-handler.register = true
-handler.command = ['zodia','zodiac']
+let user = global.db.data.users[m.sender]
+let muptime = clockString(_muptime)
+let uptime = clockString(_uptime)
+let totalreg = Object.keys(global.db.data.users).length
+let rtotalreg = Object.values(global.db.data.users).filter(user => user.registered == true).length
+let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
+let mentionedJid = [who]
+let perfil = await conn.profilePictureUrl(who, 'image').catch(_ => 'https://files.catbox.moe/mqtxvp.jpg')
+let taguser = '@' + m.sender.split("@s.whatsapp.net")[0]
+const vid = ['https://files.catbox.moe/falp8a.mp4', 'https://files.catbox.moe/falp8a.mp4', 'https://files.catbox.moe/falp8a.mp4']
 
+let menu = `¡Hola! *${taguser}* soy *Makima ( ${(conn.user.jid == global.conn.user.jid ? 'OficialBot' : 'Prem-Bot')} ).* 
+
+╭━━I N F O-B O T━━
+┃Creador: Emmanuel 
+┃Tiempo activo: ${uptime}
+┃Baileys: Multi device.
+┃Registros: ${totalreg}
+╰━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮INFO-USER
+┃┈➤ Cliente: ${nombre}
+┃┈➤ Rango: ${role}
+┃┈➤ Nivel: ${level}
+┃┈➤ Wones: ${chocolates}
+╰━━━━━━━━━━━━━
+
+➪ 𝗟𝗜𝗦𝗧𝗔 
+       ➪  𝗗𝗘 
+           ➪ 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦
+‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎‎
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮PRINCIPALES
+┃┈➤ #estado
+┃┈➤ #botreglas
+┃┈➤ #menu
+┃┈➤ #menu2
+┃┈➤ #uptime
+┃┈➤ #menulista
+╰━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮BUSCADORES
+┃┈➤ #gitthubsearch
+┃┈➤ #google [Búsqueda]
+┃┈➤ #tiktoksearch
+┃┈➤ #pinterest
+┃┈➤ #imagen [querry]
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮JUEGOS
+┃┈➤ #abrazar
+┃┈➤ #acertijo
+┃┈➤ #agarrar
+┃┈➤ #ahorcado
+┃┈➤ #besar
+┃┈➤ #acariciar
+┃┈➤ #golpear
+┃┈➤ #pregunta
+┃┈➤ #reto
+┃┈➤ #triste
+┃┈➤ #reto
+┃┈➤ #bot
+┃┈➤ #love
+┃┈➤ #consejo
+┃┈➤ #dance
+┃┈➤ #nombreninja
+┃┈➤ #meme
+┃┈➤ #dormir 
+┃┈➤ #rata
+┃┈➤ #enamorada
+┃┈➤ #gay
+┃┈➤ #manco
+┃┈➤ #apostar
+┃┈➤ #piropo
+┃┈➤ #sonrojarse
+┃┈➤ #agarrar
+╰━━━━━━━━━━━━━━━━━━
+
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮WAIFU
+┃┈➤ #robarpersonaje
+┃┈➤ #obtenidos
+┃┈➤ #sacar
+┃┈➤ #guardar
+┃┈➤ #carrw
+┃┈➤ #confirmar
+┃┈➤ #character
+┃┈➤ #roll
+┃┈➤ #top
+╰━━━━━━━━━━━━━━━━━━
+
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮REGISTROS
+┃┈➤ #reg
+┃┈➤ #unreg
+┃┈➤ #profile
+┃┈➤ #usuarios
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮ECONOMIA
+┃┈➤ #daily
+┃┈➤ #bank
+┃┈➤ #robar
+┃┈➤ #robarxp
+┃┈➤ #rob2
+┃┈➤ #levelup
+┃┈➤ #lb
+┃┈➤ #mine
+┃┈➤ #retirar
+┃┈➤ #trabajar
+┃┈➤ #transferir
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮DESCARGAS
+┃┈➤ #fb
+┃┈➤ #play
+┃┈➤ #playvid
+┃┈➤ #mediafire
+┃┈➤ #apkmod
+┃┈➤ #ytmp3doc
+┃┈➤ #ytmp4doc
+┃┈➤ #ig
+┃┈➤ #gitclone
+┃┈➤ #tiktok
+┃┈➤ #spotify
+┃┈➤ #tw
+┃┈➤ #ytmp4 
+┃┈➤ #imagen [querry]
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮GRUPOS
+┃┈➤ #group abrir 
+┃┈➤ #group cerrar 
+┃┈➤ #delete
+┃┈➤ #setppgroup
+┃┈➤ #encuesta
+┃┈➤ #rentar
+┃┈➤ #kick
+┃┈➤ #promote
+┃┈➤ #demote
+┃┈➤ #tagall 
+┃┈➤ #tag
+┃┈➤ #invite 
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮STICKERS
+┃┈➤ #wm [autor]
+┃┈➤ #s
+┃┈➤ #qc
+┃┈➤ #toimg
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮DATABASE
+┃┈➤ #delvn
+┃┈➤ #demsg
+┃┈➤ #delimg
+┃┈➤ #delsticker
+┃┈➤ #infobot
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮EXPERIENCIA
+┃┈➤ #buy
+┃┈➤ #buyall
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮CONFIGURACIÓN
+┃┈➤ #enable
+┃┈➤ #disable
+┃┈➤ #on
+┃┈➤ #off
+╰━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮ANIME
+┃┈➤ #toanime
+┃┈➤ #tts
+┃┈➤ #remini
+┃┈➤ #enhance
+┃┈➤ #hd
+┃┈➤ #nuevafotochannel
+┃┈➤ #nosilenciarcanal
+┃┈➤ #silenciarcanal
+┃┈➤ #seguircanal
+┃┈➤ #inspect
+┃┈➤ #infobot
+┃┈➤ #readvo
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮INFORMACIÓN
+┃┈➤ #creador
+┃┈➤ #owner
+┃┈➤ #reportar
+┃┈➤ #ping
+┃┈➤ #links
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮CREADOR
+┃┈➤ #addprem
+┃┈➤ #copia
+┃┈➤ #broadcastgroup
+┃┈➤ #bcgb
+┃┈➤ #bcgb2
+┃┈➤ #broadcast
+┃┈➤ #bc
+┃┈➤ #cheat
+┃┈➤ #delprem
+┃┈➤ #dsowner
+┃┈➤ #fixmsgespera
+┃┈➤ #get
+┃┈➤ #prefix
+┃┈➤ #reiniciar 
+┃┈➤ #saveplugin 
+┃┈➤ #update
+┃┈➤ #resetpersonajes
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮DESARROLLADORES
+┃┈➤ #autoadmin
+┃┈➤ #banuser
+┃┈➤ #unbanuser
+┃┈➤ #banchat
+┃┈➤ #unbanchat
+┃┈➤ #ip
+┃┈➤ #join
+╰━━━━━━━━━━━━━━━━━━
+
+.       ╭ֹ┈ ⵿❀⵿ ┈╮ ㅤ
+ ╭ֹ┈ ⵿❀⵿ ┈╮A - I
+┃┈➤ #dalle
+┃┈➤ #simi
+┃┈➤ #ai
+┃┈➤ #tovideo
+┃┈➤ #togifaud
+╰━━━━━━━━━━━━━━━━━━
+
+> ${dev}`.trim()
+
+await conn.sendMessage(m.chat, { video: { url: vid.getRandom() }, caption: menu, contextInfo: { mentionedJid: [m.sender], isForwarded: true, forwardedNewsletterMessageInfo: { newsletterJid: channelRD.id, newsletterName: channelRD.name, serverMessageId: -1, }, forwardingScore: 999, externalAdReply: { title: '𝐌A͜͡𝑲𝑖𝐌ꪖ  𝐁o͟T͎ 𝙼𝙳', body: dev, thumbnailUrl: perfil, sourceUrl: redes, mediaType: 1, renderLargerThumbnail: false,
+}, }, gifPlayback: true, gifAttribution: 0 }, { quoted: null })
+await m.react(emojis)    
+
+} catch (e) {
+await m.reply(`✘ Ocurrió un error cuando la lista de premBots se iba a enviar.\n\n${e}`)
+await m.react(error)
+}}
+
+handler.help = ['menu']
+handler.tags = ['main']
+handler.command = ['menu', 'help', 'asistenciabot', 'comandos', 'listadecomandos', 'menucompleto'] 
+handler.register = true
 export default handler
 
-const zodiak = [
-    ["Capricornio", new Date(1970, 0, 1)],
-    ["Acuario", new Date(1970, 0, 20)],
-    ["Piscis", new Date(1970, 1, 19)],
-    ["Aries", new Date(1970, 2, 21)],
-    ["Tauro", new Date(1970, 3, 21)],
-    ["Geminis", new Date(1970, 4, 21)],
-    ["Cancer", new Date(1970, 5, 22)],
-    ["Leo", new Date(1970, 6, 23)],
-    ["Virgo", new Date(1970, 7, 23)],
-    ["Libra", new Date(1970, 8, 23)],
-    ["Scorpion", new Date(1970, 9, 23)],
-    ["Sagitario", new Date(1970, 10, 22)],
-    ["Capricornio", new Date(1970, 11, 22)]
-].reverse()
-
-function getZodiac(month, day) {
-    let d = new Date(1970, month - 1, day)
-    return zodiak.find(([_,_d]) => d >= _d)[0]
-}
+const more = String.fromCharCode(8206)
+const readMore = more.repeat(4001)
+function clockString(ms) {
+let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')}

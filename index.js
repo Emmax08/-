@@ -143,7 +143,7 @@ global.db.chain = chain(global.db.data)
 }
 loadDatabase()
 
-const {state, saveState, saveCreds} = await useMultiFileAuthState(global.Ellensessions)
+const {state, saveState, saveCreds} = await useMultiFileAuthState(global.Mariasessions)
 const msgRetryCounterMap = (MessageRetryMap) => { };
 const msgRetryCounterCache = new NodeCache()
 const {version} = await fetchLatestBaileysVersion();
@@ -336,7 +336,7 @@ return true
 
 global.rutaJadiBot = join(__dirname, './{MariaJadiBots}')
 
-if (global.EllenJadibts) {
+if (global.MariaJadibts) {
 if (!existsSync(global.rutaJadiBot)) {
 mkdirSync(global.rutaJadiBot, { recursive: true })
 console.log(chalk.bold.cyan(`La carpeta: ${jadi} se creó correctamente.`))
@@ -351,7 +351,7 @@ for (const gjbts of readRutaJadiBot) {
 const botPath = join(rutaJadiBot, gjbts)
 const readBotPath = readdirSync(botPath)
 if (readBotPath.includes(creds)) {
-EllenJadiBot({pathEllenJadiBot: botPath, m: null, conn, args: '', usedPrefix: '/', command: 'serbot'})
+MariaJadiBot({pathMariaJadiBot: botPath, m: null, conn, args: '', usedPrefix: '/', command: 'serbot'})
 }
 }
 }
@@ -434,7 +434,7 @@ unlinkSync(filePath)})
 
 function purgeMariaSession() {
 let prekey = []
-let directorio = readdirSync(`./${Ellensessions}`)
+let directorio = readdirSync(`./${Mariasessions}`)
 let filesFolderPreKeys = directorio.filter(file => {
 return file.startsWith('pre-key-')
 })

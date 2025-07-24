@@ -5,14 +5,14 @@ async function handler(m, { conn }) {
 
   const contactos = [
     {
-      numero: '18294868853',
-      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘',
+      numero: '5217225305296',
+      nombre: '⏤͟͞ू⃪ ፝͜⁞Emmax-kunִֶ ࣪˖ ִֶָ🪽་༘',
       cargo: 'Dueño Principal',
       nota: 'Creador del Bot',
       correo: 'selinapasena@gmail.com',
-      region: '🇩🇴 República Dominicana',
-      web: 'https://github.com/Dioneibi-rip',
-      biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+      region: '🇲🇽 CDMX',
+      web: 'https://github.com/Emmax-kun,
+      biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },
     {
       numero: '18096758983',
@@ -25,14 +25,14 @@ async function handler(m, { conn }) {
       biografia: await conn.fetchStatus('18096758983@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },
     {
-      numero: '5216671548329',
-      nombre: '⏤͟͞ू⃪ ꒰˘͈ᵕ ˘͈ 𝑳𝒆𝒈𝒏𝒂-𝒄𝒉𝒂𝒏 🪽 ꒱𖦹',
-      cargo: 'Co-Desarrolladora y contribudora',
+      numero: '18294868853',
+      nombre: '⏤͟͞ू⃪ ꒰˘͈ᵕ ˘͈ Dioneibi-rip ꒱𖦹',
+      cargo: 'Co-Desarrollador y contribudor',
       nota: 'Resolucion de probremas',
       correo: 'sin información',
-      region: '🇲🇽 México',
-      web: 'https://github.com/Legna-chan',
-      biografia: await conn.fetchStatus('5216671548329@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+      region: '🇩🇴 RepúblicaDominicana',
+      web: 'https://github.com/Dioneibi-rip,
+      biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     }
   ]
 

@@ -109,7 +109,7 @@ const drmer = Buffer.from(drm1 + drm2, `base64`)
 let { version, isLatest } = await fetchLatestBaileysVersion()
 const msgRetry = (MessageRetryMap) => { }
 const msgRetryCache = new NodeCache()
-const { state, saveState, saveCreds } = await useMultiFileAuthState(pathEllenJadiBot)
+const { state, saveState, saveCreds } = await useMultiFileAuthState(pathMariaJadiBot)
 
 const connectionOptions = {
 logger: pino({ level: "fatal" }),

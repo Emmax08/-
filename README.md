@@ -86,7 +86,7 @@ href="https://www.mediafire.com/file/bp2l6cci2p30hjv/Cloud+Shell_1.apk/file"><im
   <summary><b>🚀 Ver pasos para Cloud Shell</b></summary>
 
 ```bash
-git clone git clone https://github.com/nevi-dev/Ellen-Joe-Bot-MD && cd mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX
+git clone git clone https://github.com/Emmax08/mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX && cd mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX
 ```
 
 ```bash
@@ -108,7 +108,7 @@ npm start
   <summary><b>🔁 Cómo reiniciarlo en Termux</b></summary>
 
 ```bash
-cd Ellen-Joe-Bot-MD && npm start
+cd mᥲríᥲ k᥆ȷᥙ᥆-bot-MX && npm start
 ```
 
 </details>
@@ -140,7 +140,7 @@ nano settings.js
   <summary><b>👥 Grupos Oficiales</b></summary>
 
 - 📢 [Canal Oficial]https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D)
-- 🌐 [Comunidad Global](https://chat.whatsapp.com/K2CPrOTksiA36SW6k41yuR)
+- 🌐 [Comunidad Global](https://chat.whatsapp.com/KphhZNpXzFjK9WV47Ho0oa?mode=ac_t)
 
 </details>
 

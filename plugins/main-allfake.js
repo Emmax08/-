@@ -31,7 +31,7 @@ global.getBuffer = async function getBuffer(url, options) {
 
 // Lista de iconos
 const iconUrls =[
-'https://files.catbox.moe/6q30lk.jpeg',     'https://files.catbox.moe/nvhz1t.jpeg',    'https://files.catbox.moe/qfvoee.jpeg',     'https://files.catbox.moe/ukfp1a.jpeg',      'https://files.catbox.moe/eg9w4g.jpeg',     'https://files.catbox.moe/n78754.jpeg',     'https://qu.ax/wpfMy.jpg',     'https://qu.ax/bmkLn.jpg',     'https://qu.ax/OexcZ.jpg',     'https://qu.ax/seSUR.jpg',     'https://qu.ax/gMgcH.jpg',    'https://qu.ax/OoRQp.jpg',    'https://qu.ax/Jzuqn.jpg',     'https://qu.ax/vRQJA.jpg',   'https://qu.ax/qLyFT.jpg'
+'https://qu.ax/zTXZD.jpg',     'https://qu.ax/udscX.jpg',    'https://qu.ax/lzyKw.jpg',     'https://qu.ax/OexcZ.jpg',      'https://qu.ax/bAMQo.jpg',     'https://qu.ax/aXiAv.jpg',     'https://qu.ax/wpfMy.jpg',     'https://qu.ax/bmkLn.jpg',     'https://qu.ax/OexcZ.jpg',     'https://qu.ax/seSUR.jpg',     'https://qu.ax/gMgcH.jpg',    'https://qu.ax/OoRQp.jpg',    'https://qu.ax/Jzuqn.jpg',     'https://qu.ax/vRQJA.jpg',   'https://qu.ax/qLyFT.jpg'
 ]
 
 // Función para elegir y descargar un icono aleatorio

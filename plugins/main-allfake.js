@@ -79,7 +79,7 @@ global.emoji2 = '👑'
 global.emoji3 = '👑'
 global.emoji4 = '👑'
 global.emoji5 = '👑'
-global.emojis = [emoji, emoji2, emoji3, emoji4].getRandom()
+global.emojis = pickRandom([emoji, emoji2, emoji3, emoji4])
 
 //Espera
 global.wait = '⚘𖠵⃕❖𖥔 𝑪𝒂𝒓𝒈𝒂𝒏𝒅𝒐...ꪶꪾ❍̵̤̂ꫂ\n❝ 𝐴𝑔𝑢𝑎𝑟𝑑𝑒 𝑢𝑛 𝑚𝑜𝑚𝑒𝑛𝑡𝑜 ❞';
@@ -87,7 +87,7 @@ global.wait = '⚘𖠵⃕❖𖥔 𝑪𝒂𝒓𝒈𝒂𝒏𝒅𝒐...ꪶꪾ❍̵�
 //Enlaces
 var canal = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
 let canal2 = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
-var git = 'https://github.com/Emmax08 
+var git = 'https://github.com/Emmax08' 
 var github = 'https://github.com/nevi-dev/mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX' 
 let correo = 'nevijose4@gmail.com'
 global.redes = [canal, canal2, git, github, correo].getRandom()

@@ -88,7 +88,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   const totalComandos = Object.keys(global.plugins || {}).length;
   const tiempoActividad = clockString(process.uptime() * 1000);
   const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
-  const horaSantoDomingo = moment().tz("America/Santo_Domingo").format('h:mm A');
+  const horaCDMX = moment().tz("America/Mexico_City").format('h:mm A');
 
   const videoGif = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
   const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
@@ -163,7 +163,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 👑 |--- *mᥲríᥲ k᥆ȷᥙ᥆-Bot | * ---| 🪽
 | 👤 *Usuario:* ${nombre}
 | 🌎 *Hora CDMX:* ${horaCDMX}
-| 🕒 *Tu Hora (Estimada):* ${horaUsuario}
 |-------------------------------------------|
 | 🚀 *VERSION DEL BOT*
 | ➡️ *Local:* ${localVersion}

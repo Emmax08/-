@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch'; // Keep this for now, but we'll use axios for JSON fetching
+import fetch from 'node-fetch';
 import moment from 'moment-timezone';
-import PhoneNumber from 'awesome-phonenumber';
-import axios from 'axios'; // Import axios for fetching remote JSON
+import axios from 'axios';
 
 const cooldowns = new Map();
 const ultimoMenuEnviado = new Map();
@@ -12,29 +11,26 @@ const newsletterJid = '120363418071540900@newsletter';
 const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot';
 
-// --- Global variable for repository info (customize this!) ---
-const GITHUB_REPO_OWNER = 'Emmax08;
+const GITHUB_REPO_OWNER = 'Emmax08';
 const GITHUB_REPO_NAME = 'mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX';
 const GITHUB_BRANCH = 'main';
 
 let handler = async (m, { conn, usedPrefix }) => {
-  // --- 1. Lectura de la base de datos de medios ---
   let enlacesMultimedia;
   try {
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
     const dbRaw = fs.readFileSync(dbPath);
     enlacesMultimedia = JSON.parse(dbRaw).links;
   } catch (e) {
-    console.error("Error al leer o parsear src/database/db.json:", e);
+    console.error("Error al leer src/database/db.json:", e);
     return conn.reply(m.chat, 'Error al leer la base de datos de medios.', m);
   }
 
   if (m.quoted?.id && m.quoted?.fromMe) return;
 
-  // --- 2. Sistema de Cooldown (Enfriamiento) ---
   const idChat = m.chat;
   const ahora = Date.now();
-  const tiempoEspera = 5 * 60 * 1000; // 5 minutos
+  const tiempoEspera = 5 * 60 * 1000;
 
   const ultimoUso = cooldowns.get(idChat) || 0;
 
@@ -51,7 +47,6 @@ let handler = async (m, { conn, usedPrefix }) => {
     );
   }
 
-  // --- 3. Obtener nombre y hora del usuario (con depuración) ---
   let nombre;
   try {
     nombre = await conn.getName(m.sender);
@@ -59,29 +54,6 @@ let handler = async (m, { conn, usedPrefix }) => {
     nombre = 'Usuario';
   }
 
-  let horaUsuario = 'No disponible';
-  try {
-    const numeroParseado = new PhoneNumber(m.sender);
-    // console.log(`[DEBUG] Analizando JID: ${m.sender}`); // Keep or remove debug logs as needed
-    const esValido = numeroParseado.isValid();
-    // console.log(`[DEBUG] ¿Número válido?: ${esValido}`);
-
-    if (esValido) {
-      const zonasHorarias = numeroParseado.getTimezones();
-      // console.log(`[DEBUG] Zonas horarias encontradas: ${JSON.stringify(zonasHorarias)}`);
-      if (zonasHorarias && zonasHorarias.length > 0) {
-        const zonaHorariaUsuario = zonasHorarias[0];
-        // console.log(`[DEBUG] Usando zona horaria: ${zonaHorariaUsuario}`);
-        horaUsuario = moment().tz(zonaHorariaUsuario).format('h:mm A');
-      } else {
-        // console.log('[DEBUG] El número es válido pero no se encontraron zonas horarias.');
-      }
-    }
-  } catch (e) {
-    console.error("Error al procesar el número con awesome-phonenumber:", e.message);
-  }
-
-  // --- 4. Recopilar información y construir el menú ---
   const esPrincipal = conn.user.jid === global.conn.user.jid;
   const numeroBot = conn.user.jid.split('@')[0];
   const numeroPrincipal = global.conn?.user?.jid?.split('@')[0] || "Desconocido";
@@ -92,6 +64,8 @@ let handler = async (m, { conn, usedPrefix }) => {
 
   const videoGif = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
   const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
+
+  const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
 
   const emojis = {
     'main': '🪽', 'tools': '🛠️', 'audio': '🎧', 'group': '👥',
@@ -121,43 +95,36 @@ let handler = async (m, { conn, usedPrefix }) => {
     return `[${emoji} ${tag.toUpperCase()}]\n` + cmds.map(cmd => `> ${cmd}`).join('\n');
   }).join('\n\n');
 
-  // --- Version Check Logic ---
   let localVersion = 'N/A';
   let serverVersion = 'N/A';
   let updateStatus = 'Desconocido';
 
   try {
-    // Get local version from package.json
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
     const packageJson = JSON.parse(packageJsonRaw);
     localVersion = packageJson.version || 'N/A';
   } catch (error) {
-    console.error("Error al leer la versión local de package.json:", error.message);
+    console.error("Error al leer la versión local:", error.message);
     localVersion = 'Error';
   }
 
   try {
-    // Get server version from GitHub
     const githubPackageJsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/${GITHUB_BRANCH}/package.json`;
     const response = await axios.get(githubPackageJsonUrl);
     const githubPackageJson = response.data;
     serverVersion = githubPackageJson.version || 'N/A';
 
     if (localVersion !== 'N/A' && serverVersion !== 'N/A') {
-      if (localVersion === serverVersion) {
-        updateStatus = '✅ En última versión';
-      } else {
-        updateStatus = `⚠️ Actualización disponible. Actualiza con *${usedPrefix}update*`;
-      }
+      updateStatus = (localVersion === serverVersion)
+        ? '✅ En última versión'
+        : `⚠️ Actualización disponible. Actualiza con *${usedPrefix}update*`;
     }
   } catch (error) {
-    console.error("Error al obtener la versión del servidor de GitHub:", error.message);
+    console.error("Error al obtener versión remota:", error.message);
     serverVersion = 'Error';
     updateStatus = '❌ No se pudo verificar la actualización';
   }
-  // --- End Version Check Logic ---
-
 
   const encabezado = `
 👑 |--- *mᥲríᥲ k᥆ȷᥙ᥆-Bot | * ---| 🪽
@@ -178,7 +145,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 
   const textoFinal = `${encabezado}\n\n${secciones}\n\n*${packname}*`;
 
-  // --- 5. Enviar el mensaje ---
   const contextInfo = {
     mentionedJid: [m.sender],
     isForwarded: true,
@@ -192,7 +158,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       title: packname,
       body: '👑 Menú de Comandos | mᥲríᥲ k᥆ȷᥙ᥆-Bot 🪽',
       thumbnailUrl: miniaturaRandom,
-      sourceUrl: redes, // Make sure 'redes' is defined elsewhere in your global scope or file
+      sourceUrl: redes,
       mediaType: 1,
       renderLargerThumbnail: false
     }
@@ -211,7 +177,6 @@ let handler = async (m, { conn, usedPrefix }) => {
     msgEnviado = await conn.reply(idChat, textoFinal, m, { contextInfo });
   }
 
-  // --- 6. Actualizar el estado del cooldown ---
   cooldowns.set(idChat, ahora);
   ultimoMenuEnviado.set(idChat, {
     timestamp: ahora,

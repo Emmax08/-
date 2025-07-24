@@ -9,12 +9,12 @@ const cooldowns = new Map();
 const ultimoMenuEnviado = new Map();
 
 const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏᴇ\'s 𝐒ervice';
-const packname = '˚🄴🄻🄻🄴🄽-🄹🄾🄴-🄱🄾🅃';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
+const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot';
 
 // --- Global variable for repository info (customize this!) ---
-const GITHUB_REPO_OWNER = 'nevi-dev';
-const GITHUB_REPO_NAME = 'Ellen-Joe-Bot-MD';
+const GITHUB_REPO_OWNER = 'Emmax08;
+const GITHUB_REPO_NAME = 'mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX';
 const GITHUB_BRANCH = 'main';
 
 let handler = async (m, { conn, usedPrefix }) => {
@@ -45,7 +45,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     const ultimo = ultimoMenuEnviado.get(idChat);
     return await conn.reply(
       idChat,
-      `@${m.sender.split('@')[0]} cálmate tiburón! 🦈 Debes esperar para volver a usar el menú.\nTiempo restante: *${minutos}m ${segundos}s*`,
+      `@${m.sender.split('@')[0]} cálmate tiburón! 👑 Debes esperar para volver a usar el menú.\nTiempo restante: *${minutos}m ${segundos}s*`,
       ultimo?.message || m,
       { mentions: [m.sender] }
     );
@@ -94,7 +94,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
 
   const emojis = {
-    'main': '🦈', 'tools': '🛠️', 'audio': '🎧', 'group': '👥',
+    'main': '🪽', 'tools': '🛠️', 'audio': '🎧', 'group': '👥',
     'owner': '👑', 'fun': '🎮', 'info': 'ℹ️', 'internet': '🌐',
     'downloads': '⬇️', 'admin': '🧰', 'anime': '✨', 'nsfw': '🔞',
     'search': '🔍', 'sticker': '🖼️', 'game': '🕹️', 'premium': '💎', 'bot': '🤖'
@@ -160,9 +160,9 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 
   const encabezado = `
-🦈 |--- *Ellen-Joe-Bot | MODO TIBURÓN* ---| 🦈
+👑 |--- *mᥲríᥲ k᥆ȷᥙ᥆-Bot | * ---| 🪽
 | 👤 *Usuario:* ${nombre}
-| 🌎 *Hora Santo Domingo:* ${horaSantoDomingo}
+| 🌎 *Hora CDMX:* ${horaCDMX}
 | 🕒 *Tu Hora (Estimada):* ${horaUsuario}
 |-------------------------------------------|
 | 🚀 *VERSION DEL BOT*
@@ -191,7 +191,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     },
     externalAdReply: {
       title: packname,
-      body: '🦈 Menú de Comandos | Ellen-Joe-Bot 🦈',
+      body: '👑 Menú de Comandos | mᥲríᥲ k᥆ȷᥙ᥆-Bot 🪽',
       thumbnailUrl: miniaturaRandom,
       sourceUrl: redes, // Make sure 'redes' is defined elsewhere in your global scope or file
       mediaType: 1,

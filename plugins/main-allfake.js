@@ -31,7 +31,7 @@ global.getBuffer = async function getBuffer(url, options) {
 
 // Lista de iconos
 const iconUrls =[
-'https://files.catbox.moe/6q30lk.jpeg',     'https://files.catbox.moe/nvhz1t.jpeg',    'https://files.catbox.moe/qfvoee.jpeg',     'https://files.catbox.moe/ukfp1a.jpeg',      'https://files.catbox.moe/eg9w4g.jpeg',     'https://files.catbox.moe/n78754.jpeg',     'https://files.catbox.moe/rlqy7g.jpeg',     'https://files.catbox.moe/c6bzo7.jpeg',     'https://files.catbox.moe/2hx17d.jpeg',     'https://files.catbox.moe/9zflws.jpeg',     'https://files.catbox.moe/6jb5kx.jpeg',    'https://files.catbox.moe/qveue1.jpeg',    'https://files.catbox.moe/6q30lk.jpeg',     'https://files.catbox.moe/7nhb1w.jpeg',   'https://files.catbox.moe/6htc0b.jpeg'
+'https://files.catbox.moe/6q30lk.jpeg',     'https://files.catbox.moe/nvhz1t.jpeg',    'https://files.catbox.moe/qfvoee.jpeg',     'https://files.catbox.moe/ukfp1a.jpeg',      'https://files.catbox.moe/eg9w4g.jpeg',     'https://files.catbox.moe/n78754.jpeg',     'https://qu.ax/wpfMy.jpg',     'https://qu.ax/bmkLn.jpg',     'https://qu.ax/OexcZ.jpg',     'https://qu.ax/seSUR.jpg',     'https://qu.ax/gMgcH.jpg',    'https://qu.ax/OoRQp.jpg',    'https://qu.ax/Jzuqn.jpg',     'https://qu.ax/vRQJA.jpg',   'https://qu.ax/qLyFT.jpg'
 ]
 
 // Función para elegir y descargar un icono aleatorio
@@ -43,19 +43,19 @@ const iconUrl = pickRandom(iconUrls)
 global.icono = await getBuffer(iconUrl)
 
 //creador y otros
-global.creador = 'Wa.me/18096758983'
+global.creador = 'Wa.me/5217225305296'
 global.ofcbot = `${conn.user.jid.split('@')[0]}`
-global.asistencia = 'Wa.me/18096758983'
+global.asistencia = 'Wa.me/5217225305296'
 global.namechannel = '*Ellen-Joe-BOT-CHANNEL*'
 global.namechannel2 = '*Ellen-Joe-BOT-CHANNEL*'
-global.namegrupo = '*Ellen-Joe-BOT-OFICIAL*'
-global.namecomu = '*Ellen-Joe-BOT-COMMUNITY*'
-global.listo = '🦈 *Aquí tienes ฅ^•ﻌ•^ฅ*'
+global.namegrupo = '*mᥲríᥲ k᥆ȷᥙ᥆-BOT-OFICIAL*'
+global.namecomu = '*mᥲríᥲ k᥆ȷᥙ᥆-BOT-COMMUNITY*'
+global.listo = '👑 *Aquí tienes ฅ^•ﻌ•^ฅ*'
 global.fotoperfil = await conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg')
 
 //Ids channel
-global.canalIdM = ["120363418071540900@newsletter", "120363418071540900@newsletter"]
-global.canalNombreM = ["⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏᴇ\'s 𝐒ervice", "⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏᴇ\'s 𝐒ervice"]
+global.canalIdM = ["120363401893800327@newsletter", "120363401893800327@newsletter"]
+global.canalNombreM = ["⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice", "⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice"]
 global.channelRD = await getRandomChannel()
 
 //fechas
@@ -73,22 +73,22 @@ global.done = '✅'
 global.error = '✖️'
 global.msm = '⚠︎'
 
-//Emojis Ellen Bot
-global.emoji = '🦈'
-global.emoji2 = '🦈'
-global.emoji3 = '🦈'
-global.emoji4 = '🦈'
-global.emoji5 = '🦈'
+//Emojis Maria kojuo 
+global.emoji = '👑'
+global.emoji2 = '👑'
+global.emoji3 = '👑'
+global.emoji4 = '👑'
+global.emoji5 = '👑'
 global.emojis = [emoji, emoji2, emoji3, emoji4].getRandom()
 
 //Espera
 global.wait = '⚘𖠵⃕❖𖥔 𝑪𝒂𝒓𝒈𝒂𝒏𝒅𝒐...ꪶꪾ❍̵̤̂ꫂ\n❝ 𝐴𝑔𝑢𝑎𝑟𝑑𝑒 𝑢𝑛 𝑚𝑜𝑚𝑒𝑛𝑡𝑜 ❞';
 
 //Enlaces
-var canal = 'https://whatsapp.com/channel/0029VbAuMiNCBtxOKcBfw71x'
-let canal2 = 'https://whatsapp.com/channel/0029VbAuMiNCBtxOKcBfw71x'
-var git = 'https://github.com/nevi-dev'
-var github = 'https://github.com/nevi-dev/Ellen-Joe-Bot-MD' 
+var canal = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
+let canal2 = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
+var git = 'https://github.com/Emmax08 
+var github = 'https://github.com/nevi-dev/mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX' 
 let correo = 'nevijose4@gmail.com'
 global.redes = [canal, canal2, git, github, correo].getRandom()
 
@@ -120,7 +120,7 @@ global.taguser = '@' + m.sender.split("@")[0]
 var more = String.fromCharCode(8206)
 global.readMore = more.repeat(850)
 
-global.packsticker = `°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°\n🦈 Usuario: ${nombre}\n🦈 Bot: ${botname}\n🦈 Fecha: ${fecha}\n🦈 Hora: ${tiempo}`;
+global.packsticker = `°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°\n🪽 Usuario: ${nombre}\n🪽 Bot: ${botname}\n🪽 Fecha: ${fecha}\n🪽 Hora: ${tiempo}`;
 
 // rcanaɭ con icono como buffer
 global.rcanal = {

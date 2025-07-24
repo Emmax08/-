@@ -1,5 +1,5 @@
 
-<h1 align="center">🦈--Ellen Joe Bot MD--🦈</h1>
+<h1 align="center">🪽--mᥲríᥲ k᥆ȷᥙ᥆ Bot MX--🍂</h1>
 
 <p align="center">
   <img src="https://github.com/nevi-dev/nevi-dev/blob/main/xd/ezgif.com-video-to-gif-converter.gif?raw=true" alt="Ellen Joe Bot MD Preview" />
@@ -18,10 +18,10 @@
 
 ---
 
-## 🧩 𝐅𝐮𝐧𝐜𝐢𝐨𝐧𝐞𝐬 𝐝𝐞 Ellen
+## 🧩 𝐅𝐮𝐧𝐜𝐢𝐨𝐧𝐞𝐬 𝐝𝐞 maria
 
 <details>
-  <summary><b>🦈𝐓𝐨𝐝𝐨 𝐥𝐨 𝐪𝐮𝐞 𝐩𝐮𝐞𝐝𝐞 𝐡𝐚𝐜𝐞𝐫</b></summary>
+  <summary><b>👑𝐓𝐨𝐝𝐨 𝐥𝐨 𝐪𝐮𝐞 𝐩𝐮𝐞𝐝𝐞 𝐡𝐚𝐜𝐞𝐫</b></summary>
 
 - 👥 Gestión de grupos (bienvenidas, reglas, etc.)
 - 🛡️ Antidelete, antilink, antispam
@@ -58,7 +58,7 @@ apt update && apt upgrade && pkg install -y git nodejs ffmpeg imagemagick yarn
 ```
 
 ```bash
-git clone https://github.com/nevi-dev/Ellen-Joe-Bot-MD && cd Ellen-Joe-Bot-MD
+git clone https://github.com/Emmax08/Maria-Kojuo-Bot-MX&& cd mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX
 ```
 
 ```bash
@@ -86,7 +86,7 @@ href="https://www.mediafire.com/file/bp2l6cci2p30hjv/Cloud+Shell_1.apk/file"><im
   <summary><b>🚀 Ver pasos para Cloud Shell</b></summary>
 
 ```bash
-git clone git clone https://github.com/nevi-dev/Ellen-Joe-Bot-MD && cd Ellen-Joe-Bot-MD
+git clone git clone https://github.com/nevi-dev/Ellen-Joe-Bot-MD && cd mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX
 ```
 
 ```bash
@@ -121,7 +121,7 @@ cd Ellen-Joe-Bot-MD && npm start
   <summary><b>🔑 edita el archivo y Agrega tu número como Owner</b></summary>
 
 ```bash
-cd Ellen-Joe-Bot-MD
+cd mᥲríᥲ k᥆ȷᥙ᥆-Bot-MX
 ```
 
 ```bash
@@ -139,7 +139,7 @@ nano settings.js
 <details>
   <summary><b>👥 Grupos Oficiales</b></summary>
 
-- 📢 [Canal Oficial](https://whatsapp.com/channel/0029VakLbM76mYPPFL0IFI3P)
+- 📢 [Canal Oficial]https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D)
 - 🌐 [Comunidad Global](https://chat.whatsapp.com/K2CPrOTksiA36SW6k41yuR)
 
 </details>
@@ -147,16 +147,16 @@ nano settings.js
 <details>
   <summary><b>📞 Contacto</b></summary>
 
-- 📱 WhatsApp: 18096758983
+- 📱 WhatsApp: 5217225305296
 
 </details>
 
 ---
 
-## 👑 𝐂𝐫𝐞𝐚𝐝𝐨𝐫 𝐝𝐞 Ellen Joe
+## 👑 𝐂𝐫𝐞𝐚𝐝𝐨𝐫 𝐝𝐞 mᥲríᥲ k᥆ȷᥙ᥆
 
 
-<a href="https://github.com/nevi-dev"><img src="https://github.com/nevi-dev.png" width="250" height="250" alt="Nevi"/></a>
+<a href="https://github.com/Emmax08"><img src="https://github.com/Emmax08.png" width="250" height="250" alt="Emmax"/></a>
 
 ---
 

@@ -51,7 +51,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 ║ • Experiencia » 245 🪙
 ║ • Tokens » 10 💸
 ╚═══════════════════════
-> 『🦈』¡Gracias por usar Ellen-Joe-Bot!
+> 『👑』¡Gracias por usar mᥲríᥲ k᥆ȷᥙ᥆-Bot!
 `;
 
     await conn.sendMessage(m.chat, {
@@ -67,14 +67,14 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
     }, { quoted: m });
 
     // Envío silencioso al canal, solo si el bot es admin
-    let chtxt = `🩰 ɴᥱ𝒘 𝙍𝙐𝘽𝙔 𝙃𝙊𝙎𝙃𝙄𝙉𝙊 𝙐𝙎𝙀𝙍 ꜜ
+    let chtxt = `🩰 ɴᥱ𝒘 mᥲríᥲ k᥆ȷᥙ᥆ 𝙐𝙎𝙀𝙍 ꜜ
 ˚₊· ➳💎 *𝗨𝘀𝘂𝗮𝗿𝗶𝗼:* ${m.pushName || 'Anónimo'}    
 ˚₊· ➳📂 *𝗩𝗲𝗿𝗶𝗳𝗶𝗰𝗮𝗰𝗶𝗼́𝗻:* ${user.name}    
 ˚₊· ➳🍰 *𝗘𝗱𝗮𝗱:* ${user.age} años    
 ˚₊· ➳⌨️ *𝗥𝗲𝗴𝗶𝘀𝘁𝗿𝗼 𝗜𝗗:*  
 ⤷ ${sn}`;
 
-    let channelID = '120363397177582655@newsletter';
+    let channelID = '120363401893800327@newsletter';
     try {
         let metadata = await conn.groupMetadata(channelID);
         let botID = conn.user.jid;

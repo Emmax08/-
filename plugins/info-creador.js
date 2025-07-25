@@ -6,7 +6,7 @@ async function handler(m, { conn }) {
   const contactos = [
     {
       numero: '5217225305296',
-      nombre: '⏤͟͞ू⃪ ፝͜⁞Emmax-kunִֶ ࣪˖ ִֶָ🪽་༘',
+      nombre: '⏤͟͞ू⃪ ፝͜⁞👑Emmax-kunִֶ ࣪˖ ִֶָ🪽་༘',
       cargo: 'Dueño Principal',
       nota: 'Creador del Bot',
       correo: 'selinapasena@gmail.com',

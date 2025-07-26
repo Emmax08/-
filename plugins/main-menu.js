@@ -41,7 +41,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     const ultimo = ultimoMenuEnviado.get(idChat);
     return await conn.reply(
       idChat,
-      `@${m.sender.split('@')[0]} cálmate tiburón! 👑 Debes esperar para volver a usar el menú.\nTiempo restante: *${minutos}m ${segundos}s*`,
+      `@${m.sender.split('@')[0]} cálmate amigo! 👑 Debes esperar para volver a usar el menú.\nTiempo restante: *${minutos}m ${segundos}s*`,
       ultimo?.message || m,
       { mentions: [m.sender] }
     );

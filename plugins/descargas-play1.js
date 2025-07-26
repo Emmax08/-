@@ -5,8 +5,8 @@ import axios from 'axios';
 
 const SIZE_LIMIT_MB = 100; // Not used in the provided snippet, but kept for context.
 const MIN_AUDIO_SIZE_BYTES = 50000;
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⸙ְ̻࠭ꪆ🦈 𝐄llen 𝐉ᴏᴇ 𖥔 Sᥱrvice';
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⸙ְ̻࠭ꪆ👑 mᥲríᥲ k᥆ȷᥙ᥆ 𖥔 Sᥱrvice';
 
 const handler = async (m, { conn, args, usedPrefix, command }) => {
   const name = conn.getName(m.sender);

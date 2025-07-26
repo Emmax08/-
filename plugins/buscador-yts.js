@@ -2,7 +2,7 @@ import yts from 'yt-search'
 
 // --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
 const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 var handler = async (m, { text, conn, args, command, usedPrefix }) => {
     const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ var handler = async (m, { text, conn, args, command, usedPrefix }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Pista localizada. 🦈',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: global.icono, // Ensure 'icons' and 'redes' are globally defined
             sourceUrl: global.redes,
@@ -27,7 +27,7 @@ var handler = async (m, { text, conn, args, command, usedPrefix }) => {
     };
 
     if (!text) {
-        return conn.reply(m.chat, `🦈 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para iniciar el barrido en YouTube.`, m, { contextInfo, quoted: m });
+        return conn.reply(m.chat, `🪽 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para iniciar el barrido en YouTube.`, m, { contextInfo, quoted: m });
     }
 
     conn.reply(m.chat, `🔄 *Iniciando protocolo de barrido en YouTube, Proxy ${name}.* Aguarda, la carga de datos está siendo procesada.`, m, { contextInfo, quoted: m });

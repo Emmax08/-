@@ -7,7 +7,7 @@ import axios from 'axios';
 const cooldowns = new Map();
 const ultimoMenuEnviado = new Map();
 
-const newsletterJid = '120363418071540900@newsletter';
+const newsletterJid = '120363401893800327@newsletter';
 const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot';
 

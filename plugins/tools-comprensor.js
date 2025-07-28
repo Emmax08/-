@@ -31,7 +31,7 @@ const handler = async (m, { conn }) => {
       m.chat,
       outputPath,
       'comprimida.jpg',
-      `🎯 *¡Imagen comprimida!*\n✨ *Calidad optimizada con éxito*\n🔧 *by 🦈Ellen Joe Bot🦈*`,
+      `🎯 *¡Imagen comprimida!*\n✨ *Calidad optimizada con éxito*\n🔧 *by 👑mᥲríᥲ k᥆ȷᥙ᥆ Bot🪽*`,
       m
     );
 

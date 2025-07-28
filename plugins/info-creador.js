@@ -27,7 +27,7 @@ async function handler(m, { conn }) {
     {
       numero: '18294868853',
       nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘',',
-      cargo: 'Dueño Principal',
+      cargo: 'Decorador e editor ',
       nota: 'Cada dia mas en depresion ,
       correo: 'selinapasena@gmail.com',
       region: '🇩🇴 RepúblicaDominicana,

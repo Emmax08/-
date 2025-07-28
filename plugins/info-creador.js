@@ -25,7 +25,7 @@ async function handler(m, { conn }) {
       biografia: await conn.fetchStatus('18096758983@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },
     {
-      numero: '527225305296',
+      numero: '5217225305296',
       nombre: '𝙀𝙢𝙢𝙖-𝙠𝙪𝙣',
       cargo: 'Dueño Principal',
       nota: 'Creador del Bot',

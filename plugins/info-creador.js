@@ -6,9 +6,9 @@ async function handler(m, { conn }) {
   const contactos = [
     {
       numero: '5217225305296',
-      nombre: ' ִֶ ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘',
+      nombre: ' ִֶ ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘'
       cargo: 'Creador de la bot ♡',
-      nota: '',
+      nota: 'Creador y editor ,
       correo: 'emmanuelben2009@gmail.com',
       region: '🇲🇽 CDMX',
       web: 'https://github.com/Emmax08,

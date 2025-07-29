@@ -30,7 +30,7 @@ async function handler(m, { conn }) {
       numero: '18294868853',
       nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘', 
       cargo: 'Decorador e editor',
-      nota: ' '┐(￣ー￣)┌',
+      nota:  '┐(￣ー￣)┌',
       correo: 'selinapasena@gmail.com',
       region: '🇩🇴 RepúblicaDominicana',
       web: 'https://github.com/Dioneibi-rip',

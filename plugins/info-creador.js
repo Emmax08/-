@@ -3,15 +3,17 @@ import PhoneNumber from 'awesome-phonenumber'
 async function handler(m, { conn }) {
   m.react('📇')
 
+//me la re chupan :) 
+
   const contactos = [
     {
       numero: '5217225305296',
-      nombre: ' ִֶ ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘'
+      nombre: ' ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘', 
       cargo: 'Creador de la bot ♡',
-      nota: 'Creador y editor ,
+      nota: 'Creador y editor',
       correo: 'emmanuelben2009@gmail.com',
       region: '🇲🇽 CDMX',
-      web: 'https://github.com/Emmax08,
+      web: 'https://github.com/Emmax08',
       biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },
     {
@@ -26,12 +28,12 @@ async function handler(m, { conn }) {
     },
     {
       numero: '18294868853',
-      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘',',
-      cargo: 'Decorador e editor ',
-      nota: ' '',
+      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘', 
+      cargo: 'Decorador e editor',
+      nota: ' '┐(￣ー￣)┌',
       correo: 'selinapasena@gmail.com',
-      region: '🇩🇴 RepúblicaDominicana,
-      web: 'https://github.com/Dioneibi-rip,
+      region: '🇩🇴 RepúblicaDominicana',
+      web: 'https://github.com/Dioneibi-rip',
       biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     }
   ]

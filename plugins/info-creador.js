@@ -10,7 +10,7 @@ async function handler(m, { conn }) {
       cargo: 'Creador de la bot ♡',
       nota: 'Todos los sueños cumplen',
       correo: 'emmanuelben2009@gmail.com',
-      region: '🇲🇽CDMX',
+      region: '🇲🇽 CDMX',
       web: 'https://github.com/Emmax08,
       biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },

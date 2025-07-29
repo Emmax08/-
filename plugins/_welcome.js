@@ -36,7 +36,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
   let guildName = encodeURIComponent(groupMetadata.subject);
   let apiBase = "https://api.siputzx.my.id/api/canvas";
   let welcomeApiUrl = `${apiBase}/welcomev2?username=${username}&guildName=${guildName}&memberCount=${memberCount}&avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent('https://files.catbox.moe/w1r8jh.jpeg')}`;
-  let goodbyeApiUrl = `${apiBase}/goodbyev2?username=${username}&guildName=${guildName}&memberCount=${memberCount}&avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent('https://files.catbox.moe/w1r8jh.jpeg')}`;
+  let goodbyeApiUrl = `${apiBase}/goodbyev2?username=${username}&guildName=${guildName}&memberCount=${memberCount}&avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent('')}`;
 
   async function fetchImage(url, fallbackUrl) {
     try {
@@ -44,7 +44,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
       if (!res.ok) throw new Error('Error al descargar imagen');
       return await res.buffer();
     } catch {
-      const fallbackRes = await fetch(fallbackUrl);
+ https://files.catbox.moe/ghhsou.jpg     const fallbackRes = await fetch(fallbackUrl);
       return await fallbackRes.buffer();
     }
   }

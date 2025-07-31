@@ -1,8 +1,8 @@
 import { search, download } from 'aptoide-scraper';
 
-// --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+// --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 var handler = async (m, { conn, usedPrefix, command, text }) => {
     const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ var handler = async (m, { conn, usedPrefix, command, text }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Pista localizada. 🦈',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
             body: `Processing request for Proxy ${name}...`,
             thumbnail: icons, // Ensure 'icons' and 'redes' are globally defined
             sourceUrl: redes,
@@ -29,7 +29,7 @@ var handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!text) {
         return conn.reply(
             m.chat,
-            `🦈 *Rastro frío, Proxy ${name}.* Necesito la designación de la APK para iniciar la extracción.\n\n_Example: ${usedPrefix + command} whatsapp_`,
+            `👑 *Rastro frío, Proxy ${name}.* Necesito la designación de la APK para iniciar la extracción.\n\n_Example: ${usedPrefix + command} whatsapp_`,
             m,
             { contextInfo, quoted: m }
         );

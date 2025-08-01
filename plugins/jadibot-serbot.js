@@ -39,7 +39,7 @@ let rtx2 = `✐ Cσɳҽxισɳ SυႦ-Bσƚ Mσԃҽ Cσԃҽ\n
 \`4\` » Escriba el Código para iniciar sesion con el bot\n
 ✧ No es recomendable usar tu cuenta principal.\n
          [mᥲríᥲ k᥆ȷᥙ᥆]
-               [BY: Emmax08]`
+               [BY: Emmax-kun]`
                 
 
 const __filename = fileURLToPath(import.meta.url)

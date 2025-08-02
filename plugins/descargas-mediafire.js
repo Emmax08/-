@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 
-// --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+// --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Pista localizada. 🦈',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: icons, // Ensure 'icons' and 'redes' are globally defined
             sourceUrl: redes,

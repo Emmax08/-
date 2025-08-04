@@ -53,8 +53,8 @@ global.fkontak = {
 	},
 	message: {
 		contactMessage: {
-			displayName: `Ellen-Joe Bot`,
-			vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;Ellen-Joe Bot;;;\nFN:Ellen-Joe Bot\nitem1.TEL;waid=1234567890:1234567890\nitem1.X-ABLabel:Bot\nEND:VCARD`
+			displayName: `mᥲríᥲ k᥆ȷᥙ᥆ Bot`,
+			vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;mᥲríᥲ k᥆ȷᥙ᥆ Bot;;;\nFN:mᥲríᥲ k᥆ȷᥙ᥆ Bot\nitem1.TEL;waid=1234567890:1234567890\nitem1.X-ABLabel:Bot\nEND:VCARD`
 		}
 	}
 };
@@ -78,7 +78,7 @@ global.moneda = 'Wones'
 global.welcom1 = '❍ Edita Con El Comando setwelcome'
 global.welcom2 = '❍ Edita Con El Comando setbye'
 global.banner = 'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1747289219876.jpeg'
-global.avatar = 'https://qu.ax/RYjEw.jpeg'
+global.avatar = 'https://files.catbox.moe/d2b1e8.jpg'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 

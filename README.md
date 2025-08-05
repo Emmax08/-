@@ -1,5 +1,5 @@
 
-<h1 align="center">🪽--mᥲríᥲ k᥆ȷᥙ᥆ Bot MX--🍂</h1>
+<h1 align="center">🪽--mᥲríᥲ k᥆ȷᥙ᥆ Bot MD--🍂</h1>
 
 <p align="center">
   <img src="https://github.com/Emmax08/Emmax08/blob/main/xd/ezgif.com-video-to-gif-converter.gif?raw=true" alt="mᥲríᥲ k᥆ȷᥙ᥆ MX Preview" />

@@ -2,14 +2,14 @@ import axios from 'axios';
 // Destructuring generateWAMessageContent, generateWAMessageFromContent, proto directly from baileys
 const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import("@whiskeysockets/baileys"))["default"];
 
-// --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+// --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
+const newsletterJid = '';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
   const name = conn.getName(m.sender); // Identifying the Proxy
 
-  const contextInfo = {
+120363401893800327@newsletter  const contextInfo = {
     mentionedJid: [m.sender],
     isForwarded: true,
     forwardingScore: 999,
@@ -19,7 +19,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       serverMessageId: -1
     },
     externalAdReply: {
-      title: 'Ellen Joe: Pista localizada. 🦈',
+      title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
       body: `Procesando solicitud para el/la Proxy ${name}...`,
       thumbnail: icons, // Ensure 'icons' and 'redes' are globally defined
       sourceUrl: redes,
@@ -29,7 +29,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   };
 
   if (!text) {
-    return conn.reply(m.chat, `🦈 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para localizar imágenes en Pinterest.`, m, { contextInfo, quoted: m });
+    return conn.reply(m.chat, `👑 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para localizar imágenes en Pinterest.`, m, { contextInfo, quoted: m });
   }
 
   await m.react('🔄'); // Processing reaction

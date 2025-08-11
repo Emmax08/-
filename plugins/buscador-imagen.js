@@ -1,8 +1,8 @@
 import { googleImage } from '@bochilteam/scraper';
 
-// --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+// --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
     const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Pista localizada. 🦈',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: icons, // Ensure 'icons' and 'redes' are globally defined
             sourceUrl: redes,
@@ -27,7 +27,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     };
 
     if (!text) {
-        return conn.reply(m.chat, `🦈 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para localizar imágenes.`, m, { contextInfo, quoted: m });
+        return conn.reply(m.chat, `🌸 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para localizar imágenes.`, m, { contextInfo, quoted: m });
     }
 
     await m.react('🔄'); // Processing reaction

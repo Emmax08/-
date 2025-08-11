@@ -2,8 +2,8 @@ import axios from 'axios';
 import fetch from 'node-fetch';
 
 // --- Constantes y Configuración ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 // --- Handler Principal (Sin cambios) ---
 let handler = async (m, { conn, text, usedPrefix, command }) => {
@@ -19,7 +19,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Frecuencia localizada. 📻',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Frecuencia localizada. 📻',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: icons,
             sourceUrl: redes,

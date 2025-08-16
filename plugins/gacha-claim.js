@@ -22,6 +22,23 @@ async function saveCharacters(characters) {
     }
 }
 
+async function loadHarem() {
+    try {
+        const data = await fs.readFile(haremFilePath, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        return [];
+    }
+}
+
+async function saveHarem(harem) {
+    try {
+        await fs.writeFile(haremFilePath, JSON.stringify(harem, null, 2), 'utf-8');
+    } catch (error) {
+        throw new Error('❀ No se pudo guardar el archivo harem.json.');
+    }
+}
+
 let handler = async (m, { conn }) => {
     const userId = m.sender;
     const now = Date.now();
@@ -36,6 +53,7 @@ let handler = async (m, { conn }) => {
     if (m.quoted && m.quoted.sender === conn.user.jid) {
         try {
             const characters = await loadCharacters();
+            const harem = await loadHarem();
 
             const characterIdMatch = m.quoted.text.match(/𝑰𝑫\s*:\s*\*([^*]+)\*/i);
 
@@ -61,16 +79,25 @@ let handler = async (m, { conn }) => {
 
             character.user = userId;
             character.status = "Reclamado";
-
             await saveCharacters(characters);
 
-            await conn.reply(m.chat, `✦ Has reclamado a *${character.name}* con éxito.`, m);
-            cooldowns[userId] = now + 30 * 60 * 1000; // 30 min
+            let userHarem = harem.find(entry => entry.userId === userId);
+            if (!userHarem) {
+                userHarem = { userId, characters: [] };
+                harem.push(userHarem);
+            }
+            if (!userHarem.characters.includes(characterId)) {
+                userHarem.characters.push(characterId);
+            }
+            await saveHarem(harem);
+
+            await conn.reply(m.chat, `✦ Has reclamado a *${character.name}* con éxito, ahora está en tu harem ✨`, m);
+
+            cooldowns[userId] = now + 30 * 60 * 1000; // 30 min cooldown
 
         } catch (error) {
             await conn.reply(m.chat, `✘ Error al reclamar el personaje: ${error.message}`, m);
         }
-
     } else {
         await conn.reply(m.chat, '《✧》Debes citar un personaje válido para reclamar.', m);
     }

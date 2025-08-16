@@ -36,24 +36,27 @@ let handler = async (m, { conn }) => {
     if (m.quoted && m.quoted.sender === conn.user.jid) {
         try {
             const characters = await loadCharacters();
-        const characterIdMatch = m.quoted.text.match(/✦ ID: \*(.+?)\*/);
+
+            const characterIdMatch = m.quoted.text.match(/ID\s*:\s*\*([^*]+)\*/i);
 
             if (!characterIdMatch) {
-                await conn.reply(m.chat, '《✧》No se pudo encontrar el ID del personaje en el mensaje citado.', m);
-                return;
+                return await conn.reply(m.chat, '《✧》No se pudo encontrar el ID del personaje en el mensaje citado.', m);
             }
 
-            const characterId = characterIdMatch[1];
+            const characterId = characterIdMatch[1].trim();
             const character = characters.find(c => c.id === characterId);
 
             if (!character) {
-                await conn.reply(m.chat, '《✧》El mensaje citado no es un personaje válido.', m);
-                return;
+                return await conn.reply(m.chat, '《✧》El mensaje citado no es un personaje válido.', m);
             }
 
             if (character.user && character.user !== userId) {
-                await conn.reply(m.chat, `《✧》El personaje ya ha sido reclamado por @${character.user.split('@')[0]}, inténtalo a la próxima :v.`, m, { mentions: [character.user] });
-                return;
+                return await conn.reply(
+                    m.chat,
+                    `《✧》El personaje ya ha sido reclamado por @${character.user.split('@')[0]}, inténtalo a la próxima ✦`,
+                    m,
+                    { mentions: [character.user] }
+                );
             }
 
             character.user = userId;
@@ -62,7 +65,7 @@ let handler = async (m, { conn }) => {
             await saveCharacters(characters);
 
             await conn.reply(m.chat, `✦ Has reclamado a *${character.name}* con éxito.`, m);
-            cooldowns[userId] = now + 30 * 60 * 1000;
+            cooldowns[userId] = now + 30 * 60 * 1000; // 30 min
 
         } catch (error) {
             await conn.reply(m.chat, `✘ Error al reclamar el personaje: ${error.message}`, m);

@@ -47,7 +47,11 @@ let handler = async (m, { conn }) => {
         const remainingTime = Math.ceil((cooldowns[userId] - now) / 1000)
         const minutes = Math.floor(remainingTime / 60)
         const seconds = remainingTime % 60
-        return await conn.reply(m.chat, `《✧》Debes esperar *${minutes} minutos y ${seconds} segundos* para usar *#rw* de nuevo.`, m)
+        return await conn.reply(
+            m.chat, 
+            `⏳ Debes esperar *${minutes}m ${seconds}s* antes de volver a usar *#rw* ✦`, 
+            m
+        )
     }
 
     try {
@@ -57,25 +61,36 @@ let handler = async (m, { conn }) => {
 
         const harem = await loadHarem()
         const userEntry = harem.find(entry => entry.characterId === randomCharacter.id)
-        const statusMessage = randomCharacter.user 
-            ? `Reclamado por @${randomCharacter.user.split('@')[0]}` 
-            : 'Libre'
 
-        const message = `❀ Nombre » *${randomCharacter.name}*
-⚥ Género » *${randomCharacter.gender}*
-✰ Valor » *${randomCharacter.value}*
-♡ Estado » ${statusMessage}
-❖ Fuente » *${randomCharacter.source}*
-✦ ID: *${randomCharacter.id}*`
+        const statusMessage = randomCharacter.user 
+            ? `👤 Reclamado por @${randomCharacter.user.split('@')[0]}`
+            : '💫 Libre'
+
+        const message = 
+`╭─❖ ✦ 𝐑𝐨𝐥𝐥 𝐆𝐚𝐜𝐡𝐚 ✦ ❖─╮
+┃ ✿ 𝑵𝒐𝒎𝒃𝒓𝒆: *${randomCharacter.name}*
+┃ ⚤ 𝑮é𝒏𝒆𝒓𝒐: *${randomCharacter.gender}*
+┃ ✰ 𝑽𝒂𝒍𝒐𝒓: *${randomCharacter.value}*
+┃ ♡ 𝑬𝒔𝒕𝒂𝒅𝒐: ${statusMessage}
+┃ ❖ 𝑭𝒖𝒆𝒏𝒕𝒆: *${randomCharacter.source}*
+┃ ✦ 𝑰𝑫: *${randomCharacter.id}*
+╰─❖ ✦ ✦ ✦ ❖─╯`
 
         const mentions = userEntry ? [userEntry.userId] : []
-        await conn.sendFile(m.chat, randomImage, `${randomCharacter.name}.jpg`, message, m, { mentions })
+        await conn.sendFile(
+            m.chat, 
+            randomImage, 
+            `${randomCharacter.name}.jpg`, 
+            message, 
+            m, 
+            { mentions }
+        )
 
         if (!randomCharacter.user) {
             await saveCharacters(characters)
         }
 
-        cooldowns[userId] = now + 15 * 60 * 1000
+        cooldowns[userId] = now + 15 * 60 * 1000 // 15 minutos cooldown
 
     } catch (error) {
         await conn.reply(m.chat, `✘ Error al cargar el personaje: ${error.message}`, m)

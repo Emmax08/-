@@ -14,7 +14,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
         return m.reply(`*『✦』Ya estás registrado, para volver a registrarte, usa el comando: #unreg*`)
     }
 
-    if (!Reg.test(text)) return m.reply(`*『🦈』El comando ingresado es incorrecto, uselo de la siguiente manera:*\n\n#reg *Nombre.edad*\n\n\`\`\`Ejemplo:\`\`\`\n#reg *${name2}.18*`)
+    if (!Reg.test(text)) return m.reply(`*『👑』El comando ingresado es incorrecto, uselo de la siguiente manera:*\n\n#reg *Nombre.edad*\n\n\`\`\`Ejemplo:\`\`\`\n#reg *${name2}.18*`)
 
     let [_, name, splitter, age] = text.match(Reg)
     if (!name) return m.reply('*『✦』No puedes registrarte sin nombre, el nombre es obligatorio. Inténtelo de nuevo.*')
@@ -40,13 +40,13 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 *¡𝚁𝙴𝙶𝙸𝚂𝚃𝚁𝙾 𝙲𝙾𝙼𝙿𝙻𝙴𝚃𝙾 𝙴𝚇𝙸𝚃𝙾𝚂𝙾!*
 ╰══• ೋ•✧๑♡๑✧•ೋ •══╯
 ║
-║ ֪ ׂ⛓️ ̶ 𝐍𝐨𝐦𝐛𝐫𝐞: ${name}
-║ ֪ ׁ🌫️ 𝐄𝐝𝐚𝐝: ${age} años
+║ ֪ ׂ🫧 ̶ 𝐍𝐨𝐦𝐛𝐫𝐞: ${name}
+║ ֪ ׁ🧬 𝐄𝐝𝐚𝐝: ${age} años
 ║
 ║ 𝙶𝚛𝚊𝚌𝚒𝚊𝚜 𝚙𝚘𝚛 𝚛𝚎𝚐𝚒𝚜𝚝𝚛𝚊𝚛𝚝𝚎
-║ 📝 Usa *.menu* para ver comandos
+║ 📄 Usa *.menu* para ver comandos
 ║
-║ ✨ 𝗥𝗲𝗰𝗼𝗺𝗽𝗲𝗻𝘀𝗮𝘀:
+║ 🔮 𝗥𝗲𝗰𝗼𝗺𝗽𝗲𝗻𝘀𝗮𝘀:
 ║ • ${moneda} » 600
 ║ • Experiencia » 245 🪙
 ║ • Tokens » 10 💸

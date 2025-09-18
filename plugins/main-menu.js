@@ -134,7 +134,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 | 🚀 *VERSION DEL BOT*
 | ➡️ *Local:* ${localVersion}
 | ➡️ *Servidor:* ${serverVersion}
-| 📊 *Estado:* ${updateStatus}
+| 📊 *Estado:* ${✅ En última versión}
 |-------------------------------------------|
 | 🤖 *Bot:* ${esPrincipal ? 'Principal' : `Sub-Bot | Principal: wa.me/${numeroPrincipal}`}
 | 📦 *Comandos:* ${totalComandos}

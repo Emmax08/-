@@ -11,7 +11,6 @@ let handler = async (m, { conn, args }) => {
     }
 
     let user = global.db.data.users[userId];
-
     let name = await conn.getName(userId);
     let cumpleanos = user.birth || 'No especificado';
     let genero = user.genre || 'No especificado';
@@ -25,7 +24,7 @@ let handler = async (m, { conn, args }) => {
         mentions.push(parejaId);
     }
 
-    let description = user.description || 'Sin Descripción';
+    let description = user.description || 'Sin descripción';
     let exp = user.exp || 0;
     let nivel = user.level || 0;
     let role = user.role || 'Sin Rango';
@@ -35,22 +34,22 @@ let handler = async (m, { conn, args }) => {
     let perfil = await conn.profilePictureUrl(userId, 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg');
 
     let profileText = `
-「✿」 *Perfil* ◢@${userId.split('@')[0]}◤
-${description}
+「✿」Perfil de @${userId.split('@')[0]}
+✦ Edad: ${user.age || 'Desconocida'}
+♛ Cumpleaños: ${cumpleanos}
+⚥ Género: ${genero}
+♡ Casado con: ${parejaText}
 
-✦ Edad » ${user.age || 'Desconocida'}
-♛ *Cumpleaños* » ${cumpleanos}
-⚥ *Género* » ${genero}
-♡ *Casado con* » ${parejaText}
+✎ Rango: ${role}
+☆ Exp: ${exp.toLocaleString()}
+❖ Nivel: ${nivel}
 
-☆ *Experiencia* » ${exp.toLocaleString()}
-❖ *Nivel* » ${nivel}
-✎ Rango » ${role}
+⛁ Coins Cartera: ${coins.toLocaleString()} ${moneda}
+⛃ Coins Banco: ${bankCoins.toLocaleString()} ${moneda}
+❁ Premium: ${user.premium ? '✅' : '❌'}
 
-⛁ *Coins Cartera* » ${coins.toLocaleString()} ${moneda}
-⛃ *Coins Banco* » ${bankCoins.toLocaleString()} ${moneda}
-❁ *Premium* » ${user.premium ? '✅' : '❌'}
-  `.trim();
+📝 Descripción: ${description}
+`.trim();
 
     await conn.sendMessage(m.chat, { 
         text: profileText,

@@ -48,7 +48,7 @@ let handler = async (m, { conn, args }) => {
 ⛃ Coins Banco: ${bankCoins.toLocaleString()} ${moneda}
 ❁ Premium: ${user.premium ? '✅' : '❌'}
 
-📝 Descripción: ${description}
+📝 Descripció: ${description}
 `.trim();
 
     await conn.sendMessage(m.chat, { 

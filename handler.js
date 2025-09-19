@@ -54,7 +54,7 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (!m)
             return
 
-        // --- INICIO DEL CÓDIGO DEL CONTADOR ---
+        // --- CÓDIGO DEL CONTADOR CORREGIDO ---
         let chat = global.db.data.chats[m.chat]
         if (typeof chat !== 'object') {
             global.db.data.chats[m.chat] = {};
@@ -68,12 +68,14 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (chat.contar.estado === true) {
             chat.contar.mensajes++;
         }
+        // --- FIN DEL CÓDIGO DEL CONTADOR ---
+
         m.exp = 0
         m.coin = false
         try {
             let user = global.db.data.users[m.sender]
             if (typeof user !== 'object')
-                global.db.data.users[m.sender] = {}
+                 global.db.data.users[m.sender] = {}
             if (user) {
                 if (!isNumber(user.exp)) user.exp = 0
                 if (!isNumber(user.coin)) user.coin = 10

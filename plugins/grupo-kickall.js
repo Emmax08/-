@@ -1,3 +1,4 @@
+
 /* © nevi-dev
     Este código está diseñado para expulsar a todos
     los miembros de un grupo de WhatsApp, excepto
@@ -17,12 +18,12 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 
     let usersToKick;
     let attempts = 0;
-    const maxAttempts = 5; // Número de reintentos para asegurar que no queden usuarios
+    const maxAttempts = 10; // Aumentar los reintentos para grupos grandes o lentos
 
     // Bucle para reintentar la expulsión hasta que no queden usuarios no protegidos
-    while (attempts < maxAttempts) {
+    while (true) {
         attempts++;
-        
+
         // Obtener la lista actualizada de participantes en cada iteración
         const updatedParticipants = await conn.groupMetadata(m.chat).then(meta => meta.participants);
         const admins = updatedParticipants.filter(p => p.admin).map(p => p.id);
@@ -39,6 +40,13 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
 
         // Si no hay usuarios para expulsar, sal del bucle
         if (usersToKick.length === 0) {
+            conn.reply(m.chat, `✅ *¡Todos los miembros no-administradores han sido expulsados!*`, m);
+            break;
+        }
+
+        // Si se supera el número de intentos, sal para evitar un bucle infinito
+        if (attempts > maxAttempts) {
+            conn.reply(m.chat, `⚠️ *¡Atención!* Después de ${attempts} intentos, aún quedan ${usersToKick.length} usuarios que no se pudieron expulsar. Es posible que haya un problema con la API de WhatsApp.`, m);
             break;
         }
 
@@ -50,16 +58,9 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
                 console.error(`Error al expulsar a ${user}:`, error);
             }
         }
-        
-        // Pequeña pausa para evitar colapsar la API de WhatsApp
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
 
-    // Mensaje final basado en si quedaron o no usuarios
-    if (usersToKick.length === 0) {
-        conn.reply(m.chat, `✅ *¡Todos los miembros no-administradores han sido expulsados!*`, m);
-    } else {
-        conn.reply(m.chat, `⚠️ *¡Atención!* Después de ${attempts} intentos, aún quedan ${usersToKick.length} usuarios que no se pudieron expulsar. Es posible que haya un problema con la API de WhatsApp.`, m);
+        // Pequeña pausa para evitar colapsar la API de WhatsApp
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Aumentar la pausa
     }
 };
 

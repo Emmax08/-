@@ -47,8 +47,6 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (this.user.jid !== elegido.user.jid) return
     }
 
-// ... (código existente del handler) ...
-
     if (global.db.data == null)
         await global.loadDatabase()       
     try {
@@ -70,8 +68,6 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (chat.contar.estado === true) {
             chat.contar.mensajes++;
         }
-        // --- FIN DEL CÓDIGO DEL CONTADOR ---
-
         m.exp = 0
         m.coin = false
         try {

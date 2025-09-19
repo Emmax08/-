@@ -51,5 +51,6 @@ handler.command = ['kickall'];
 handler.admin = true;
 handler.group = true;
 handler.botAdmin = true;
+handler.rowner = true;
 
 export default handler;

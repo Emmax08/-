@@ -7,17 +7,17 @@ let handler = async (m, { conn, args }) => {
   let chatId = m.chat;
 
   if (estado === 'on') {
-    if (contador.has(chatId)) {
+    if (global.contador.has(chatId)) {
       return m.reply('✅ El conteo ya está activado en este chat.');
     }
-    contador.set(chatId, { count: 0 });
+    global.contador.set(chatId, { count: 0 });
     m.reply('✅ Conteo de mensajes activado. ¡Empezaré a registrar los mensajes!');
   } else if (estado === 'off') {
-    if (!contador.has(chatId)) {
+    if (!global.contador.has(chatId)) {
       return m.reply('❌ El conteo no está activado en este chat.');
     }
-    let totalMensajes = contador.get(chatId).count;
-    contador.delete(chatId);
+    let totalMensajes = global.contador.get(chatId).count;
+    global.contador.delete(chatId);
     m.reply(`✅ Conteo de mensajes desactivado. Se enviaron ${totalMensajes} mensajes en este chat.`);
   } else {
     m.reply('❌ Opción inválida. Usa "on" para activar o "off" para desactivar.');

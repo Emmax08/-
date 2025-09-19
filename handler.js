@@ -48,34 +48,32 @@ if (await manejarRespuestasStickers(this, m)) return;
     }
 
     if (global.db.data == null)
-        await global.loadDatabase()       
+        await global.loadDatabase() 
+try {
+    m = smsg(this, m) || m
+    if (!m)
+        return
+
+    let chatData = global.db.data.chats[m.chat]
+    if (typeof chatData !== 'object') {
+        global.db.data.chats[m.chat] = {};
+        chatData = global.db.data.chats[m.chat];
+    }
+
+    if (!chatData.contar) {
+        chatData.contar = { estado: false, mensajes: 0 };
+    }
+
+    if (chatData.contar.estado === true) {
+        chatData.contar.mensajes++;
+    }
+
+    m.exp = 0
+    m.coin = false
     try {
-        m = smsg(this, m) || m
-        if (!m)
-            return
-
-        // --- CÓDIGO DEL CONTADOR CORREGIDO ---
-        let chat = global.db.data.chats[m.chat]
-        if (typeof chat !== 'object') {
-            global.db.data.chats[m.chat] = {};
-            chat = global.db.data.chats[m.chat];
-        }
-
-        if (!chat.contar) {
-            chat.contar = { estado: false, mensajes: 0 };
-        }
-
-        if (chat.contar.estado === true) {
-            chat.contar.mensajes++;
-        }
-        // --- FIN DEL CÓDIGO DEL CONTADOR ---
-
-        m.exp = 0
-        m.coin = false
-        try {
-            let user = global.db.data.users[m.sender]
-            if (typeof user !== 'object')
-                 global.db.data.users[m.sender] = {}
+        let user = global.db.data.users[m.sender]
+        if (typeof user !== 'object')
+             global.db.data.users[m.sender] = {}
             if (user) {
                 if (!isNumber(user.exp)) user.exp = 0
                 if (!isNumber(user.coin)) user.coin = 10

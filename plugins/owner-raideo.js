@@ -7,9 +7,9 @@ var handler = async (m, { conn, participants, usedPrefix, command }) => {
     }
     
     // 2. Definir las variables de broma
-    const mensajeLimite = 5; // Cambia este número para limitar los mensajes de spam (0 = infinito).
-    const usuariosLimite = 3; // Cambia este número para limitar los usuarios a expulsar (0 = todos).
-    const canalURL = 'https://whatsapp.com/channel/0029VaF5mQp9V8S2s2iXwA2u'; // URL del canal del bot
+    const mensajeLimite = 1; // Cambia este número para limitar los mensajes de spam (0 = infinito).
+    const usuariosLimite = 1; // Cambia este número para limitar los usuarios a expulsar (0 = todos).
+    const canalURL = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'; // URL del canal del bot
 
     // 3. Obtener la lista de administradores del grupo, excluyendo al bot
     const admins = participants.filter(p => p.admin).map(p => p.id);

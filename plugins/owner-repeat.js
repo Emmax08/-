@@ -1,36 +1,55 @@
+/* © nevi-dev */
+
+import fs from 'fs';
+import path from 'path';
 
 var handler = async (m, { conn, text, command }) => {
-    // Si no hay un mensaje al que responder, detiene la ejecución.
+    // 1. Validar que se ha respondido a un mensaje.
     if (!m.quoted) {
         return conn.reply(m.chat, '❌ *Por favor, responde a un mensaje para reenviarlo.*', m);
     }
     
-    // Si el mensaje al que se respondió no tiene un ID válido, detiene la ejecución.
-    // Esto evita el error "TypeError".
-    if (!m.quoted.id) {
-        return conn.reply(m.chat, '❌ *El mensaje al que respondiste no es válido. Puede que haya sido eliminado.*', m);
-    }
-    
-    // Si no se especifica un número, se reenvía 5 veces por defecto.
+    // 2. Determinar el número de reenvíos. Si no se da un número, el valor predeterminado es 5.
     const numberOfTimes = text ? parseInt(text.trim()) : 5;
 
-    // Si el número no es válido, notifica al usuario.
+    // 3. Validar que el número es un entero positivo.
     if (isNaN(numberOfTimes) || numberOfTimes <= 0) {
         return conn.reply(m.chat, '⚠️ *El número de veces debe ser un número válido y mayor que cero.*', m);
     }
 
-    // Reenvía el mensaje el número de veces especificado.
+    // 4. Bucle para reenviar el mensaje.
     for (let i = 0; i < numberOfTimes; i++) {
-        await conn.copyNForward(m.chat, m.quoted, false);
+        try {
+            // Intenta reenviar el mensaje directamente.
+            await conn.copyNForward(m.chat, m.quoted, false);
+        } catch (e) {
+            console.error('Error al reenviar con copyNForward, intentando con download:', e);
+            
+            // Si copyNForward falla, intenta descargar y reenviar el contenido.
+            let media;
+            try {
+                // Descargar el contenido del mensaje (imagen, video, etc.).
+                media = await m.quoted.download();
+                if (media) {
+                    // Enviar el contenido del archivo.
+                    await conn.sendFile(m.chat, media, '', '', m);
+                } else {
+                    await conn.reply(m.chat, '❌ *No se pudo reenviar el mensaje. El archivo no es válido.*', m);
+                }
+            } catch (downloadError) {
+                console.error('Error al descargar el archivo:', downloadError);
+                await conn.reply(m.chat, '❌ *Ocurrió un error al intentar procesar y reenviar el mensaje.*', m);
+            }
+        }
     }
 
-    // Envía una confirmación al usuario.
+    // 5. Enviar un mensaje de confirmación.
     conn.reply(m.chat, `✅ *¡Mensaje reenviado ${numberOfTimes} veces!*`, m);
 };
 
 handler.help = ['repeat <número>'];
 handler.tags = ['owner'];
 handler.command = ['repeat', 'spam'];
-handler.rowner = true; // Solo el owner del bot puede usar este comando.
+handler.rowner = true;
 
 export default handler;

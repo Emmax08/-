@@ -47,12 +47,31 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (this.user.jid !== elegido.user.jid) return
     }
 
+// ... (código existente del handler) ...
+
     if (global.db.data == null)
         await global.loadDatabase()       
     try {
         m = smsg(this, m) || m
         if (!m)
             return
+
+        // --- INICIO DEL CÓDIGO DEL CONTADOR ---
+        let chat = global.db.data.chats[m.chat]
+        if (typeof chat !== 'object') {
+            global.db.data.chats[m.chat] = {};
+            chat = global.db.data.chats[m.chat];
+        }
+
+        if (!chat.contar) {
+            chat.contar = { estado: false, mensajes: 0 };
+        }
+
+        if (chat.contar.estado === true) {
+            chat.contar.mensajes++;
+        }
+        // --- FIN DEL CÓDIGO DEL CONTADOR ---
+
         m.exp = 0
         m.coin = false
         try {

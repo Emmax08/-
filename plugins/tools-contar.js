@@ -1,35 +1,53 @@
+export async function before(m, { isGroup }) {
+  if (!isGroup) return false;
+
+  const chatId = m.chat;
+  const chatData = global.db.data.chats[chatId];
+  if (!chatData || !chatData.contar || chatData.contar.estado !== true) {
+    return;
+  }
+  
+  chatData.contar.mensajes++;
+
+  return true;
+}
+
 let handler = async (m, { conn, args }) => {
-    const chatId = m.chat;
-    const chatData = global.db.data.chats[chatId];
-    
-    // Si no se encuentra el chat, es probable que no esté en la base de datos.
-    if (!chatData) {
-        return m.reply('❌ No se encontraron datos para este chat. Si es un grupo nuevo, envía un mensaje primero para que se registre.');
-    }
+  const chatId = m.chat;
+  let chatData = global.db.data.chats[chatId];
+  
+  if (!chatData) {
+    global.db.data.chats[chatId] = {};
+    chatData = global.db.data.chats[chatId];
+  }
 
-    if (!args || args.length === 0) {
-        return m.reply('❌ Debes especificar si quieres activar (on) o desactivar (off) el conteo. Ejemplo: !contar on');
-    }
+  if (!chatData.contar) {
+    chatData.contar = { estado: false, mensajes: 0 };
+  }
 
-    let estado = args[0].toLowerCase();
+  if (!args || args.length === 0) {
+    return m.reply('❌ Debes especificar si quieres activar (on) o desactivar (off) el conteo. Ejemplo: !contar on');
+  }
 
-    if (estado === 'on') {
-        if (chatData.contar.estado) {
-            return m.reply('✅ El conteo ya está activado en este chat.');
-        }
-        chatData.contar.estado = true;
-        chatData.contar.mensajes = 0; // Reinicia el conteo al activar
-        m.reply('✅ Conteo de mensajes activado. ¡Empezaré a registrar los mensajes!');
-    } else if (estado === 'off') {
-        if (!chatData.contar.estado) {
-            return m.reply('❌ El conteo no está activado en este chat.');
-        }
-        chatData.contar.estado = false;
-        let totalMensajes = chatData.contar.mensajes;
-        m.reply(`✅ Conteo de mensajes desactivado. Se enviaron ${totalMensajes} mensajes en este chat.`);
-    } else {
-        m.reply('❌ Opción inválida. Usa "on" para activar o "off" para desactivar.');
+  let estado = args[0].toLowerCase();
+
+  if (estado === 'on') {
+    if (chatData.contar.estado) {
+      return m.reply('✅ El conteo ya está activado en este chat.');
     }
+    chatData.contar.estado = true;
+    chatData.contar.mensajes = 0;
+    m.reply('✅ Conteo de mensajes activado. ¡Empezaré a registrar los mensajes!');
+  } else if (estado === 'off') {
+    if (!chatData.contar.estado) {
+      return m.reply('❌ El conteo no está activado en este chat.');
+    }
+    chatData.contar.estado = false;
+    let totalMensajes = chatData.contar.mensajes;
+    m.reply(`✅ Conteo de mensajes desactivado. Se enviaron ${totalMensajes} mensajes en este chat.`);
+  } else {
+    m.reply('❌ Opción inválida. Usa "on" para activar o "off" para desactivar.');
+  }
 };
 
 handler.help = ['contar'];

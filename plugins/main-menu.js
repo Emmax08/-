@@ -140,7 +140,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 | 📦 *Comandos:* ${totalComandos}
 | ⏱️ *Tiempo Activo:* ${tiempoActividad}
 | 👥 *Usuarios Reg:* ${totalRegistros}
-| 👑 *Dueño:* wa.me/17225305296}
+| 👑 *Dueño:* wa.me/17225305296
 |-------------------------------------------|`.trim();
 
   const textoFinal = `${encabezado}\n\n${secciones}\n\n*${packname}*`;

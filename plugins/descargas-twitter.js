@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+// --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
+const newsletterJid = '120363422310218834@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆ 𝐒ervice';
 
 let enviando = false; // Flag para controlar envíos concurrentes
 
@@ -19,7 +19,7 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'Ellen Joe: Pista localizada. 🦈',
+            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. ☦️',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: icons, // Asegúrate de que 'icons' y 'redes' estén definidos globalmente
             sourceUrl: redes,
@@ -29,7 +29,7 @@ const handler = async (m, { conn, text, usedPrefix, command, args }) => {
     };
 
     if (!args || !args[0]) {
-        return conn.reply(m.chat, `🦈 *Rastro frío, Proxy ${name}.* Necesito la URL de un video o imagen de X/Twitter para iniciar la extracción.`, m, { contextInfo, quoted: m });
+        return conn.reply(m.chat, `👑 *Rastro frío, Proxy ${name}.* Necesito la URL de un video o imagen de X/Twitter para iniciar la extracción.`, m, { contextInfo, quoted: m });
     }
 
     if (enviando) {

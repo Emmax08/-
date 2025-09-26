@@ -4,7 +4,7 @@ import axios from 'axios';
 import fs from 'fs';
 
 // ¡Asegúrate de cambiar esto a tu clave de API real!
-const NEVI_API_KEY = 'TU_CLAVE_API_REAL';
+const NEVI_API_KEY = 'maria';
 
 const SIZE_LIMIT_MB = 100;
 // --- PERSONALIZACIÓN: Masha (Maria Kujou), la hermana menor ---

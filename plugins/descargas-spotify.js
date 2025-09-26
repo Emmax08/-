@@ -1,151 +1,145 @@
+// Importa las librerías necesarias
+import fetch from "node-fetch";
 import axios from 'axios';
-import fetch from 'node-fetch';
+import fs from 'fs';
 
-// --- Constantes y Configuración ---
-const newsletterJid = '120363401893800327@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
+// ¡Asegúrate de cambiar esto a tu clave de API real!
+const NEVI_API_KEY = 'TU_CLAVE_API_REAL';
 
-// --- Handler Principal (Sin cambios) ---
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-    const name = conn.getName(m.sender);
+const SIZE_LIMIT_MB = 100;
+// --- PERSONALIZACIÓN: Masha (Maria Kujou), la hermana menor ---
+// Variables de estilo de Masha
+const newsletterJid = '120363456789012345@newsletter'; // *Reemplazar si tienes un newsletter real.*
+const newsletterName = '🌸 𝐌𝐚𝐬𝐡𝐚 (𝐌𝐚𝐫𝐢𝐚) 𝐁𝐨𝐭-𝐒𝐞𝐫𝐯𝐢𝐜𝐞 ♡';
+// Las variables 'icons' y 'redes' se asumen definidas globalmente.
+// ----------------------------------------------------
 
-    const contextInfo = {
-        mentionedJid: [m.sender],
-        isForwarded: true,
-        forwardingScore: 999,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid,
-            newsletterName,
-            serverMessageId: -1
-        },
-        externalAdReply: {
-            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Frecuencia localizada. 📻',
-            body: `Procesando solicitud para el/la Proxy ${name}...`,
-            thumbnail: icons,
-            sourceUrl: redes,
-            mediaType: 1,
-            renderLargerThumbnail: false
-        }
-    };
+const handler = async (m, { conn, args, usedPrefix, command }) => {
+  const name = conn.getName(m.sender);
+  const spotifyUrl = args[0];
 
-    if (!text) {
-        return conn.reply(m.chat, `📻 *Estática en la línea, Proxy ${name}.* Necesito el nombre de una canción o artista de YouTube Music.`, m, { contextInfo, quoted: m });
+  const contextInfo = {
+    mentionedJid: [m.sender],
+    isForwarded: true,
+    forwardingScore: 999,
+    forwardedNewsletterMessageInfo: {
+      newsletterJid,
+      newsletterName,
+      serverMessageId: -1
+    },
+    externalAdReply: {
+      title: '💖 ⏤͟͟͞͞𝐌𝐀𝐒𝐇𝐀 - 𝐊𝐔𝐉𝐎𝐔 𝐁𝐎𝐓 ᨶ႒ᩚ',
+      body: `✨ *¡Hola, ${name}-san! Estoy lista para ayudarte con tu música. 😊*`,
+      thumbnail: icons,
+      sourceUrl: redes,
+      mediaType: 1,
+      renderLargerThumbnail: false
     }
+  };
 
-    try {
-        m.react('🔄');
-        conn.reply(m.chat, `🔄 *Iniciando protocolo de extracción de YT Music, Proxy ${name}.* Aguarda, la decodificación de audio está en curso.`, m, { contextInfo, quoted: m });
+  if (!spotifyUrl) {
+    return conn.reply(m.chat, `🎶 *¡Oh, parece que olvidaste el enlace!*
+No te preocupes. ¿Podrías darme la **URL de Spotify** que quieres descargar, por favor?
 
-        const songData = await searchAndDownloadYTM(text);
+🎧 *Ejemplo (Por favor, dime):*
+${usedPrefix}spotify https://open.spotify.com/track/1234567890`, m, { contextInfo });
+  }
 
-        if (!songData) {
-            await m.react('❌');
-            throw `❌ *Fallo en la extracción, Proxy ${name}.*\nNo se encontró ninguna pista que coincida con "${text}" en YouTube Music.`;
-        }
+  const isSpotifyUrl = /^(https?:\/\/)?(www\.)?open\.spotify\.com\/.+$/i.test(spotifyUrl);
+  if (!isSpotifyUrl) {
+    return conn.reply(m.chat, `💔 *¡Oh no! Esa URL no funciona.*
+¿Estás seguro de que es un enlace de Spotify válido? Inténtalo de nuevo. ¡Yo te espero!`, m, { contextInfo });
+  }
 
-        const info = `
-╭━━━━[ YT Music 𝙳𝚎𝚌𝚘𝚍𝚎𝚍: 𝙿𝚒𝚜𝚝𝚊 𝙰segurada ]━━━━⬣
-🎵 *Designación de Pista:* ${songData.title}
-👤 *Agente(s) Creador(es):* ${songData.artists}
-💽 *Identificador de Álbum:* ${songData.album}
-🔗 *Enlace de Origen:* ${songData.url}
-╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━⬣`;
+  await m.react("📥"); // Emoji de descarga/espera
 
-        await conn.sendMessage(m.chat, {
-            text: info,
-            contextInfo: {
-                forwardingScore: 9999999,
-                isForwarded: false,
-                externalAdReply: {
-                    showAdAttribution: true,
-                    containsAutoReply: true,
-                    renderLargerThumbnail: true,
-                    title: 'Ellen Joe: Pista asegurada. 📻',
-                    body: `Reproduciendo: ${songData.title} - ${songData.artists}`,
-                    mediaType: 1,
-                    thumbnailUrl: songData.thumbnail,
-                    sourceUrl: redes
-                }
-            }
-        }, { quoted: m });
+  // Helper function to convert milliseconds to minutes and seconds
+  const msToTime = (ms) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = ((ms % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  };
 
-        conn.sendMessage(m.chat, { 
-            audio: { url: songData.downloadUrl }, 
-            fileName: `${songData.title}.mp3`, 
-            mimetype: 'audio/mpeg', 
-            ptt: false 
-        }, { quoted: m });
-        
-        m.react('✅');
+  try {
+    const neviApiUrl = `http://neviapi.ddns.net:5000/spotify`;
+    const res = await fetch(neviApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-KEY': NEVI_API_KEY,
+      },
+      body: JSON.stringify({
+        url: spotifyUrl,
+      }),
+    });
 
-    } catch (e) {
-        console.error("Error en la operación YT Music:", e);
-        m.react('❌');
-        conn.reply(m.chat, `⚠️ *Anomalía crítica en la operación YT Music, Proxy ${name}.*\nNo pude completar la extracción.\nDetalles: ${e.message || e}`, m, { contextInfo, quoted: m });
+    const json = await res.json();
+
+    if (json.status === true && json.result && json.result.download) {
+      const result = json.result;
+
+      // Create the caption with all the song metadata - Estilo Masha (Amable y Dulce)
+      const caption = `
+🌸────── *𝐌𝐚𝐬𝐡𝐚'𝐬 𝐌𝐮𝐬𝐢𝐜 𝐒𝐞𝐫𝐯𝐢𝐜𝐞* ──────🌸
+*¡Aquí está tu canción, ${name}-san! Espero que la disfrutes mucho.*
+
+> 🎶 *Título:* ${result.title}
+> 🎤 *Artista:* ${result.artists}
+> 💿 *Álbum:* ${result.album}
+> ⏱️ *Duración:* ${msToTime(result.duration_ms)}
+> 🗓️ *Lanzamiento:* ${result.release_date}
+═════════════════════
+*Si necesitas algo más, solo tienes que pedírmelo. (Спаси́бо - Spasíbo)* ♡`; // Spasíbo = Gracias (Masha es muy educada)
+
+      // Send the image with the metadata caption
+      await conn.sendMessage(m.chat, {
+        image: { url: result.cover_url },
+        caption: caption,
+        footer: 'Escucha esta canción y ten un día maravilloso. ¡頑張って! (Ganbatte - ¡Ánimo!)',
+        headerType: 4,
+        contextInfo
+      }, { quoted: m });
+
+      await m.react("💖"); // Un emoji de cariño
+
+      // **Descarga del archivo de audio.**
+      const responseAudio = await axios.get(result.download, { responseType: 'arraybuffer' });
+      const audioBuffer = Buffer.from(responseAudio.data);
+
+      const fileSizeMb = audioBuffer.length / (1024 * 1024);
+      if (fileSizeMb > SIZE_LIMIT_MB) {
+          await conn.sendMessage(m.chat, {
+              document: audioBuffer,
+              fileName: `${result.title} - Masha.mp3`,
+              mimetype: 'audio/mpeg',
+              caption: `⚠️ *¡Ups! La canción es un poco grande (${fileSizeMb.toFixed(2)} MB).*
+Te la envío como documento para que la puedas descargar mejor. ¡Ten paciencia!
+🎵 *Pista:* ${result.title}`
+          }, { quoted: m });
+          await m.react("📄");
+      } else {
+          await conn.sendMessage(m.chat, {
+              audio: audioBuffer,
+              mimetype: "audio/mpeg",
+              fileName: `${result.title} - Masha.mp3`
+          }, { quoted: m });
+          await m.react("🎧"); 
+      }
+      return;
     }
+    throw new Error("NEVI API falló.");
+  } catch (e) {
+    console.error("Error con NEVI API:", e);
+    await conn.reply(m.chat, `💔 *Oh, ¡lo siento mucho!*
+Hubo un error y no pude conseguir tu pista. Por favor, inténtalo de nuevo más tarde.`, m);
+    await m.react("😔"); // Un emoji de tristeza/disculpa
+  }
 };
 
-handler.help = ['ytmusic <canción o artista>'];
-handler.tags = ['downloader'];
-handler.command = ['ytmusic'];
-handler.group = true;
+handler.help = ['spotify'].map(v => v + ' <URL de Spotify>');
+handler.tags = ['descargas'];
+handler.command = ['spotify'];
 handler.register = true;
+handler.prefix = /^[./#]/;
 
 export default handler;
-
-// --- Función Auxiliar con la API Corregida ---
-async function searchAndDownloadYTM(query) {
-    let currentStep = "Inicio";
-    try {
-        const TIMEOUT = 30000;
-
-        // --- PASO 1: Buscar en la API de YouTube Music ---
-        currentStep = "Búsqueda en YouTube Music";
-        console.log(`[DIAGNÓSTICO] Iniciando Paso 1: ${currentStep} para "${query}"`);
-        
-        // ▼▼▼ EL ÚNICO CAMBIO ESTÁ EN ESTA LÍNEA ▼▼▼
-        const ytmSearchUrl = `https://youtube-music-api.onrender.com/search?query=${encodeURIComponent(query)}`;
-        // ▲▲▲ EL ÚNICO CAMBIO ESTÁ EN ESTA LÍNEA ▲▲▲
-
-        const ytmResponse = await axios.get(ytmSearchUrl, { timeout: TIMEOUT });
-
-        // La nueva API devuelve los resultados en ytmResponse.data.results
-        const songs = ytmResponse.data.results.filter(item => item.type === 'song');
-        if (songs.length === 0) {
-            throw new Error('La búsqueda no arrojó ninguna canción en YouTube Music.');
-        }
-        const ytmTrack = songs[0];
-        console.log(`[DIAGNÓSTICO] Paso 1 completado. Canción encontrada: "${ytmTrack.title}"`);
-
-        // --- PASO 2: Obtener el enlace de descarga ---
-        currentStep = "Obtención del enlace de descarga";
-        const videoId = ytmTrack.videoId;
-        if (!videoId) {
-            throw new Error("El resultado de YT Music no contenía un Video ID.");
-        }
-        console.log(`[DIAGNÓSTICO] Iniciando Paso 2: ${currentStep} con ID: ${videoId}`);
-        const downloadInfoUrl = `https://yt-downloader.onrender.com/download?id=${videoId}`;
-        const downloadInfoResponse = await axios.get(downloadInfoUrl, { timeout: TIMEOUT });
-
-        if (!downloadInfoResponse.data || !downloadInfoResponse.data.mp3 || !downloadInfoResponse.data.mp3.url) {
-             throw new Error('La API de descarga no proporcionó un enlace de audio (mp3).');
-        }
-        const downloadTrack = downloadInfoResponse.data;
-        console.log("[DIAGNÓSTICO] Paso 2 completado. Enlace de descarga obtenido.");
-
-        // --- PASO 3: Devolver los datos ---
-        return {
-            title: ytmTrack.title,
-            artists: ytmTrack.artists.map(artist => artist.name).join(', '),
-            album: ytmTrack.album.name || 'Single',
-            url: `http://googleusercontent.com/youtube.com/14{videoId}`,
-            thumbnail: ytmTrack.thumbnails.slice(-1)[0].url, // Obtiene la imagen de mayor resolución
-            downloadUrl: downloadTrack.mp3.url
-        };
-
-    } catch (error) {
-        console.error(`[DIAGNÓSTICO] Fallo en el paso: "${currentStep}"`);
-        console.error("[DIAGNÓSTICO] Detalles del error:", error);
-        throw new Error(`Fallo en el paso: ${currentStep}. Razón: ${error.message}`);
-    }
-}

@@ -9,7 +9,7 @@ const NEVI_API_KEY = 'maria';
 const SIZE_LIMIT_MB = 100;
 // --- PERSONALIZACIÓN: Masha (Maria Kujou), la hermana menor ---
 // Variables de estilo de Masha
-const newsletterJid = '120363418071540900@newsletter';
+const newsletterJid = '120363422310218834@newsletter';
 const newsletterName = '⸙ְ̻࠭ꪆ👑 mᥲríᥲ k᥆ȷᥙ᥆ 𖥔 Sᥱrvice';
 // Las variables 'icons' y 'redes' se asumen definidas globalmente.
 // ----------------------------------------------------

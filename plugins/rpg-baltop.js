@@ -1,44 +1,37 @@
+
 let handler = async (m, { conn, args, participants }) => {
-    let users = Object.entries(global.db.data.users).map(([key, value]) => {
-        return { ...value, jid: key };
-    });
+  const groupJids = participants.map(p => p.id)
 
-    let sortedLim = users.sort((a, b) => (b.coin || 0) + (b.bank || 0) - (a.coin || 0) - (a.bank || 0));
-    let len = args[0] && args[0].length > 0 ? Math.min(10, Math.max(parseInt(args[0]), 10)) : Math.min(10, sortedLim.length);
-    
-    let text = `「${emoji}」Los usuarios con más *¥${moneda}* son:\n\n`;
+  const users = Object.entries(global.db.data.users)
+    .filter(([jid]) => groupJids.includes(jid))
+    .map(([key, value]) => ({ ...value, jid: key }))
 
-    text += sortedLim.slice(0, len).map(({ jid, coin, bank }, i) => {
-        let total = (coin || 0) + (bank || 0);
-        return `✰ ${i + 1} » *${participants.some(p => jid === p.jid) ? `(${conn.getName(jid)}) wa.me/` : '@'}${jid.split`@`[0]}:*` +
-               `\n\t\t Total→ *¥${total} ${moneda}*`;
-    }).join('\n');
+  const sorted = users.sort((a, b) => {
+    const totalA = (a.coin || 0) + (a.bank || 0)
+    const totalB = (b.coin || 0) + (b.bank || 0)
+    return totalB - totalA
+  })
 
-    await conn.reply(m.chat, text.trim(), m, { mentions: conn.parseMention(text) });
-}
+  const page = args[0] && !isNaN(args[0]) ? parseInt(args[0]) : 1
+  const perPage = 10
+  const start = (page - 1) * perPage
+  const end = start + perPage
+  const totalPages = Math.ceil(sorted.length / perPage)
 
-handler.help = ['baltop'];
-handler.tags = ['rpg'];
-handler.command = ['baltop', 'eboard'];
-handler.group = true;
-handler.register = true;
-handler.fail = null;
-handler.exp = 0;
+  const iconos = ['👑', '🥈', '🥉']
+  let texto = `「✿」Los usuarios con más *¥ ${moneda}* son:\n\n`
 
-export default handler;
+  for (let i = start; i < Math.min(end, sorted.length); i++) {
+    const { jid, coin = 0, bank = 0 } = sorted[i]
+    const total = coin + bank
+    const nombre = await conn.getName(jid)
+    const icono = iconos[i] || '✰'
+    const yenes = `¥${total.toLocaleString()} ${moneda}`
 
-function sort(property, ascending = true) {
-    if (property) return (...args) => args[ascending & 1][property] - args[!ascending & 1][property];
-    else return (...args) => args[ascending & 1] - args[!ascending & 1];
-}
+    texto += `${icono} ${i + 1} » *${nombre}:*\n`
+    texto += `\t\t Total→ *${yenes}*\n`
+  }
 
-function toNumber(property, _default = 0) {
-    if (property) return (a, i, b) => {
-        return { ...b[i], [property]: a[property] === undefined ? _default : a[property] };
-    }
-    else return a => a === undefined ? _default : a;
-}
+  texto += `\n> • Página *${page}* de *${totalPages}*`
 
-function enumGetKey(a) {
-    return a.jid;
-}
+  await conn.reply(m.chat, texto.trim(), m, {

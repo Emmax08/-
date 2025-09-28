@@ -1,4 +1,3 @@
-
 let handler = async (m, { conn, args, participants }) => {
   const groupJids = participants.map(p => p.id)
 
@@ -35,3 +34,15 @@ let handler = async (m, { conn, args, participants }) => {
   texto += `\n> • Página *${page}* de *${totalPages}*`
 
   await conn.reply(m.chat, texto.trim(), m, {
+    mentions: sorted.slice(start, end).map(u => u.jid)
+  })
+}
+
+handler.help = ['baltop']
+handler.tags = ['rpg']
+handler.command = ['baltop', 'eboard']
+handler.group = true
+handler.register = true
+handler.exp = 0
+
+export default handler

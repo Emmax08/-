@@ -74,7 +74,7 @@ let handler = async function (m, { conn, text, args, usedPrefix, command }) {
 ˚₊· ➳⌨️ *𝗥𝗲𝗴𝗶𝘀𝘁𝗿𝗼 𝗜𝗗:*  
 ⤷ ${sn}`;
 
-    let channelID = '120363401893800327@newsletter';
+    let channelID = ''120363401893800327@newsletter;
     try {
         let metadata = await conn.groupMetadata(channelID);
         let botID = conn.user.jid;

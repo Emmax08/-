@@ -51,7 +51,7 @@ ${packname}`
     regbot,
     imagenRegistro,
     imagenRegistro,
-    canales,
+    canal2,
     m
   )
   // await m.reply(`${sn}`)        

@@ -9,8 +9,8 @@ import path from 'path';
 // --- CONFIGURACIÓN Y CONSTANTES (Actualizado para MARIA) ---
 const HASH_FILE_PATH = './src/hash.json';
 const API_URL = 'https://cyphertrans.duckdns.org';
-const BOT_API_KEY = 'maria'; // <--- ACTUALIZADO: MARIA
-const BOT_KEY_PREFIX = 'MAR'; // <--- ACTUALIZADO: MAR
+const BOT_API_KEY = 'maria'; // <--- CONFIGURACIÓN PARA MARIA
+const BOT_KEY_PREFIX = 'MAR'; // <--- CONFIGURACIÓN PARA MARIA
 const ALL_PREFIXES = ['MAR', 'LUF', 'ELL', 'RUB'];
 const moneda = global.moneda || 'Coin';
 const emoji = '✅';
@@ -118,13 +118,16 @@ ${feeDisplay}
 }
 
 
-/** Envía la confirmación con la imagen del recibo (para transferencias INTERNAS/APROBADAS). */
+/** Envía la confirmación con la imagen del recibo (para transferencias APROBADAS con recibo). */
 function sendInternalTransferConfirmation(conn, chatId, txData, amount, newBankBalance, m) {
+    // Texto ajustado para cubrir transferencias internas y externas instantáneas con recibo
+    const typeText = (BOT_KEY_PREFIX === txData.recipient_account.slice(-7, -4)) ? 'INTERNA APROBADA' : 'APROBADA (Recibo)';
+
     const feeDisplay = txData.fee_applied ? `Comisión: *${txData.fee_applied} ${moneda}*\n` : 'Comisión: *0 ${moneda}*\n';
     const media = Buffer.from(txData.receipt_base64, 'base64');
     
     const caption = `
-${emoji} *¡Transferencia INTERNA APROBADA! (Instantánea)*
+${emoji} *¡Transferencia Multibot ${typeText}! (Instantánea)*
  
 *Monto Enviado:* ${amount} ${moneda}
 ${feeDisplay}
@@ -182,7 +185,7 @@ async function handler(m, { conn, args, usedPrefix, command }) {
 
     // --- LÓGICA DE TRANSFERENCIA ---
 
-    // 1. TRANSFERENCIA LOCAL (ya estaba funcionando, solo mejoramos el mensaje)
+    // 1. TRANSFERENCIA LOCAL 
     if (!isButtonResponse && (recipientArg.includes('@s.whatsapp.net') || recipientArg.includes('@'))) {
         const who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : (recipientArg.replace(/[@ .+-]/g, '') + '@s.whatsapp.net');
         
@@ -196,7 +199,6 @@ async function handler(m, { conn, args, usedPrefix, command }) {
         
         const totalInBank = user[bankType];
         
-        // Muestra confirmación local con estética mejorada
         return sendLocalTransferConfirmation(conn, m, amount, totalInBank, who);
     } 
 
@@ -227,12 +229,16 @@ async function handler(m, { conn, args, usedPrefix, command }) {
             const txResponse = await callCypherTransAPI(botHash, senderAccount, recipientAccount, amount, transferType);
             
             if (txResponse.status === 200) {
+                // MODIFICACIÓN CLAVE: Si el estado es APROBADA Y hay recibo, enviamos la foto
                 if (txResponse.data.status === 'APROBADA' && txResponse.data.receipt_base64) {
                     return sendInternalTransferConfirmation(conn, m.chat, txResponse.data, amount, user[bankType], m);
                 }
+                
+                // Si no hay recibo (o es PENDIENTE), enviamos solo el texto de confirmación
                 return sendTransferConfirmation(conn, m.chat, txResponse.data, amount, user[bankType], m);
                 
             } else {
+                // Reembolsar el monto si la API falla
                 user[bankType] += amount * 1; 
                 return m.reply(`${emoji2} Falló la transferencia a ${recipientAccount}. ${txResponse.data.error || 'Error desconocido'}`);
             }

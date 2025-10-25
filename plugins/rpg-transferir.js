@@ -1,5 +1,3 @@
-// handler.js (pay/transfer)
-
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
@@ -17,7 +15,7 @@ const emoji = '✅';
 const emoji2 = '❌';
 const emojiWait = '⏳'; // Usado para transferencias pendientes
 
-// --- FUNCIONES DE SOPORTE BÁSICAS (Sin cambios) ---
+// --- FUNCIONES DE SOPORTE BÁSICAS ---
 
 async function getBotHashFromFile() {
     try {
@@ -94,53 +92,74 @@ ${emoji2} *Balance de tu Banco:* ${totalInBank} ${moneda}
 }
 
 
-/** Envía la confirmación de transferencia externa (PENDIENTE o APROBADA sin base64). */
-function sendTransferConfirmation(conn, chatId, txData, amount, newBankBalance, m) {
+/** FUNCIÓN UNIFICADA: Envía la confirmación de transferencia Multibot (Texto o Imagen). */
+function sendFinalTransferConfirmation(conn, chatId, txData, amount, newBankBalance, m) {
     const isApproved = txData.status === 'APROBADA';
-    const statusText = isApproved ? 'APROBADA (Instantánea)' : 'REGISTRADA (Pendiente)';
-    const emojiStatus = isApproved ? emoji : emojiWait;
-    const feeDisplay = txData.fee_applied ? `Comisión: *${txData.fee_applied} ${moneda}*\n` : 'Comisión: *0 ${moneda}*\n';
-
-    const message = `
-${emojiStatus} *¡Transferencia Multibot ${statusText}!*
- 
-*Monto Enviado:* ${amount} ${moneda}
-${feeDisplay}
-*ID Transacción:* \`${txData.tx_id}\`
- 
-*Tu Balance en Banco:* ${newBankBalance} ${moneda}
- 
-🔗 *Seguimiento:* ${API_URL}${txData.tracking_url}
-`.trim();
-
-    const quotedOptions = m && m.chat ? { quoted: m } : {};
-    return conn.sendMessage(chatId, { text: message, ...quotedOptions });
-}
-
-
-/** Envía la confirmación con la imagen del recibo (para transferencias APROBADAS con recibo). */
-function sendInternalTransferConfirmation(conn, chatId, txData, amount, newBankBalance, m) {
-    // Texto ajustado para cubrir transferencias internas y externas instantáneas con recibo
-    const typeText = (BOT_KEY_PREFIX === txData.recipient_account.slice(-7, -4)) ? 'INTERNA APROBADA' : 'APROBADA (Recibo)';
-
-    const feeDisplay = txData.fee_applied ? `Comisión: *${txData.fee_applied} ${moneda}*\n` : 'Comisión: *0 ${moneda}*\n';
-    const media = Buffer.from(txData.receipt_base64, 'base64');
+    const isPending = txData.status.startsWith('PENDIENTE');
+    // Verificamos si el Base64 existe y tiene una longitud razonable para ser una imagen
+    const hasReceipt = txData.receipt_base64 && Buffer.from(txData.receipt_base64, 'base64').length > 100;
     
-    const caption = `
-${emoji} *¡Transferencia Multibot ${typeText}! (Instantánea)*
- 
-*Monto Enviado:* ${amount} ${moneda}
-${feeDisplay}
-*ID Transacción:* \`${txData.tx_id}\`
- 
-*Tu Nuevo Balance en Banco:* ${newBankBalance} ${moneda}
- 
-_Adjunto el recibo de la transacción._
-`.trim();
+    // Status y Emoji
+    let statusText;
+    let emojiStatus;
+    if (isApproved) {
+        // Texto ajustado si es interna o externa aprobada
+        statusText = (BOT_KEY_PREFIX === txData.recipient_account.slice(-7, -4)) ? 'INTERNA APROBADA' : 'APROBADA (Instantánea)';
+        emojiStatus = emoji;
+    } else if (isPending) {
+        statusText = txData.status === 'PENDIENTE_MANUAL' ? 'PENDIENTE (Revisión Manual)' : 'REGISTRADA (Pendiente)';
+        emojiStatus = emojiWait;
+    } else {
+         statusText = 'ESTADO DESCONOCIDO';
+         emojiStatus = '❓';
+    }
+
+    // Desglose del mensaje (usando campos opcionales del API para ser robustos)
+    const sentCurrency = txData.sent_currency || moneda;
+    const receivedCurrency = txData.received_currency || moneda;
+    const receivedAmount = txData.received_amount || amount;
+    
+    let caption = `${emojiStatus} *— ¡Transferencia Multibot ${statusText}! —*`;
+    
+    // 1. Monto enviado y Comisión
+    caption += `\n\n*Monto Enviado:* ${amount} ${sentCurrency}`;
+    if (txData.fee_applied && txData.fee_applied > 0) {
+        caption += `\n*Comisión Aplicada:* -${txData.fee_applied} ${sentCurrency}`;
+    }
+    
+    // 2. Conversión (Solo si es cross-currency y la tasa existe)
+    if (sentCurrency !== receivedCurrency && txData.exchange_rate) {
+        caption += `\n*Tasa de Cambio:* 1 ${sentCurrency} = ${txData.exchange_rate} ${receivedCurrency}`;
+    }
+    
+    // 3. Monto Recibido
+    caption += `\n\n*Monto Recibido:* *${receivedAmount} ${receivedCurrency}*`;
+    
+    // 4. IDs y Balances
+    caption += `\n*ID Transacción:* \`${txData.tx_id}\``;
+    caption += `\n\n*Tu Nuevo Balance en Banco:* ${newBankBalance} ${moneda}`;
+    
+    // 5. Tracking URL (Si no es imagen)
+    if (!hasReceipt) {
+        caption += `\n\n🔗 *Seguimiento:* ${API_URL}${txData.tracking_url}`;
+    } else {
+        caption += `\n\n_Adjunto el recibo de la transacción._`;
+    }
 
     const quotedOptions = m && m.chat ? { quoted: m } : {};
-    // Envía la imagen del recibo Base64
-    return conn.sendMessage(chatId, { image: media, caption: caption, ...quotedOptions });
+    
+    // LÓGICA CLAVE: ENVIAR IMAGEN O TEXTO
+    if (hasReceipt) {
+        const media = Buffer.from(txData.receipt_base64, 'base64');
+        return conn.sendMessage(chatId, { 
+            image: media, 
+            caption: caption,
+            mimetype: 'image/jpeg', // Asumimos JPEG para recibos comunes
+            ...quotedOptions 
+        });
+    } else {
+        return conn.sendMessage(chatId, { text: caption, ...quotedOptions });
+    }
 }
 
 
@@ -229,13 +248,8 @@ async function handler(m, { conn, args, usedPrefix, command }) {
             const txResponse = await callCypherTransAPI(botHash, senderAccount, recipientAccount, amount, transferType);
             
             if (txResponse.status === 200) {
-                // MODIFICACIÓN CLAVE: Si el estado es APROBADA Y hay recibo, enviamos la foto
-                if (txResponse.data.status === 'APROBADA' && txResponse.data.receipt_base64) {
-                    return sendInternalTransferConfirmation(conn, m.chat, txResponse.data, amount, user[bankType], m);
-                }
-                
-                // Si no hay recibo (o es PENDIENTE), enviamos solo el texto de confirmación
-                return sendTransferConfirmation(conn, m.chat, txResponse.data, amount, user[bankType], m);
+                // LLAMADA UNIFICADA: Maneja imagen o texto según la respuesta del API
+                return sendFinalTransferConfirmation(conn, m.chat, txResponse.data, amount, user[bankType], m);
                 
             } else {
                 // Reembolsar el monto si la API falla
@@ -252,9 +266,9 @@ async function handler(m, { conn, args, usedPrefix, command }) {
         
         const buttonMessage = {
             text: `🌐 *Selecciona la Velocidad de Transferencia*\n\n` + 
-                    `*Destino:* ${recipientPrefix} | *Monto:* ${amount} ${moneda}\n\n` +
-                    `*1. Lenta (Normal):* Tarda hasta 24h. Sin comisión base. (Recomendado)\n` +
-                    `*2. Rápida (Instantánea):* Tarda ~8min. Aplica comisión.`,
+                      `*Destino:* ${recipientPrefix} | *Monto:* ${amount} ${moneda}\n\n` +
+                      `*1. Lenta (Normal):* Tarda hasta 24h. Sin comisión base. (Recomendado)\n` +
+                      `*2. Rápida (Instantánea):* Tarda ~8min. Aplica comisión.`,
             footer: 'CypherTrans | Selecciona una opción:',
             buttons: buttons,
             headerType: 1

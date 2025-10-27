@@ -5,19 +5,44 @@ import fetch from 'node-fetch';
 // --- CONFIGURACIÓN DE CYPHERTRANS ---
 const API_URL = 'https://cyphertrans.duckdns.org'; 
 
-// --- CONSTANTES DE MENSAJE (AJUSTADAS PARA MARIA) ---
-const DENIQUES_CODE = 'MARC';  // Código de la moneda base: MARIA Currency
-const DENIQUES_NAME = 'MARIA'; // Nombre de la moneda base
+// --- CONSTANTES DE MENSAJE (ADAPTADAS PARA MARIA/WONES) ---
+const API_BASE_CODE = 'ELLC'; // Deniques, asumido como la base que usa la API internamente.
+const LOCAL_CODE = 'WON';     // El código local de Maria (Wones)
+const LOCAL_NAME = 'Wones';   // El nombre local
 const emoji = '📊'; 
 const emoji2 = '❌';
 
-// --- FUNCIÓN PRINCIPAL DEL HANDLER (REFACTORIZADA PARA ENFOQUE EN MARIA) ---
+/**
+ * Mapea el código de la divisa (ELLC, DEN, BER, WON) a su nombre completo.
+ */
+function getCurrencyName(code) {
+    if (!code) return 'Moneda Desconocida';
+    const upperCode = code.toUpperCase();
+    switch (upperCode) {
+        case 'ELLC': // Código base anterior
+        case 'DEN':  // Prefijo actual (Deniques)
+            return 'Deniques';
+        case 'BER':  // Prefijo actual (Berries)
+        case 'LUFC': // Código antiguo (si aplica)
+            return 'Berries';
+        case 'WON':  // Prefijo actual (Wones)
+        case 'MARC': // Código antiguo (si aplica)
+            return 'Wones';
+        case 'CT':
+        case 'CYPHERTRANS':
+            return 'CypherTrans (CT)';
+        default:
+            return code; // Devuelve el código si no es reconocido
+    }
+}
+
+// --- FUNCIÓN PRINCIPAL DEL HANDLER (REFACTORIZADA PARA ENFOQUE EN MARIA/WONES) ---
 async function handler(m, { conn, usedPrefix, command }) {
     // Envía un mensaje de espera (Placeholder)
     const initialMessage = await conn.sendMessage(m.chat, {text: `⏳ *Consultando Mercado de Divisas CypherTrans...*`}, {quoted: m});
     
     try {
-        // 1. Llamar a la API para obtener los datos del mercado (Fuente para el cálculo)
+        // 1. Llamar a la API para obtener los datos del mercado
         const response = await fetch(`${API_URL}/api/v1/currency_market`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -30,42 +55,54 @@ async function handler(m, { conn, usedPrefix, command }) {
             const errorMsg = data.error || `Error ${response.status} en la API.`;
             return conn.sendMessage(m.chat, { text: `${emoji2} Falló la consulta del mercado. *Razón:* ${errorMsg}` }, { edit: initialMessage.key });
         }
+        
+        // Obtener el valor de 1 Wones en la moneda base de la API (ELLC)
+        const wonInApiBase = data[LOCAL_CODE]?.value;
+
+        if (!wonInApiBase || typeof wonInApiBase !== 'number' || wonInApiBase <= 0) {
+            return conn.sendMessage(m.chat, { text: `${emoji2} Error de Configuración. La tasa base de *${LOCAL_NAME} (${LOCAL_CODE})* no está disponible o es inválida.` }, { edit: initialMessage.key });
+        }
+
 
         // 2. Procesar los datos y construir el mensaje
-        let message = `${emoji} *— Tasa de Cambio Base MARIA —*\n\n`;
+        let message = `${emoji} *— Tasa de Cambio Base ${LOCAL_NAME} —*\n\n`;
         
-        // Mensaje de cabecera ajustado para el nuevo enfoque
-        message += `Mostrando el precio de *1 ${DENIQUES_NAME} (${DENIQUES_CODE})* en otras divisas.\n`;
-        message += `_Esta tasa es calculada por el motor CypherTrans en tiempo real._\n\n`;
+        // Mensaje de cabecera ajustado, usando el nombre completo
+        message += `Mostrando el precio de *1 ${LOCAL_NAME} (${LOCAL_CODE})* en otras divisas.\n`;
+        message += `_Esta tasa es calculada por el motor CypherTrans en tiempo real, usando ${getCurrencyName(API_BASE_CODE)} como referencia._\n\n`;
         
         let counter = 0;
         for (const key in data) {
             const currency = data[key];
             const code = currency.code;
-            const value = currency.value; // Tasa de Referencia: 1 [Moneda] = X MARC
+            // value = Tasa de Referencia de la API: 1 [CODE] = X ELLC
+            const value = currency.value; 
             const usage = currency.usage;
             counter++;
             
-            let mariaRate; // 1 MARIA = X [Otra Moneda]
-            
-            if (code === DENIQUES_CODE) {
-                // Si la moneda actual es MARIA, 1 MARIA = 1 MARIA
-                mariaRate = 1.0;
-            } else {
-                // CALCULO (Inversión de la tasa): 1 MARIA = 1 / (1 [Moneda] a MARC)
-                mariaRate = (1 / value);
-            }
+            // currentCodeInApiBase = 1 [CODE] = X ELLC
+            const currentCodeInApiBase = value;
+            
+            // CALCULO DE LA TASA PRINCIPAL: 1 WON = X [Otra Moneda]
+            // Se calcula dividiendo el valor de 1 WON en la base de la API entre el valor de 1 [CODE] en la base de la API
+            const mariaRate = wonInApiBase / currentCodeInApiBase;
+            
+            // CALCULO DE LA TASA DE REFERENCIA: 1 [Otra Moneda] = X WON
+            // Es la inversa de la tasa principal, o (1 [CODE] en ELLC) / (1 WON en ELLC)
+            const referenceRate = currentCodeInApiBase / wonInApiBase;
+
 
             const separator = (counter > 1) ? `\n———————————————————` : ``;
 
             message += `${separator}\n`;
-            message += `🏦 *Divisa:* ${key.toUpperCase()} (${code})\n`;
+            // USADO: Nombre completo de la divisa (ej. Berries)
+            message += `🏦 *Divisa:* ${getCurrencyName(code)} (${code})\n`;
             
-            // Precio de 1 MARIA
-            message += `💵 *Precio (1 ${DENIQUES_CODE}):* *${mariaRate.toFixed(4)}* ${code}\n`;
+            // Precio de 1 WONES en la otra divisa
+            message += `💵 *Precio (1 ${LOCAL_NAME}):* *${mariaRate.toFixed(4)}* ${getCurrencyName(code)}\n`;
             
-            // Tasa de referencia del servidor (1 [Moneda] = X MARC)
-            message += `ℹ️ *Referencia:* 1 ${code} = *${value.toFixed(4)}* ${DENIQUES_CODE}\n`; 
+            // Tasa de referencia inversa
+            message += `ℹ️ *Referencia:* 1 ${getCurrencyName(code)} = *${referenceRate.toFixed(4)}* ${LOCAL_NAME}\n`; 
             message += `📊 *Volumen:* ${usage} Transacciones\n`;
         }
         
@@ -80,7 +117,7 @@ async function handler(m, { conn, usedPrefix, command }) {
         
         let errorMessage = `${emoji2} *Error de Conexión/Tiempo de Espera*`;
         
-        // Manejo de errores de conexión
+        // Verifica si es un error de tiempo de espera o similar (típico de fetch/node-fetch)
         if (error.code === 'ERR_REQUEST_TIMEOUT' || error.message.includes('timeout') || error.message.includes('ECONNREFUSED')) {
             errorMessage += `\n\nEl servidor de CypherTrans (*${API_URL}*) tardó demasiado en responder o está inactivo. Intenta más tarde.`;
         } else {

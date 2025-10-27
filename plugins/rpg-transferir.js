@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import path from 'path';
 
-// --- CONFIGURACIÓN Y CONSTANTES (Actualizadas para Maria) ---
+// --- CONFIGURACIÓN Y CONSTANTES (Actualizadas para Maria/WON) ---
 const HASH_FILE_PATH = './src/hash.json';
 const API_URL = 'https://cyphertrans.duckdns.org';
 
@@ -21,9 +21,9 @@ const emojiWait = '⏳'; // Usado para transferencias pendientes
 // =========================================================================
 
 /**
- * Mapea el código de la divisa (ELLC, DEN, BER, WON) a su nombre completo.
- * NOTA: Esta función DEBE coincidir con la de tu otro handler.
- */
+ * Mapea el código de la divisa (ELLC, DEN, BER, WON) a su nombre completo.
+ * NOTA: Esta función DEBE coincidir con la de tu otro handler.
+ */
 function getCurrencyName(code) {
     if (!code) return 'Moneda Desconocida';
     const upperCode = code.toUpperCase();
@@ -46,7 +46,6 @@ function getCurrencyName(code) {
 
 async function getBotHashFromFile() {
     try {
-        // Corregido: usando path.join para asegurar compatibilidad de rutas
         const fullPath = path.join(process.cwd(), HASH_FILE_PATH);
         const data = await fs.readFile(fullPath, 'utf-8');
         const hashData = JSON.parse(data);
@@ -63,7 +62,6 @@ function isNumber(x) {
 /** Extrae el prefijo (WON, BER, DEN) del número de cuenta CypherTrans. */
 function getAccountPrefix(accountNumber) {
     if (accountNumber && accountNumber.length >= 7) {
-        // Asume que el prefijo son 3 caracteres antes de los últimos 4 dígitos
         return accountNumber.slice(-7, -4).toUpperCase();
     }
     return null;
@@ -121,7 +119,6 @@ ${usedPrefix}${command} *<cantidad> <CuentaCT>*
 
 *Nota:* Las transferencias se realizan desde tu *Banco*.
 `.trim();
-    // Usa la constante 'moneda' actualizada para el mensaje de ayuda
     return conn.sendMessage(m.chat, { text: helpMessage, mentions: [m.sender] }, { quoted: m });
 }
 
@@ -184,7 +181,7 @@ function sendFinalTransferConfirmation(conn, chatId, txData, amount, newBankBala
     
     // 4. IDs y Balances
     caption += `\n*ID Transacción:* \`${txData.tx_id}\``;
-    caption += `\n\n*Tu Nuevo Balance en Banco:* ${newBankBalance} ${moneda}`; // Usa la moneda local (Wones)
+    caption += `\n\n*Tu Nuevo Balance en Banco:* ${newBankBalance} ${moneda}`;
     
     // 5. Tracking URL (Solo si no es aprobada o no tiene imagen)
     if (isPending || !hasReceipt) {
@@ -205,7 +202,7 @@ function sendFinalTransferConfirmation(conn, chatId, txData, amount, newBankBala
 
 
 // =========================================================================
-// === FUNCIÓN PRINCIPAL DEL HANDLER (MODIFICADA) ===
+// === FUNCIÓN PRINCIPAL DEL HANDLER (CORREGIDA) ===
 // =========================================================================
 
 async function handler(m, { conn, args, usedPrefix, command }) {
@@ -272,7 +269,6 @@ async function handler(m, { conn, args, usedPrefix, command }) {
 
     // 1. TRANSFERENCIA LOCAL
     if (recipientArg.includes('@s.whatsapp.net') || recipientArg.includes('@')) {
-        // ... (Lógica local sin cambios, sin confirmación)
         const who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : (recipientArg.replace(/[@ .+-]/g, '') + '@s.whatsapp.net');
         
         if (!who || !(who in global.db.data.users)) {
@@ -299,7 +295,6 @@ async function handler(m, { conn, args, usedPrefix, command }) {
         const recipientPrefix = getAccountPrefix(recipientArg);
         const recipientAccount = recipientArg;
         let transferType = null;
-        // La clave de verificación ahora es el BOT_KEY_PREFIX ('WON')
         const isInternalBot = BOT_KEY_PREFIX === recipientPrefix;
         
         // C.1. Transferencia al mismo bot (WON)
@@ -372,8 +367,10 @@ async function handler(m, { conn, args, usedPrefix, command }) {
             // Se resta el dinero ANTES de la llamada a la API
             user[bankType] -= amount * 1;
             
-            // Usamos el tipo que viene en el estado, si no, 'instant' (default para interno)
-            const finalTransferType = typeShortcut || 'instant'; 
+            // CORRECCIÓN CLAVE: Mapear el atajo ('1' o '2') al valor de la API ('normal' o 'instant')
+            const finalTransferType = (typeShortcut === '1' ? 'normal' : 
+                                   (typeShortcut === '2' ? 'instant' : 
+                                    'instant')); // Por defecto 'instant' si viene de un transferType interno
             
             const txResponse = await callCypherTransAPI(botHash, senderAccount, recipientAccount, amount, finalTransferType);
             

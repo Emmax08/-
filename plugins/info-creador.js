@@ -49,7 +49,7 @@ async function handler(m, { conn }) {
     numero: '573114910796',
     nombre: 'Arlette',
     cargo: 'Desarrolladora y editora del bot',
-    nota: 'Mujer de felix',
+    nota: 'Desarrolladora del bot,
     correo: 'pixelcrewteam@gmail.com',
     region: '🇨🇴 Colombia',
     web: '',

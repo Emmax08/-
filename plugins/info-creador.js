@@ -34,26 +34,7 @@ async function handler(m, { conn }) {
     region: '🇩🇴 República Dominicana',
     web: 'https://github.com/Dioneibi-rip',
     biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
-  },
-  {
-    numero: '573235915041',
-    nombre: 'Felix ofc',
-    cargo: 'Desarrollador y editor del bot',
-    nota: 'Desarrollador del bot',
-    correo: 'pixelcrewteam@gmail.com',
-    region: '🇩🇴 RD',
-    web: '',
-    biografia: await conn.fetchStatus('573235915041@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
-  },
-  {
-    numero: '573114910796',
-    nombre: 'Arlette',
-    cargo: 'Desarrolladora y editora del bot',
-    nota: 'Desarrolladora del bot,
-    correo: 'pixelcrewteam@gmail.com',
-    region: '🇨🇴 Colombia',
-    web: '',
-    biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+  
     }
   ]
 

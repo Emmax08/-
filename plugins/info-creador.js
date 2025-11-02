@@ -55,8 +55,7 @@ async function handler(m, { conn }) {
     correo: 'pixelcrewteam@gmail.com',
     region: '🇨🇴 Colombia',
     web: '',
-    biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía'
-)
+    biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     }
   ]
 

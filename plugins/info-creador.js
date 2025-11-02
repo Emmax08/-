@@ -3,8 +3,6 @@ import PhoneNumber from 'awesome-phonenumber'
 async function handler(m, { conn }) {
   m.react('📇')
 
-//me la re chupan :) 
-
   const contactos = [
     {
     numero: '5217225305296',

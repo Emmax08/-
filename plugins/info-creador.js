@@ -5,8 +5,8 @@ async function handler(m, { conn }) {
 
 //me la re chupan :) 
 
-      const contactos = [
-  {
+  const contactos = [
+    {
     numero: '5217225305296',
     nombre: ' ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘',
     cargo: 'Creador de la bot ♡',
@@ -56,7 +56,7 @@ async function handler(m, { conn }) {
     region: '🇨🇴 Colombia',
     web: '',
     biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía)
-  }
+    }
   ]
 
   const contactArray = contactos.map(c => [

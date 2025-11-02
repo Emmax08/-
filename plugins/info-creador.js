@@ -5,37 +5,58 @@ async function handler(m, { conn }) {
 
 //me la re chupan :) 
 
-  const contactos = [
     {
-      numero: '5217225305296',
-      nombre: ' ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘', 
-      cargo: 'Creador de la bot ♡',
-      nota: 'Creador y editor',
-      correo: 'emmanuelben2009@gmail.com',
-      region: '🇲🇽 CDMX',
-      web: 'https://github.com/Emmax08',
-      biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
-    },
-    {
-      numero: '18096758983',
-      nombre: '⟆⃝༉⃟⸙ ᯽ N͙e͙v͙i͙-D͙e͙v͙ ⌗⚙️࿐',
-      cargo: 'Desarrollador y ayudante',
-      nota: 'Soporte Técnico',
-      correo: 'sin información',
-      region: '🇩🇴 República Dominicana',
-      web: 'https://github.com/nevi-dev',
-      biografia: await conn.fetchStatus('18096758983@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
-    },
-    {
-      numero: '18294868853',
-      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘', 
-      cargo: 'Decorador e editor',
-      nota:  '┐(￣ー￣)┌',
-      correo: 'selinapasena@gmail.com',
-      region: '🇩🇴 RepúblicaDominicana',
-      web: 'https://github.com/Dioneibi-rip',
-      biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
-    }
+      const contactos = [
+  {
+    numero: '5217225305296',
+    nombre: ' ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘',
+    cargo: 'Creador de la bot ♡',
+    nota: 'Creador y editor',
+    correo: 'emmanuelben2009@gmail.com',
+    region: '🇲🇽 CDMX',
+    web: '',
+    biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+  },
+  {
+    numero: '18096758983',
+    nombre: '⟆⃝༉⃟⸙ ᯽ N͙e͙v͙i͙-D͙e͙v͙ ⌗⚙️࿐',
+    cargo: 'Desarrollador y ayudante',
+    nota: 'Soporte Técnico',
+    correo: 'sin información',
+    region: '🇩🇴 República Dominicana',
+    web: 'https:                       
+    biografia: await conn.fetchStatus('//github.com/nevi-dev',
+    biografia: await conn.fetchStatus('18096758983@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+  },
+  {
+    numero: '18294868853',
+    nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘',
+    cargo: 'Decorador e editor',
+    nota: '┐(￣ー￣)┌',
+    correo: 'selinapasena@gmail.com',
+    region: '🇩🇴 República Dominicana',
+    web: 'https://github.com/Dioneibi-rip',
+    biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+  },
+  {
+    numero: '573235915041',
+    nombre: 'Felix ofc',
+    cargo: 'Desarrollador y editor del bot',
+    nota: 'Desarrollador del bot',
+    correo: 'pixelcrewteam@gmail.com',
+    region: '🇩🇴 RD',
+    web: '',
+    biografia: await conn.fetchStatus('573235915041@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+  },
+  {
+    numero: '573114910796',
+    nombre: 'Arlette',
+    cargo: 'Desarrolladora y editora del bot',
+    nota: 'Mujer de felix',
+    correo: 'pixelcrewteam@gmail.com',
+    region: '🇨🇴 Colombia',
+    web: '',
+    biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
   ]
 
   const contactArray = contactos.map(c => [

@@ -1,17 +1,16 @@
-import PhoneNumber from 'awesome-phonenumber'
+
+  import PhoneNumber from 'awesome-phonenumber'
 
 async function handler(m, { conn }) {
-  m.react('📇')
-
   const contactos = [
     {
       numero: '5217225305296',
-      nombre: ' ࣪˖👑インマヌエル ִֶָ🪽་༘', 
+      nombre: ' ࣪˖👑𝙀𝙢𝙢𝙖-𝙠𝙪𝙣 ִֶָ🪽་༘',
       cargo: 'Creador de la bot ♡',
       nota: 'Creador y editor',
       correo: 'emmanuelben2009@gmail.com',
       region: '🇲🇽 CDMX',
-      web: 'https://github.com/Emmax08',
+      web: '',
       biografia: await conn.fetchStatus('5217225305296@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     },
     {
@@ -26,13 +25,33 @@ async function handler(m, { conn }) {
     },
     {
       numero: '18294868853',
-      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘', 
+      nombre: '⏤͟͞ू⃪ ፝͜⁞𝘿𝙞𝙤𝙣𝙚𝙞𝙗𝙞-ʳⁱᵖ ִֶ ࣪˖ ִֶָ👑་༘',
       cargo: 'Decorador e editor',
-      nota:  '┐(￣ー￣)┌',
+      nota: '┐(￣ー￣)┌',
       correo: 'selinapasena@gmail.com',
-      region: '🇩🇴 RepúblicaDominicana',
+      region: '🇩🇴 República Dominicana',
       web: 'https://github.com/Dioneibi-rip',
       biografia: await conn.fetchStatus('18294868853@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+    },
+    {
+      numero: '573235915041',
+      nombre: 'Felix ofc',
+      cargo: 'Desarrollador y editor del bot',
+      nota: 'Desarrollador del bot',
+      correo: 'pixelcrewteam@gmail.com',
+      region: '🇩🇴 RD',
+      web: '',
+      biografia: await conn.fetchStatus('573235915041@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
+    },
+    {
+      numero: '573114910796',
+      nombre: 'Arlette',
+      cargo: 'Desarrolladora y editora del bot',
+      nota: 'Mujer de felix',
+      correo: 'pixelcrewteam@gmail.com',
+      region: '🇨🇴 Colombia',
+      web: '',
+      biografia: await conn.fetchStatus('573114910796@s.whatsapp.net').then(res => res.status).catch(_ => 'Sin biografía')
     }
   ]
 
@@ -52,7 +71,7 @@ async function handler(m, { conn }) {
 
 handler.help = ['owner', 'creador', 'creator']
 handler.tags = ['info']
-handler.command = ['owner', 'creator', 'creador', 'dueño']
+handler.command = ['owner', 'creator', 'creador', 'dueño', 'creadora', 'dueña']
 
 export default handler
 

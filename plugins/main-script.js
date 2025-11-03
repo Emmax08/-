@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 
 let handler = async (m, { conn, args }) => {
 try {
-let res = await fetch('https://api.github.com/repos/emmax0011/mᥲríᥲ k᥆ȷᥙ᥆-MD')
+let res = await fetch('https://api.github.com/repos/emmax08/mᥲríᥲ k᥆ȷᥙ᥆-MD')
 
 if (!res.ok) throw new Error('Error al obtener datos del repositorio')
 let json = await res.json()

@@ -47,7 +47,7 @@ ${usedPrefix}spotify https://open.spotify.com/track/1234567890`, m, { contextInf
 
   const isSpotifyUrl = /^(https?:\/\/)?(www\.)?open\.spotify\.com\/.+$/i.test(spotifyUrl);
   if (!isSpotifyUrl) {
-    return conn.reply(m.chat, `💔 *¡Oh no! Esa URL no funciona.*
+    return conn.reply(m.chat, `🌟 *¡Oh no! Esa URL no funciona.*
 ¿Estás seguro de que es un enlace de Spotify válido? Inténtalo de nuevo. ¡Yo te espero!`, m, { contextInfo });
   }
 

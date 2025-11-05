@@ -67,7 +67,7 @@ async function secondaryHandler(m, { conn, usedPrefix, command }) {
   const contactos = {
     '1': {
       numero: '5217225305296',
-      nombre: '👑 Emma-kun',
+      nombre: '👑 インマヌエル',
       cargo: 'Creador Principal',
       descripcion: 'Fundador y desarrollador principal del bot',
       region: '🇲🇽 México'

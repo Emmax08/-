@@ -1,4 +1,4 @@
-uñ// Credits: Arlette Xz
+// Credits: Arlette Xz
 
 import fs from 'fs'
 import { WAMessageStubType } from '@whiskeysockets/baileys'

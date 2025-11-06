@@ -2,34 +2,32 @@ import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 let handler = async (m, { conn }) => {
   try {
-    await conn.sendMessage(m.chat, { react: { text: '🎀', key: m.key } })
-
-    const menuText = `*LISTA - CREADORES*\n\n> Selecciona un creador para contactar:\n\n• *インマヌエル* - @527225305296\n• *FÉLIX OFC* - @573235915041\n• *Dioneibi-rip* - @18294868853\n• *Arlette Xz* - @573114910796\n• *Nevi Dev* - @18096758983`
+    const menuText = `*LISTA - CREADORES*\n\n> Selecciona un creador para contactar`
 
     const buttons = [
       {
         buttonId: 'owner1',
-        buttonText: { displayText: '📞 インマヌエル' },
+        buttonText: { displayText: 'インマヌエル' },
         type: 1
       },
       {
         buttonId: 'owner2',
-        buttonText: { displayText: '📞 FÉLIX OFC' },
+        buttonText: { displayText: 'FÉLIX OFC' },
         type: 1
       },
       {
         buttonId: 'owner3',
-        buttonText: { displayText: '📞 Dioneibi-rip' },
+        buttonText: { displayText: 'Dioneibi-rip' },
         type: 1
       },
       {
         buttonId: 'owner4',
-        buttonText: { displayText: '📞 Arlette Xz' },
+        buttonText: { displayText: 'Arlette Xz' },
         type: 1
       },
       {
         buttonId: 'owner5',
-        buttonText: { displayText: '📞 Nevi Dev' },
+        buttonText: { displayText: 'Nevi Dev' },
         type: 1
       }
     ]
@@ -82,46 +80,46 @@ handler.before = async (m, { conn }) => {
     'owner1': { 
       name: 'インマヌエル', 
       number: '527225305296',
-      link: 'https://wa.me/527225305296'
+      link: 'https://wa.me/527225305296',
+      rango: 'Fundador Principal'
     },
     'owner2': { 
       name: 'FÉLIX OFC', 
       number: '573235915041',
-      link: 'https://wa.me/573235915041'
+      link: 'https://wa.me/573235915041',
+      rango: 'Editor y Desarrollador'
     },
     'owner3': { 
       name: 'Dioneibi-rip', 
       number: '18294868853',
-      link: 'https://wa.me/18294868853'
+      link: 'https://wa.me/18294868853',
+      rango: 'Editor y Desarrollador'
     },
     'owner4': { 
       name: 'Arlette Xz', 
       number: '573114910796',
-      link: 'https://wa.me/573114910796'
+      link: 'https://wa.me/573114910796',
+      rango: 'Desarrolladora Principal y Corregidora de Errores'
     },
     'owner5': { 
       name: 'Nevi Dev', 
       number: '18096758983',
-      link: 'https://wa.me/18096758983'
+      link: 'https://wa.me/18096758983',
+      rango: 'Desarrollador Principal'
     }
   }
   
   const creator = creators[buttonId]
   if (creator) {
-    // Enviar mensaje con la información del contacto
-    const contactInfo = `*👤 INFORMACIÓN DE CONTACTO*
-
-*Nombre:* ${creator.name}
-*Número:* +${creator.number}
-*Enlace directo:* ${creator.link}
-
-_Haz clic en el enlace para iniciar conversación_`
-
+    // Enviar mensaje respondiendo al mensaje del botón con el rango
     await conn.sendMessage(m.chat, { 
-      text: contactInfo
-    }, { quoted: m })
+      text: `Rango: ${creator.rango}`,
+      mentions: [m.sender]
+    }, { 
+      quoted: m.message.buttonsResponseMessage 
+    })
 
-    // Opcional: También enviar el contacto como tarjeta VCard
+    // Enviar el contacto como tarjeta VCard
     await conn.sendMessage(m.chat, {
       contacts: {
         contacts: [{

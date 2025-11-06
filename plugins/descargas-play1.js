@@ -1,5 +1,3 @@
-
-// Importa las librerías necesarias
 import fetch from "node-fetch";
 import { ogmp3 } from '../lib/youtubedl.js';
 import yts from "yt-search";
@@ -8,10 +6,6 @@ import crypto from 'crypto';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-
-// Reemplaza 'TU_CLAVE_API' con tu clave real.
-// Si no tienes una clave, puedes dejar un valor como 'ellen' pero la API no funcionará.
-const NEVI_API_KEY = 'maria';
 
 const SIZE_LIMIT_MB = 100;
 const MIN_AUDIO_SIZE_BYTES = 50000;
@@ -34,8 +28,8 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
     externalAdReply: {
       title: '🖤 ⏤͟͟͞͞mᥲríᥲ k᥆ȷᥙ᥆ ᨶ႒ᩚ',
       body: `✦ 𝙀𝙨𝙥𝙚𝙧𝙖𝙣𝙙𝙤 𝙩𝙪 𝙨𝙤𝙡𝙞𝙘𝙞𝙩𝙪𝙙, ${name}. ♡~٩( ˃▽˂ )۶~♡`,
-      thumbnail: icons, // Asume que 'icons' está definido en otro lugar
-      sourceUrl: redes, // Asume que 'redes' está definido en otro lugar
+      thumbnail: icons,
+      sourceUrl: redes,
       mediaType: 1,
       renderLargerThumbnail: false
     }
@@ -55,7 +49,6 @@ ${usedPrefix}play moonlight - kali uchis`, m, { contextInfo });
 
   let video;
 
-  // Si ya se especifica el modo y el enlace, va directo a la descarga
   if (isMode && isInputUrl) {
     await m.react("📥");
     const mode = args[0].toLowerCase();
@@ -91,30 +84,18 @@ ${usedPrefix}play moonlight - kali uchis`, m, { contextInfo });
     };
 
     try {
-      const neviApiUrl = `http://neviapi.ddns.net:5000/download`;
-      const format = mode === "audio" ? "mp3" : "mp4";
-      const res = await fetch(neviApiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-KEY': NEVI_API_KEY,
-        },
-        body: JSON.stringify({
-          url: queryOrUrl,
-          format: format
-        }),
-      });
-
-      const json = await res.json();
-
-      if (json.status === "success" && json.download_link) {
-        const titleFromApi = json.title || 'Título Desconocido';
-        await sendMediaFile(json.download_link, titleFromApi, mode);
-        return;
+      const mediaResult = await processDownload(mode, queryOrUrl);
+      
+      if (!mediaResult?.url) {
+        throw new Error("No se pudo obtener el enlace de descarga.");
       }
-      throw new Error("NEVI API falló.");
+
+      const title = await getVideoTitle(queryOrUrl);
+      await sendMediaFile(mediaResult.url, title, mode);
+      return;
+
     } catch (e) {
-      console.error("Error con NEVI API:", e);
+      console.error("Error con APIs múltiples:", e);
 
       await conn.reply(m.chat, `💔 *Fallé al procesar tu capricho.*
 El servicio principal no está disponible, intentando con un servicio de respaldo...`, m);
@@ -170,7 +151,6 @@ no pude traerte nada.`, m);
     return;
   }
 
-  // --- Lógica de búsqueda o metadatos (si no se especifica el modo) ---
   if (isInputUrl) {
     try {
       const urlObj = new URL(queryOrUrl);
@@ -226,6 +206,72 @@ nada encontrado con "${queryOrUrl}"`, m, { contextInfo });
     contextInfo
   }, { quoted: m });
 };
+
+async function processDownload(mode, url) {
+  if (mode === 'audio') {
+    return await getAud(url);
+  } else if (mode === 'video') {
+    return await getVid(url);
+  }
+  return null;
+}
+
+async function getAud(url) {
+  const apis = [
+    { api: 'ZenzzXD', endpoint: `${global.APIs.zenzxz.url}/downloader/ytmp3?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download_url, timeout: 8000 },
+    { api: 'ZenzzXD v2', endpoint: `${global.APIs.zenzxz.url}/downloader/ytmp3v2?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download_url, timeout: 8000 },
+    { api: 'Yupra', endpoint: `${global.APIs.yupra.url}/api/downloader/ytmp3?url=${encodeURIComponent(url)}`, extractor: res => res.result?.link, timeout: 8000 },
+    { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/v1/download/youtube/audio?url=${encodeURIComponent(url)}&quality=128`, extractor: res => res.result?.download?.url, timeout: 8000 },
+    { api: 'Vreden v2', endpoint: `${global.APIs.vreden.url}/api/v1/download/play/audio?query=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url, timeout: 8000 },
+    { api: 'Xyro', endpoint: `${global.APIs.xyro.url}/download/youtubemp3?url=${encodeURIComponent(url)}`, extractor: res => res.result?.download, timeout: 8000 }
+  ]
+  return await fetchFromApisOptimized(apis);
+}
+
+async function getVid(url) {
+  const apis = [
+    { api: 'ZenzzXD', endpoint: `${global.APIs.zenzxz.url}/downloader/ytmp4?url=${encodeURIComponent(url)}&resolution=360p`, extractor: res => res.data?.download_url, timeout: 10000 },
+    { api: 'ZenzzXD v2', endpoint: `${global.APIs.zenzxz.url}/downloader/ytmp4v2?url=${encodeURIComponent(url)}&resolution=360`, extractor: res => res.data?.download_url, timeout: 10000 },
+    { api: 'Yupra', endpoint: `${global.APIs.yupra.url}/api/downloader/ytmp4?url=${encodeURIComponent(url)}`, extractor: res => res.result?.formats?.[0]?.url, timeout: 10000 },
+    { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/v1/download/youtube/video?url=${encodeURIComponent(url)}&quality=360`, extractor: res => res.result?.download?.url, timeout: 10000 },
+    { api: 'Vreden v2', endpoint: `${global.APIs.vreden.url}/api/v1/download/play/video?query=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url, timeout: 10000 },
+    { api: 'Xyro', endpoint: `${global.APIs.xyro.url}/download/youtubemp4?url=${encodeURIComponent(url)}&quality=360`, extractor: res => res.result?.download, timeout: 10000 }
+  ]
+  return await fetchFromApisOptimized(apis);
+}
+
+async function fetchFromApisOptimized(apis) {
+  const promises = apis.map(async ({ api, endpoint, extractor, timeout }) => {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      const res = await fetch(endpoint, { signal: controller.signal }).then(r => r.json())
+      clearTimeout(timeoutId)
+      const link = extractor(res)
+      if (link) return { url: link, api }
+    } catch (e) {
+      return null
+    }
+  })
+  
+  const results = await Promise.allSettled(promises)
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value) {
+      return result.value
+    }
+  }
+  return null
+}
+
+async function getVideoTitle(url) {
+  try {
+    const search = await yts(url);
+    const result = search.videos[0];
+    return result?.title || 'Título Desconocido';
+  } catch (e) {
+    return 'Título Desconocido';
+  }
+}
 
 handler.help = ['play'].map(v => v + ' <búsqueda o URL>');
 handler.tags = ['descargas'];

@@ -56,70 +56,108 @@ let handler = async (m, { conn }) => {
 Selecciona un contacto`
     
     await conn.sendMessage(m.chat, { 
-      text: backupText,
-      contextInfo: {
-        externalAdReply: {
-          title: 'Contacta a los Creadores',
-          body: 'Lista de contactos',
-          thumbnailUrl: 'https://files.catbox.moe/d2b1e8.jpg',
-          sourceUrl: 'https://wa.me/573114910796',
-          mediaType: 1
-        }
-      }
+      text: backupText
     }, { quoted: m })
   }
 }
 
-// Manejador para los botones - cuando el usuario toca un botón
+// Manejador mejorado para botones
 handler.before = async (m, { conn }) => {
-  // Verificar si es una respuesta a botones
-  if (!m.message?.buttonsResponseMessage) return
-  
-  const buttonId = m.message.buttonsResponseMessage.selectedButtonId
-  const creators = {
-    'owner1': { 
-      name: 'インマヌエル', 
-      number: '527225305296',
-      link: 'https://wa.me/527225305296',
-      rango: 'Fundador Principal'
-    },
-    'owner2': { 
-      name: 'FÉLIX OFC', 
-      number: '573235915041',
-      link: 'https://wa.me/573235915041',
-      rango: 'Editor y Desarrollador'
-    },
-    'owner3': { 
-      name: 'Dioneibi-rip', 
-      number: '18294868853',
-      link: 'https://wa.me/18294868853',
-      rango: 'Editor y Desarrollador'
-    },
-    'owner4': { 
-      name: 'Arlette Xz', 
-      number: '573114910796',
-      link: 'https://wa.me/573114910796',
-      rango: 'Desarrolladora Principal y Corregidora de Errores'
-    },
-    'owner5': { 
-      name: 'Nevi Dev', 
-      number: '18096758983',
-      link: 'https://wa.me/18096758983',
-      rango: 'Desarrollador Principal'
+  try {
+    // Verificar si es una respuesta a botones de diferentes maneras
+    const isButtonResponse = 
+      m.message?.buttonsResponseMessage || 
+      m.message?.interactiveResponseMessage ||
+      m.type === 'buttonsResponse'
+    
+    if (!isButtonResponse) return
+    
+    // Obtener el ID del botón presionado
+    let buttonId;
+    if (m.message.buttonsResponseMessage) {
+      buttonId = m.message.buttonsResponseMessage.selectedButtonId
+    } else if (m.message.interactiveResponseMessage) {
+      buttonId = m.message.interactiveResponseMessage.selectedButtonId
+    } else {
+      return
     }
+    
+    const creators = {
+      'owner1': { 
+        name: 'インマヌエル', 
+        number: '527225305296',
+        link: 'https://wa.me/527225305296',
+        rango: 'Fundador Principal'
+      },
+      'owner2': { 
+        name: 'FÉLIX OFC', 
+        number: '573235915041',
+        link: 'https://wa.me/573235915041',
+        rango: 'Editor y Desarrollador'
+      },
+      'owner3': { 
+        name: 'Dioneibi-rip', 
+        number: '18294868853',
+        link: 'https://wa.me/18294868853',
+        rango: 'Editor y Desarrollador'
+      },
+      'owner4': { 
+        name: 'Arlette Xz', 
+        number: '573114910796',
+        link: 'https://wa.me/573114910796',
+        rango: 'Desarrolladora Principal y Corregidora de Errores'
+      },
+      'owner5': { 
+        name: 'Nevi Dev', 
+        number: '18096758983',
+        link: 'https://wa.me/18096758983',
+        rango: 'Desarrollador Principal'
+      }
+    }
+    
+    const creator = creators[buttonId]
+    if (creator) {
+      console.log(`Botón presionado: ${buttonId} - ${creator.name}`)
+      
+      // Primero enviar el mensaje de rango
+      await conn.sendMessage(m.chat, { 
+        text: `Rango: ${creator.rango}`
+      }, { 
+        quoted: m 
+      })
+
+      // Luego enviar el contacto
+      await conn.sendMessage(m.chat, {
+        contacts: {
+          contacts: [{
+            displayName: creator.name,
+            vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${creator.name}\nTEL;type=CELL;type=VOICE;waid=${creator.number}:+${creator.number}\nEND:VCARD`
+          }]
+        }
+      }, { quoted: m })
+    }
+  } catch (error) {
+    console.error('Error en handler.before:', error)
+  }
+}
+
+// Alternativa: Usar un comando separado para manejar botones
+handler.button = async (m, { conn }) => {
+  const buttonId = m.text
+  const creators = {
+    'owner1': { name: 'インマヌエル', number: '527225305296', rango: 'Fundador Principal' },
+    'owner2': { name: 'FÉLIX OFC', number: '573235915041', rango: 'Editor y Desarrollador' },
+    'owner3': { name: 'Dioneibi-rip', number: '18294868853', rango: 'Editor y Desarrollador' },
+    'owner4': { name: 'Arlette Xz', number: '573114910796', rango: 'Desarrolladora Principal y Corregidora de Errores' },
+    'owner5': { name: 'Nevi Dev', number: '18096758983', rango: 'Desarrollador Principal' }
   }
   
   const creator = creators[buttonId]
   if (creator) {
-    // Enviar mensaje respondiendo al mensaje del botón con el rango
     await conn.sendMessage(m.chat, { 
-      text: `Rango: ${creator.rango}`,
-      mentions: [m.sender]
-    }, { 
-      quoted: m.message.buttonsResponseMessage 
-    })
-
-    // Enviar el contacto como tarjeta VCard
+      text: `Rango: ${creator.rango}`
+    }, { quoted: m })
+    
     await conn.sendMessage(m.chat, {
       contacts: {
         contacts: [{

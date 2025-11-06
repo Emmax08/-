@@ -9,7 +9,7 @@ import fs from 'fs';
 
 const SIZE_LIMIT_MB = 100;
 const MIN_AUDIO_SIZE_BYTES = 50000;
-const newsletterJid = '120363418071540900@newsletter';
+const newsletterJid = '120363401893800327@newsletter';
 const newsletterName = '⸙ְ̻࠭ꪆ👑 mᥲríᥲ k᥆ȷᥙ᥆ 𖥔 Sᥱrvice';
 
 const handler = async (m, { conn, args, usedPrefix, command }) => {

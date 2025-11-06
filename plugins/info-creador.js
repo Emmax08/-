@@ -47,7 +47,7 @@ let handler = async (m, { conn }) => {
     
     const backupText = `*LISTA - CREADORES*
 
-• *インマヌエル*: https://wa.me/527225305296
+• *インマヌエル*: https://wa.me/5217225305296
 • *FÉLIX OFC*: https://wa.me/573235915041
 • *Dioneibi-rip*: https://wa.me/18294868853
 • *Arlette Xz*: https://wa.me/573114910796
@@ -85,7 +85,7 @@ handler.before = async (m, { conn }) => {
     const creators = {
       'owner1': { 
         name: 'インマヌエル', 
-        number: '527225305296',
+        number: '5217225305296',
         link: 'https://wa.me/527225305296',
         rango: 'Fundador Principal'
       },
@@ -145,7 +145,7 @@ handler.before = async (m, { conn }) => {
 handler.button = async (m, { conn }) => {
   const buttonId = m.text
   const creators = {
-    'owner1': { name: 'インマヌエル', number: '527225305296', rango: 'Fundador Principal' },
+    'owner1': { name: 'インマヌエル', number: '5217225305296', rango: 'Fundador Principal' },
     'owner2': { name: 'FÉLIX OFC', number: '573235915041', rango: 'Editor y Desarrollador' },
     'owner3': { name: 'Dioneibi-rip', number: '18294868853', rango: 'Editor y Desarrollador' },
     'owner4': { name: 'Arlette Xz', number: '573114910796', rango: 'Desarrolladora Principal y Corregidora de Errores' },

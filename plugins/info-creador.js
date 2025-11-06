@@ -64,11 +64,10 @@ Selecciona un contacto`
 // Manejador mejorado para botones
 handler.before = async (m, { conn }) => {
   try {
-    // Verificar si es una respuesta a botones de diferentes maneras
+    // Verificar si es una respuesta a botones
     const isButtonResponse = 
       m.message?.buttonsResponseMessage || 
-      m.message?.interactiveResponseMessage ||
-      m.type === 'buttonsResponse'
+      m.message?.interactiveResponseMessage
     
     if (!isButtonResponse) return
     
@@ -86,31 +85,26 @@ handler.before = async (m, { conn }) => {
       'owner1': { 
         name: 'インマヌエル', 
         number: '5217225305296',
-        link: 'https://wa.me/527225305296',
         rango: 'Fundador Principal'
       },
       'owner2': { 
         name: 'FÉLIX OFC', 
         number: '573235915041',
-        link: 'https://wa.me/573235915041',
         rango: 'Editor y Desarrollador'
       },
       'owner3': { 
         name: 'Dioneibi-rip', 
         number: '18294868853',
-        link: 'https://wa.me/18294868853',
         rango: 'Editor y Desarrollador'
       },
       'owner4': { 
         name: 'Arlette Xz', 
         number: '573114910796',
-        link: 'https://wa.me/573114910796',
         rango: 'Desarrolladora Principal y Corregidora de Errores'
       },
       'owner5': { 
         name: 'Nevi Dev', 
         number: '18096758983',
-        link: 'https://wa.me/18096758983',
         rango: 'Desarrollador Principal'
       }
     }
@@ -119,14 +113,14 @@ handler.before = async (m, { conn }) => {
     if (creator) {
       console.log(`Botón presionado: ${buttonId} - ${creator.name}`)
       
-      // Primero enviar el mensaje de rango
+      // Enviar mensaje de rango respondiendo al mensaje del botón
       await conn.sendMessage(m.chat, { 
         text: `Rango: ${creator.rango}`
       }, { 
-        quoted: m 
+        quoted: m.message.buttonsResponseMessage || m.message.interactiveResponseMessage || m 
       })
 
-      // Luego enviar el contacto
+      // Enviar contacto
       await conn.sendMessage(m.chat, {
         contacts: {
           contacts: [{
@@ -138,34 +132,6 @@ handler.before = async (m, { conn }) => {
     }
   } catch (error) {
     console.error('Error en handler.before:', error)
-  }
-}
-
-// Alternativa: Usar un comando separado para manejar botones
-handler.button = async (m, { conn }) => {
-  const buttonId = m.text
-  const creators = {
-    'owner1': { name: 'インマヌエル', number: '5217225305296', rango: 'Fundador Principal' },
-    'owner2': { name: 'FÉLIX OFC', number: '573235915041', rango: 'Editor y Desarrollador' },
-    'owner3': { name: 'Dioneibi-rip', number: '18294868853', rango: 'Editor y Desarrollador' },
-    'owner4': { name: 'Arlette Xz', number: '573114910796', rango: 'Desarrolladora Principal y Corregidora de Errores' },
-    'owner5': { name: 'Nevi Dev', number: '18096758983', rango: 'Desarrollador Principal' }
-  }
-  
-  const creator = creators[buttonId]
-  if (creator) {
-    await conn.sendMessage(m.chat, { 
-      text: `Rango: ${creator.rango}`
-    }, { quoted: m })
-    
-    await conn.sendMessage(m.chat, {
-      contacts: {
-        contacts: [{
-          displayName: creator.name,
-          vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${creator.name}\nTEL;type=CELL;type=VOICE;waid=${creator.number}:+${creator.number}\nEND:VCARD`
-        }]
-      }
-    }, { quoted: m })
   }
 }
 

@@ -2,45 +2,100 @@ import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 let handler = async (m, { conn }) => {
   try {
-    const menuText = `*LISTA - CREADORES*\n\n> Selecciona un creador para contactar`
-
-    const buttons = [
-      {
-        buttonId: 'owner1',
-        buttonText: { displayText: 'インマヌエル' },
-        type: 1
-      },
-      {
-        buttonId: 'owner2',
-        buttonText: { displayText: 'FÉLIX OFC' },
-        type: 1
-      },
-      {
-        buttonId: 'owner3',
-        buttonText: { displayText: 'Dioneibi-rip' },
-        type: 1
-      },
-      {
-        buttonId: 'owner4',
-        buttonText: { displayText: 'Arlette Xz' },
-        type: 1
-      },
-      {
-        buttonId: 'owner5',
-        buttonText: { displayText: 'Nevi Dev' },
-        type: 1
+    const isGroup = m.chat.endsWith('@g.us')
+    
+    if (isGroup) {
+      // En grupos: enviar todos los contactos directamente
+      const creators = [
+        { 
+          name: 'インマヌエル', 
+          number: '5217225305296',
+          rango: 'Fundador Principal'
+        },
+        { 
+          name: 'FÉLIX OFC', 
+          number: '573235915041',
+          rango: 'Editor y Desarrollador'
+        },
+        { 
+          name: 'Dioneibi-rip', 
+          number: '18294868853',
+          rango: 'Editor y Desarrollador'
+        },
+        { 
+          name: 'Arlette Xz', 
+          number: '573114910796',
+          rango: 'Desarrolladora Principal y Corregidora de Errores'
+        },
+        { 
+          name: 'Nevi Dev', 
+          number: '18096758983',
+          rango: 'Desarrollador Principal'
+        }
+      ]
+      
+      // Enviar mensaje inicial
+      await conn.sendMessage(m.chat, {
+        text: `*📞 CONTACTOS DE CREADORES*\n\nEnviando contactos...`
+      }, { quoted: m })
+      
+      // Enviar cada contacto
+      for (const creator of creators) {
+        await conn.sendMessage(m.chat, {
+          contacts: {
+            contacts: [{
+              displayName: creator.name,
+              vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${creator.name}\nTEL;type=CELL;type=VOICE;waid=${creator.number}:+${creator.number}\nEND:VCARD`
+            }]
+          }
+        })
+        
+        // Pequeña pausa entre contactos
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
-    ]
+      
+    } else {
+      // En privado: enviar con botones interactivos
+      const menuText = `*LISTA - CREADORES*\n\n> Selecciona un creador para contactar`
 
-    const buttonMessage = {
-      text: menuText,
-      footer: 'Selecciona un contacto',
-      buttons: buttons,
-      headerType: 4,
-      image: { url: 'https://files.catbox.moe/d2b1e8.jpg' }
+      const buttons = [
+        {
+          buttonId: 'owner1',
+          buttonText: { displayText: 'インマヌエル' },
+          type: 1
+        },
+        {
+          buttonId: 'owner2',
+          buttonText: { displayText: 'FÉLIX OFC' },
+          type: 1
+        },
+        {
+          buttonId: 'owner3',
+          buttonText: { displayText: 'Dioneibi-rip' },
+          type: 1
+        },
+        {
+          buttonId: 'owner4',
+          buttonText: { displayText: 'Arlette Xz' },
+          type: 1
+        },
+        {
+          buttonId: 'owner5',
+          buttonText: { displayText: 'Nevi Dev' },
+          type: 1
+        }
+      ]
+
+      const buttonMessage = {
+        text: menuText,
+        footer: 'Selecciona un contacto',
+        buttons: buttons,
+        headerType: 4,
+        image: { url: 'https://files.catbox.moe/d2b1e8.jpg' }
+      }
+
+      await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
     }
-
-    await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
 
   } catch (e) {
     console.error('❌ Error en el comando owner:', e)
@@ -61,9 +116,12 @@ Selecciona un contacto`
   }
 }
 
-// Manejador mejorado para botones
+// Manejador para botones (solo en privado)
 handler.before = async (m, { conn }) => {
   try {
+    const isGroup = m.chat.endsWith('@g.us')
+    if (isGroup) return // No procesar botones en grupos
+
     // Verificar si es una respuesta a botones
     const isButtonResponse = 
       m.message?.buttonsResponseMessage || 
@@ -111,13 +169,11 @@ handler.before = async (m, { conn }) => {
     
     const creator = creators[buttonId]
     if (creator) {
-      console.log(`Botón presionado: ${buttonId} - ${creator.name}`)
-      
-      // Enviar mensaje de rango respondiendo al mensaje del botón
+      // Enviar mensaje de rango
       await conn.sendMessage(m.chat, { 
         text: `Rango: ${creator.rango}`
       }, { 
-        quoted: m.message.buttonsResponseMessage || m.message.interactiveResponseMessage || m 
+        quoted: m 
       })
 
       // Enviar contacto

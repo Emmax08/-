@@ -6,7 +6,7 @@ let handler = async (m, { text, usedPrefix, command }) => {
     if (command === 'setmeta') {
         const packParts = text.split(/[\u2022|]/).map(part => part.trim());
         if (packParts.length < 2) {
-            return m.reply(`${emoji} Por favor, escribe el pack y el autor que deseas usar por defecto para tus stickers.\n> Ejemplo: *${usedPrefix + command} 🦈Ellen-Joe-Bot🦈 • By nevi-dev*`);
+            return m.reply(`${emoji} Por favor, escribe el pack y el autor que deseas usar por defecto para tus stickers.\n> Ejemplo: *${usedPrefix + command} ⚡️mᥲríᥲ k᥆ȷᥙ᥆-Bot🍂 • By ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ*`);
         }
 
         const packText1 = packParts[0];

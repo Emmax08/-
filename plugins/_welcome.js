@@ -1,20 +1,24 @@
-// Credits: Arlette Xz
+// Credits: ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
 
 import fs from 'fs'
 import { WAMessageStubType } from '@whiskeysockets/baileys'
 
 function calcularDiasEnGrupo(participant, groupMetadata) {
-    if (!participant || !participant.date) return 0
+    // La propiedad 'date' es la que usa Baileys para la fecha de adición.
+    if (!participant || typeof participant.date !== 'number') return 0
     
+    // Convierte el timestamp de segundos (Baileys) a milisegundos
     const fechaIngreso = new Date(participant.date * 1000)
     const fechaActual = new Date()
     const diferencia = fechaActual.getTime() - fechaIngreso.getTime()
     const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24))
     
-    return dias > 0 ? dias : 1
+    // Asegura que al menos devuelva 1 si el cálculo es 0 o menos (por si acaba de entrar)
+    return Math.max(1, dias)
 }
 
 function obtenerFechaCreacion(groupMetadata) {
+    // La propiedad 'creation' es el timestamp de creación del grupo
     if (!groupMetadata.creation) return 'Fecha desconocida'
     
     const fechaCreacion = new Date(groupMetadata.creation * 1000)
@@ -26,24 +30,18 @@ function obtenerFechaCreacion(groupMetadata) {
     })
 }
 
+// Generación del mensaje de Bienvenida
 async function generarBienvenida({ conn, userId, groupMetadata, chat }) {
     const username = `@${userId.split('@')[0]}`
-    const nombreUsuario = userId.split('@')[0]
     
+    // Obtener Avatar de forma robusta
     const avatar = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/b75b29441bbd967deda4365441497221.jpg')
     
     const background = 'https://qu.ax/YrVNX.jpg'
-    
     const descripcion = `${username}`
     
+    // API para Canvas
     const apiUrl = `https://api.siputzx.my.id/api/canvas/welcomev4?avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(descripcion)}`
-    
-    const fecha = new Date().toLocaleDateString("es-ES", { 
-        timeZone: "America/Mexico_City", 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    })
     
     const groupSize = groupMetadata.participants.length
     const fechaCreacion = obtenerFechaCreacion(groupMetadata)
@@ -67,6 +65,7 @@ ${chat.sRules || `1. Respetar a todos los miembros
 
  Personaliza las reglas usando: */setrules*`}`
     
+    // Reemplazo de marcadores de posición
     const mensaje = (chat.sWelcome || infoGrupo)
         .replace(/{usuario}/g, `${username}`)
         .replace(/{grupo}/g, `*${groupMetadata.subject}*`)
@@ -92,9 +91,9 @@ ${mensaje}
     }
 }
 
+// Generación del mensaje de Despedida
 async function generarDespedida({ conn, userId, groupMetadata, chat }) {
     const username = `@${userId.split('@')[0]}`
-    const nombreUsuario = userId.split('@')[0]
     
     const participantInfo = groupMetadata.participants.find(p => p.id === userId)
     const diasEnGrupo = calcularDiasEnGrupo(participantInfo, groupMetadata)
@@ -102,9 +101,9 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
     const avatar = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/b75b29441bbd967deda4365441497221.jpg')
     
     const background = 'https://qu.ax/YrVNX.jpg'
-    
     const descripcion = `${username}`
     
+    // API para Canvas
     const apiUrl = `https://api.siputzx.my.id/api/canvas/goodbyev4?avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(descripcion)}`
     
     const fecha = new Date().toLocaleDateString("es-ES", { 
@@ -114,7 +113,8 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
         year: 'numeric' 
     })
     
-    const groupSize = groupMetadata.participants.length - 1
+    // El usuario ya se fue, así que -1
+    const groupSize = groupMetadata.participants.length - 1 
     const desc = groupMetadata.desc?.toString() || 'Sin descripción'
     
     const infoDespedida = `
@@ -123,6 +123,7 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
 ├─ 📅 Tiempo en el grupo: ${diasEnGrupo} día${diasEnGrupo !== 1 ? 's' : ''}
 ├─ 🗓️ Fecha de salida: ${fecha}`
     
+    // Reemplazo de marcadores de posición
     const mensaje = (chat.sBye || infoDespedida)
         .replace(/{usuario}/g, `${username}`)
         .replace(/{grupo}/g, `${groupMetadata.subject}`)
@@ -148,17 +149,48 @@ ${mensaje}
     }
 }
 
-let handler = m => m
-handler.before = async function (m, { conn, participants, groupMetadata }) {
+let handler = async function (m, { conn, isAdmin, isOwner, isROwner }) {
+    // Esta es la función principal que maneja el comando /setrules
+    if (!m.isGroup || !m.text) return
+    
+    const args = m.text.split(' ')
+    const command = args[0].toLowerCase()
+    
+    if (command === 'setrules' || command === 'setreglas') {
+        // Validación de permisos
+        if (!isAdmin && !isOwner && !isROwner) return m.reply('❌ Solo los administradores pueden cambiar las reglas del grupo.')
+        
+        const rulesText = m.text.slice(command.length + 1).trim()
+        if (!rulesText) return m.reply('❌ Por favor, proporciona las nuevas reglas.\nEjemplo: .setrules 1. Respetar a todos\\n2. No spam...')
+        
+        // Guardar las reglas en la base de datos
+        if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
+        global.db.data.chats[m.chat].sRules = rulesText
+        
+        await m.reply('✅ *Reglas del grupo actualizadas correctamente.*\n\nLas nuevas reglas se mostrarán en los mensajes de bienvenida.')
+    }
+}
+
+// Configuración del handler para el comando /setrules
+handler.command = /^(setrules|setreglas)$/i
+handler.admin = true
+handler.group = true
+handler.botAdmin = true
+
+// Lógica para manejar la bienvenida y despedida (Eventos Stub)
+handler.before = async function (m, { conn, groupMetadata }) {
+    // Solo procesar eventos Stub en grupos
     if (!m.messageStubType || !m.isGroup) return !0
     
+    // Comprobación de Bot Primario
     const primaryBot = global.db.data.chats[m.chat].primaryBot
-    if (primaryBot && conn.user.jid !== primaryBot) throw !1
+    if (primaryBot && conn.user.jid !== primaryBot) return !1
     
     const chat = global.db.data.chats[m.chat]
     const userId = m.messageStubParameters[0]
-    
-    if (chat.welcome && m.messageStubType == WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+
+    // --- Lógica de Bienvenida ---
+    if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
         const { imageUrl, caption, mentions, audioUrl } = await generarBienvenida({ 
             conn, 
             userId, 
@@ -167,67 +199,36 @@ handler.before = async function (m, { conn, participants, groupMetadata }) {
         })
         
         try {
+            // Intenta enviar imagen y texto
             await conn.sendMessage(m.chat, {
                 image: { url: imageUrl },
                 caption: caption,
                 mentions: mentions
             }, { quoted: null })
             
-            await conn.sendMessage(m.chat, {
-                audio: { url: audioUrl },
-                mimetype: 'audio/mpeg'
-            }, { quoted: null })
-            
         } catch (error) {
-            console.error('Error enviando bienvenida:', error)
+            console.error('Error enviando bienvenida (Imagen):', error)
+            // Si falla la imagen, envía solo el texto
             await conn.sendMessage(m.chat, {
                 text: caption,
                 mentions: mentions
             }, { quoted: null })
         }
+
+        // Intenta enviar el audio de bienvenida (separado para mayor robustez)
+        try {
+            await conn.sendMessage(m.chat, {
+                audio: { url: audioUrl },
+                mimetype: 'audio/mpeg'
+            }, { quoted: null })
+        } catch (audioError) {
+            console.error('Error enviando audio de bienvenida:', audioError)
+            // No es crítico, no se envía mensaje de texto si falla el audio
+        }
     }
     
-    if (chat.welcome && (m.messageStubType == WAMessageStubType.GROUP_PARTICIPANT_REMOVE || m.messageStubType == WAMessageStubType.GROUP_PARTICIPANT_LEAVE)) {
+    // --- Lógica de Despedida ---
+    if (chat.welcome && (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE)) {
         const { imageUrl, caption, mentions } = await generarDespedida({ 
             conn, 
-            userId, 
-            groupMetadata, 
-            chat 
-        })
-        
-        const messageOptions = {
-            image: { url: imageUrl },
-            caption: caption,
-            mentions: mentions
-        }
-        
-        await conn.sendMessage(m.chat, messageOptions, { quoted: null })
-    }
-}
-
-handler.command = /^(setrules|setreglas)$/i
-handler.admin = true
-handler.group = true
-handler.botAdmin = true
-
-handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, groupMetadata, chat }) {
-    if (m.isBaileys || !m.text || !m.isGroup) return
-    
-    const args = m.text.split(' ')
-    const command = args[0].toLowerCase()
-    
-    if (command === 'setrules' || command === 'setreglas') {
-        if (!isAdmin && !isOwner && !isROwner) return m.reply('❌ Solo los administradores pueden cambiar las reglas del grupo.')
-        
-        const rulesText = m.text.slice(command.length + 1).trim()
-        if (!rulesText) return m.reply('❌ Por favor, proporciona las nuevas reglas.\nEjemplo: .setrules 1. Respetar a todos\\n2. No spam...')
-        
-        if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
-        global.db.data.chats[m.chat].sRules = rulesText
-        
-        await m.reply('✅ *Reglas del grupo actualizadas correctamente.*\n\nLas nuevas reglas se mostrarán en los mensajes de bienvenida.')
-    }
-}
-
-export { generarBienvenida, generarDespedida, calcularDiasEnGrupo, obtenerFechaCreacion }
-export default handler
+            userId,

@@ -1,5 +1,3 @@
-creado por ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
-
 import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 
 // 🗂️ CONSOLIDACIÓN DE DATOS: Define la lista de creadores una sola vez.

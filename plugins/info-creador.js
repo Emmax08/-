@@ -4,7 +4,7 @@ import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
 const creatorsList = [
     { 
       id: 'owner1',
-      name: 'インマヌエル', 
+      name: 'ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ', 
       number: '5217225305296',
       rango: 'Fundador Principal'
     },

@@ -1,46 +1,61 @@
+creado por ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
+
 import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys'
+
+// 🗂️ CONSOLIDACIÓN DE DATOS: Define la lista de creadores una sola vez.
+const creatorsList = [
+    { 
+      id: 'owner1',
+      name: 'インマヌエル', 
+      number: '5217225305296',
+      rango: 'Fundador Principal'
+    },
+    { 
+      id: 'owner2',
+      name: 'FÉLIX OFC', 
+      number: '573235915041',
+      rango: 'Editor y Desarrollador'
+    },
+    { 
+      id: 'owner3',
+      name: 'Dioneibi-rip', 
+      number: '18294868853',
+      rango: 'Editor y Desarrollador'
+    },
+    { 
+      id: 'owner4',
+      name: 'Arlette Xz', 
+      number: '573114910796',
+      rango: 'Desarrolladora Principal y Corregidora de Errores'
+    },
+    { 
+      id: 'owner5',
+      name: 'Nevi Dev', 
+      number: '18096758983',
+      rango: 'Desarrollador Principal'
+    }
+]
+
+// Crea un mapa para buscar por ID de botón rápidamente
+const creatorsMap = creatorsList.reduce((acc, creator) => {
+    acc[creator.id] = creator
+    return acc
+}, {})
+
 
 let handler = async (m, { conn }) => {
   try {
     const isGroup = m.chat.endsWith('@g.us')
     
     if (isGroup) {
-      // En grupos: enviar todos los contactos directamente
-      const creators = [
-        { 
-          name: 'インマヌエル', 
-          number: '5217225305296',
-          rango: 'Fundador Principal'
-        },
-        { 
-          name: 'FÉLIX OFC', 
-          number: '573235915041',
-          rango: 'Editor y Desarrollador'
-        },
-        { 
-          name: 'Dioneibi-rip', 
-          number: '18294868853',
-          rango: 'Editor y Desarrollador'
-        },
-        { 
-          name: 'Arlette Xz', 
-          number: '573114910796',
-          rango: 'Desarrolladora Principal y Corregidora de Errores'
-        },
-        { 
-          name: 'Nevi Dev', 
-          number: '18096758983',
-          rango: 'Desarrollador Principal'
-        }
-      ]
+      // 👥 En grupos: enviar todos los contactos directamente
       
-      // Enviar mensaje inicial
       await conn.sendMessage(m.chat, {
-        text: `*📞 CONTACTOS DE CREADORES*\n\nEnviando contactos...`
+        text: `*📞 CONTACTOS DE CREADORES*\n\nEnviando ${creatorsList.length} contactos...`
       }, { quoted: m })
       
       // Enviar cada contacto
-      for (const creator of creators) {
+      for (const creator of creatorsList) {
         await conn.sendMessage(m.chat, {
           contacts: {
             contacts: [{
@@ -50,41 +65,20 @@ let handler = async (m, { conn }) => {
           }
         })
         
-        // Pequeña pausa entre contactos
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Pausa entre contactos (reducida a 500ms para acelerar un poco)
+        await new Promise(resolve => setTimeout(resolve, 500)) 
       }
       
     } else {
-      // En privado: enviar con botones interactivos
+      // 💬 En privado: enviar con botones interactivos (funciona correctamente)
       const menuText = `*LISTA - CREADORES*\n\n> Selecciona un creador para contactar`
 
-      const buttons = [
-        {
-          buttonId: 'owner1',
-          buttonText: { displayText: 'インマヌエル' },
-          type: 1
-        },
-        {
-          buttonId: 'owner2',
-          buttonText: { displayText: 'FÉLIX OFC' },
-          type: 1
-        },
-        {
-          buttonId: 'owner3',
-          buttonText: { displayText: 'Dioneibi-rip' },
-          type: 1
-        },
-        {
-          buttonId: 'owner4',
-          buttonText: { displayText: 'Arlette Xz' },
-          type: 1
-        },
-        {
-          buttonId: 'owner5',
-          buttonText: { displayText: 'Nevi Dev' },
-          type: 1
-        }
-      ]
+      // Mapea la lista de creadores para crear los botones automáticamente
+      const buttons = creatorsList.map(creator => ({
+        buttonId: creator.id,
+        buttonText: { displayText: creator.name },
+        type: 1
+      }))
 
       const buttonMessage = {
         text: menuText,
@@ -100,15 +94,9 @@ let handler = async (m, { conn }) => {
   } catch (e) {
     console.error('❌ Error en el comando owner:', e)
     
-    const backupText = `*LISTA - CREADORES*
-
-• *インマヌエル*: https://wa.me/5217225305296
-• *FÉLIX OFC*: https://wa.me/573235915041
-• *Dioneibi-rip*: https://wa.me/18294868853
-• *Arlette Xz*: https://wa.me/573114910796
-• *Nevi Dev*: https://wa.me/18096758983
-
-Selecciona un contacto`
+    // 🛡️ SOLUCIÓN DE RESPALDO (si falla el envío de contactos o botones)
+    const backupText = `*❌ Ocurrió un error al enviar los contactos. Usa los siguientes enlaces de contacto directo:*\n\n` +
+      creatorsList.map(c => `• *${c.name}* (${c.rango}): https://wa.me/${c.number}`).join('\n')
     
     await conn.sendMessage(m.chat, { 
       text: backupText
@@ -116,67 +104,32 @@ Selecciona un contacto`
   }
 }
 
-// Manejador para botones (solo en privado)
+// ⚙️ MANEJADOR DE RESPUESTA A BOTONES (handler.before)
+// Este código se ejecuta cuando un usuario presiona un botón del bot.
 handler.before = async (m, { conn }) => {
   try {
     const isGroup = m.chat.endsWith('@g.us')
-    if (isGroup) return // No procesar botones en grupos
+    if (isGroup) return // Solo funciona en privado
 
-    // Verificar si es una respuesta a botones
-    const isButtonResponse = 
-      m.message?.buttonsResponseMessage || 
-      m.message?.interactiveResponseMessage
+    // Obtener el ID del botón presionado de forma segura y concisa
+    let buttonId = 
+        m.message?.buttonsResponseMessage?.selectedButtonId || 
+        m.message?.interactiveResponseMessage?.selectedButtonId
     
-    if (!isButtonResponse) return
+    // Si no es una respuesta de botón, ignorar
+    if (!buttonId) return
     
-    // Obtener el ID del botón presionado
-    let buttonId;
-    if (m.message.buttonsResponseMessage) {
-      buttonId = m.message.buttonsResponseMessage.selectedButtonId
-    } else if (m.message.interactiveResponseMessage) {
-      buttonId = m.message.interactiveResponseMessage.selectedButtonId
-    } else {
-      return
-    }
+    const creator = creatorsMap[buttonId]
     
-    const creators = {
-      'owner1': { 
-        name: 'インマヌエル', 
-        number: '5217225305296',
-        rango: 'Fundador Principal'
-      },
-      'owner2': { 
-        name: 'FÉLIX OFC', 
-        number: '573235915041',
-        rango: 'Editor y Desarrollador'
-      },
-      'owner3': { 
-        name: 'Dioneibi-rip', 
-        number: '18294868853',
-        rango: 'Editor y Desarrollador'
-      },
-      'owner4': { 
-        name: 'Arlette Xz', 
-        number: '573114910796',
-        rango: 'Desarrolladora Principal y Corregidora de Errores'
-      },
-      'owner5': { 
-        name: 'Nevi Dev', 
-        number: '18096758983',
-        rango: 'Desarrollador Principal'
-      }
-    }
-    
-    const creator = creators[buttonId]
     if (creator) {
-      // Enviar mensaje de rango
+      // Enviar mensaje de rango (antes del contacto)
       await conn.sendMessage(m.chat, { 
-        text: `Rango: ${creator.rango}`
+        text: `*✅ Contacto Seleccionado*\n\nRango: ${creator.rango}`
       }, { 
         quoted: m 
       })
 
-      // Enviar contacto
+      // Enviar el contacto VCard
       await conn.sendMessage(m.chat, {
         contacts: {
           contacts: [{
@@ -187,7 +140,7 @@ handler.before = async (m, { conn }) => {
       }, { quoted: m })
     }
   } catch (error) {
-    console.error('Error en handler.before:', error)
+    console.error('Error en handler.before (respuesta de botón):', error)
   }
 }
 

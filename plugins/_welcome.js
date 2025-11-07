@@ -61,12 +61,7 @@ async function generarBienvenida({ conn, userId, groupMetadata, chat }) {
 ├─ 📝 Descripción:
 ${desc}
 
-📜 REGLAS DEL GRUPO:
-${chat.sRules || `1. Respetar a todos los miembros
-2. No spam ni contenido inapropiado
-3. Mantener el orden y la cordialidad
-4. Usar el grupo para su propósito designado
-5. Seguir las indicaciones de los administradores
+
 
  Personaliza las reglas usando: */setrules*`}`
     

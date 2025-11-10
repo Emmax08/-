@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment-timezone';
 import axios from 'axios';
-import { getDevice } from '@whiskeysockets/baileys'; 
-import { promises } from 'fs';
-import { join } from 'path';
+// import { getDevice } from '@whiskeysockets/baileys'; // Mantenemos solo lo necesario
+// import { promises } from 'fs';
+// import { join } from 'path';
 
 // Función readMore
 const more = String.fromCharCode(8206);
@@ -20,21 +20,21 @@ const GITHUB_REPO_NAME = '-';
 const GITHUB_BRANCH = 'main';
 
 // 🌐 VARIABLE GLOBAL DE REDES 🌐
-const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'; 
+const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
 
 // --- Definición de Categorías y Mapeo de Tags (USADO PARA GENERAR LA LISTA) ---
 const CATEGORIES = {
     'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
-    'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] }, 
+    'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] },
     'Herramientas & Stickers': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
     'Grupos & Admin': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
     'Inteligencia Artificial (AI)': { emoji: '🧠', tags: ['ai', 'image', 'ia', 'openai'] },
     'Diversión & Juegos': { emoji: '🕹️', tags: ['games', 'game', 'fun'] },
-    'Anime & Emociones': { emoji: '✨', tags: ['anime', 'emox', 'waifus', 'gacha'] }, 
+    'Anime & Emociones': { emoji: '✨', tags: ['anime', 'emox', 'waifus', 'gacha'] },
     'Información': { emoji: 'ℹ️', tags: ['info'] },
     'Principal': { emoji: '🏠', tags: ['main'] },
     'Economía & RPG': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
-    'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] }, 
+    'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] },
     '+18 / NSFW': { emoji: '🔞', tags: ['+18', 'nsfw'] },
 };
 
@@ -61,7 +61,7 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     // 1. Manejo de Enlaces Multimedia (db.json)
     let enlacesMultimedia;
     try {
-        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json'); 
+        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
         const dbRaw = fs.readFileSync(dbPath);
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
@@ -72,7 +72,7 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     if (m.quoted?.id && m.quoted?.fromMe) return;
 
     const idChat = m.chat;
-    
+
     // 2. Obtener Datos del Bot y Usuario
     let _package;
     try {
@@ -95,19 +95,19 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     const totalComandos = Object.keys(global.plugins || {}).length;
     const tiempoActividad = clockString(process.uptime() * 1000);
     const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
-    
+
     // Lógica de hora y fecha (México Central)
-    const lugarFecha = moment().tz('America/Mexico_City'); 
+    const lugarFecha = moment().tz('America/Mexico_City');
     const formatoFecha = {
         weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
         months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
     };
     lugarFecha.locale('es', formatoFecha);
     const horarioFecha = lugarFecha.format('dddd, DD [de] MMMM [del] YYYY || HH:mm A').replace(/^\w/, (c) => c.toUpperCase());
-    
+
     const videoGif = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
     const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
-    
+
     const totalChatsBanned = Object.entries(global.db?.data?.chats || {}).filter((chat) => chat[1].isBanned).length;
     const totalUsersBanned = Object.entries(global.db?.data?.users || {}).filter((user) => user[1].banned).length;
     const rtotalreg = Object.values(global.db?.data?.users || {}).filter((u) => u.registered == true).length;
@@ -176,13 +176,13 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
         }
     };
 
-    // 6. Lógica para manejar la subcategoría (submenú de texto si se pasa un argumento)
+    // 6. Lógica para manejar la subcategoría (submenú de texto)
     const selectedCategory = args[0]?.toLowerCase();
-    
-    // Bloque de Submenú de Texto (6a) - Mantiene la funcionalidad de comandos (Sin el mensaje de spam)
+
+    // Bloque de Submenú de Texto (6a) - Mantiene la funcionalidad de comandos
     if (selectedCategory && selectedCategory !== 'menu' && !/^\d+$/.test(selectedCategory)) {
         let categoryData;
-        
+
         for (const [name, data] of Object.entries(CATEGORIES)) {
             const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
             if (normalizedName === selectedCategory || data.tags.includes(selectedCategory)) {
@@ -190,24 +190,24 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
                 break;
             }
         }
-        
+
         if (!categoryData && selectedCategory === 'otros') {
             const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
             const todosLosTags = Object.keys(global.plugins || {})
                 .flatMap(key => global.plugins[key].tags || [])
                 .filter(tag => !tagsCategorizadas.has(tag) && tag.length > 0);
-            
+
             categoryData = ['Otros Comandos', { emoji: '📂', tags: todosLosTags }];
         }
 
         if (categoryData) {
             const [name, data] = categoryData;
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
-            
+
             const textoComandos = comandos.length > 0
                 ? comandos.map(cmd => `> ${cmd}`).join('\n')
                 : 'No hay comandos disponibles en esta categoría por ahora.';
-            
+
             const textoFinal = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│* ${data.emoji} *C A T E G O R Í A: ${name.toUpperCase()}*
@@ -220,14 +220,14 @@ ${textoComandos}
             `.trim();
 
             try {
-                 // Enviamos el submenú de comandos con el GIF
-                 await conn.sendMessage(idChat, {
+                // Enviamos el submenú de comandos con el GIF
+                await conn.sendMessage(idChat, {
                     video: { url: videoGif },
                     gifPlayback: true,
                     caption: textoFinal,
                     contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
                 }, { quoted: m });
-                
+
             } catch (e) {
                 console.error("Error al enviar el submenú con video:", e);
                 // Fallback a texto simple si falla el video
@@ -238,7 +238,7 @@ ${textoComandos}
     }
 
 
-    // 6b. Mostrar el Menú Principal con Botones Paginado (Máximo 3 Botones)
+    // 6b. Mostrar el Menú Principal con Botones Paginado (Máximo 5 Botones: 3 Cat + 2 Nav)
 
     const infoBot = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
@@ -249,25 +249,25 @@ ${textoComandos}
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
     `.trim();
 
-    // 7. Lógica de Paginación y Botones (2 Categorías + 1 Navegación)
+    // 7. Lógica de Paginación y Botones (3 Categorías + 2 Navegación)
     const allCategories = Object.entries(CATEGORIES);
     const totalCategories = allCategories.length;
-    const categoriesPerButtonPage = 2; // 2 categorías + 1 botón de navegación
+    const categoriesPerButtonPage = 3; // ¡Cambiado a 3!
     const totalPages = Math.ceil(totalCategories / categoriesPerButtonPage);
-    
+
     // Determinar la página actual
     let page = 1;
     if (args[0] && /^\d+$/.test(args[0])) {
         page = parseInt(args[0]);
     }
-    
+
     if (page < 1 || page > totalPages) {
         page = 1; // Volver a la primera página si es inválido
     }
 
     const startIndex = (page - 1) * categoriesPerButtonPage;
     let currentCategories = allCategories.slice(startIndex, startIndex + categoriesPerButtonPage);
-    
+
     let buttons = [];
 
     // 7a. Crear botones para las categorías de la página actual
@@ -280,59 +280,64 @@ ${textoComandos}
         });
     }
 
-    // 7b. Agregar botón de navegación (Máximo 3 botones en total)
+    // 7b. Agregar botones de navegación (Máximo 5 botones en total)
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
-    if (hasNextPage) {
-        // El tercer botón es la navegación a la siguiente página
-        buttons.push({
-            buttonId: `${usedPrefix}menu ${page + 1}`,
-            buttonText: { displayText: `⏩ Siguiente Página (${page + 1}/${totalPages})` },
-            type: 1
-        });
-    } else if (hasPreviousPage && buttons.length < 3) {
-        // Si no hay siguiente página, pero sí hay anterior, mostramos el botón "Anterior" si hay espacio
-        buttons.push({
+    // Crear la fila de botones de navegación (Anterior y Siguiente)
+    let navButtons = [];
+    
+    if (hasPreviousPage) {
+        navButtons.push({
             buttonId: `${usedPrefix}menu ${page - 1}`,
             buttonText: { displayText: `⏪ Página Anterior (${page - 1}/${totalPages})` },
             type: 1
         });
     }
+
+    if (hasNextPage) {
+        navButtons.push({
+            buttonId: `${usedPrefix}menu ${page + 1}`,
+            buttonText: { displayText: `⏩ Siguiente Página (${page + 1}/${totalPages})` },
+            type: 1
+        });
+    }
     
-    // Asegurarse de que el límite de 3 botones no se exceda (aunque la lógica ya lo maneja)
-    buttons = buttons.slice(0, 3);
-    
+    // Concatenar y asegurar el límite de 5 botones (3 categorías + 2 navegación)
+    buttons = buttons.concat(navButtons).slice(0, 5);
+
+
     // 7c. Crear el contenido del mensaje (caption)
     const pageStatus = `\n\n*⭐ Estás en la Página ${page}/${totalPages} ⭐*`;
     const instruction = "\n\n*Presiona los botones para navegar por las funciones:*";
 
-    const fullCaption = encabezado + '\n' + infoBot + pageStatus + instruction;
+    // Incluimos readMore en el caption
+    const fullCaption = encabezado + '\n' + infoBot + pageStatus + instruction + readMore;
 
 
     // 8. Preparar el Mensaje de Botones (Usando GIF como medio)
     const buttonMessage = {
-        video: { url: videoGif }, 
+        video: { url: videoGif },
         gifPlayback: true,
         // Usar el caption completo
         caption: fullCaption,
-        footer: `*${packname}*`,
+        footer: `*Página ${page}/${totalPages} | ${packname}*`,
         headerType: 4, // 4 es para video/gif
         buttons: buttons,
         contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
     };
-    
+
     // 9. Enviar el mensaje
     try {
         await conn.sendMessage(idChat, buttonMessage, { quoted: m });
     } catch (e) {
-        console.error("Error al enviar el ButtonMessage con GIF:", e);
-        
+        console.error("Error al enviar el ButtonMessage con GIF (Paginación 5 botones):", e);
+
         // Fallback a mensaje de texto simple si falla el botón/video
-        const fallbackText = `${fullCaption}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) => 
+        const fallbackText = `${fullCaption}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) =>
             `> ${data.emoji} *${name}*: ${usedPrefix}menu ${data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
         ).join('\n')}\n\n*${packname}*`;
-        
+
         await conn.reply(idChat, fallbackText, m, { contextInfo });
     }
 };

@@ -37,4 +37,31 @@ try {
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
     const dbRaw = fs.readFileSync(dbPath);
     global.enlacesMultimedia = JSON.parse(dbRaw).links;
-} catch (
+} catch (e) {
+    console.error("❌ Error al leer o parsear src/database/db.json:", e);
+}
+
+// 3. Cargar Versión Local
+try {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
+    global.localVersion = JSON.parse(packageJsonRaw).version || 'N/A';
+} catch (error) { 
+    console.error("❌ Error al cargar package.json local:", error);
+    global.localVersion = 'Error';
+}
+
+// 4. Función asíncrona para verificar la versión del servidor
+async function checkServerVersion() {
+    try {
+        const githubPackageJsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/${GITHUB_BRANCH}/package.json`;
+        const response = await axios.get(githubPackageJsonUrl);
+        global.serverVersion = response.data.version || 'N/A';
+
+        if (global.localVersion !== 'N/A' && global.serverVersion !== 'N/A') {
+            global.updateStatus = (global.localVersion === global.serverVersion)
+                ? '✅ En última versión'
+                : '⚠️ Actualización disponible. Actualiza con `\${usedPrefix}update`';
+        }
+    } catch (error) {
+        global.serverVersion = 'Error';

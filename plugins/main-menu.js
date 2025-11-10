@@ -179,7 +179,7 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     // 6. Lógica para manejar la subcategoría (submenú de texto si se pasa un argumento)
     const selectedCategory = args[0]?.toLowerCase();
     
-    // Bloque de Submenú de Texto (6a) - Mantiene la funcionalidad de comandos
+    // Bloque de Submenú de Texto (6a) - Mantiene la funcionalidad de comandos (Sin el mensaje de spam)
     if (selectedCategory && selectedCategory !== 'menu' && !/^\d+$/.test(selectedCategory)) {
         let categoryData;
         
@@ -220,18 +220,17 @@ ${textoComandos}
             `.trim();
 
             try {
-                 // ENVIAR GIF antes del submenú de comandos
+                 // Enviamos el submenú de comandos con el GIF
                  await conn.sendMessage(idChat, {
                     video: { url: videoGif },
                     gifPlayback: true,
-                    caption: `*${data.emoji} Comandos de ${name.toUpperCase()}*`,
+                    caption: textoFinal,
                     contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
                 }, { quoted: m });
                 
-                await conn.reply(idChat, textoFinal, m, { contextInfo });
-
             } catch (e) {
                 console.error("Error al enviar el submenú con video:", e);
+                // Fallback a texto simple si falla el video
                 await conn.reply(idChat, textoFinal, m, { contextInfo });
             }
             return;
@@ -248,14 +247,12 @@ ${textoComandos}
 *│* 👑 *Bot:* ${esPrincipal ? 'Principal' : 'Sub-Bot'}
 *│* 🔗 *Principal:* wa.me/${numeroPrincipal}
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-
-*Selecciona una categoría para ver sus comandos:*
     `.trim();
 
-    // 7. Lógica de Paginación y Botones (Máximo 3 botones en total: 2 Categorías + 1 Navegación)
+    // 7. Lógica de Paginación y Botones (2 Categorías + 1 Navegación)
     const allCategories = Object.entries(CATEGORIES);
     const totalCategories = allCategories.length;
-    const categoriesPerButtonPage = 2; // Mostraremos 2 categorías + 1 botón de navegación
+    const categoriesPerButtonPage = 2; // 2 categorías + 1 botón de navegación
     const totalPages = Math.ceil(totalCategories / categoriesPerButtonPage);
     
     // Determinar la página actual
@@ -283,90 +280,56 @@ ${textoComandos}
         });
     }
 
-    // 7b. Agregar botón de navegación (Priorizando siguiente página si existe)
+    // 7b. Agregar botón de navegación (Máximo 3 botones en total)
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
-    
-    // El tercer botón (si hay espacio y es necesario)
-    if (hasNextPage && buttons.length < 3) {
+
+    if (hasNextPage) {
+        // El tercer botón es la navegación a la siguiente página
         buttons.push({
             buttonId: `${usedPrefix}menu ${page + 1}`,
-            buttonText: { displayText: `⏩ Más Categorías (Pág ${page + 1})` },
+            buttonText: { displayText: `⏩ Siguiente Página (${page + 1}/${totalPages})` },
             type: 1
         });
     } else if (hasPreviousPage && buttons.length < 3) {
-        // Si no hay siguiente página, pero sí hay anterior y queda espacio
-         buttons.push({
+        // Si no hay siguiente página, pero sí hay anterior, mostramos el botón "Anterior" si hay espacio
+        buttons.push({
             buttonId: `${usedPrefix}menu ${page - 1}`,
-            buttonText: { displayText: `⏪ Página Anterior (Pág ${page - 1})` },
+            buttonText: { displayText: `⏪ Página Anterior (${page - 1}/${totalPages})` },
             type: 1
         });
     }
     
-    // Ajuste final si solo se pudo añadir un botón de categoría y quedan páginas
-    if (currentCategories.length === 1 && buttons.length === 1) {
-        if (hasNextPage) {
-             buttons.push({
-                buttonId: `${usedPrefix}menu ${page + 1}`,
-                buttonText: { displayText: `⏩ Más Categorías (Pág ${page + 1})` },
-                type: 1
-            });
-        }
-        if (hasPreviousPage && buttons.length < 3) {
-             buttons.push({
-                buttonId: `${usedPrefix}menu ${page - 1}`,
-                buttonText: { displayText: `⏪ Página Anterior (Pág ${page - 1})` },
-                type: 1
-            });
-        }
-    }
+    // Asegurarse de que el límite de 3 botones no se exceda (aunque la lógica ya lo maneja)
+    buttons = buttons.slice(0, 3);
+    
+    // 7c. Crear el contenido del mensaje (caption)
+    const pageStatus = `\n\n*⭐ Estás en la Página ${page}/${totalPages} ⭐*`;
+    const instruction = "\n\n*Presiona los botones para navegar por las funciones:*";
+
+    const fullCaption = encabezado + '\n' + infoBot + pageStatus + instruction;
 
 
-    // Mensaje de navegación en el footer
-    let footerText = `*${packname}* | Página ${page}/${totalPages}`;
-
-    if (totalPages > 1) {
-         // Si hay más de una página y no se pudo poner el botón directo, lo indicamos en texto.
-        footerText += "\n\nPara navegar: ";
-        if (hasNextPage && buttons.every(btn => !btn.buttonText.displayText.includes('Más Categorías'))) {
-            footerText += `Usa ${usedPrefix}menu ${page + 1} para la siguiente.`;
-        }
-        if (hasPreviousPage && buttons.every(btn => !btn.buttonText.displayText.includes('Página Anterior'))) {
-            footerText += `${hasNextPage ? ' | ' : ''}Usa ${usedPrefix}menu ${page - 1} para la anterior.`;
-        }
-    }
-
-
-    // 8. Preparar el Mensaje de Botones
+    // 8. Preparar el Mensaje de Botones (Usando GIF como medio)
     const buttonMessage = {
-        image: { url: miniaturaRandom }, 
-        // Caption: El bloque de encabezado + infoBot
-        caption: encabezado + '\n' + infoBot,
-        footer: footerText,
-        headerType: 4, // 4 es para imagen
+        video: { url: videoGif }, 
+        gifPlayback: true,
+        // Usar el caption completo
+        caption: fullCaption,
+        footer: `*${packname}*`,
+        headerType: 4, // 4 es para video/gif
         buttons: buttons,
         contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
     };
     
-    // 9. Enviar el mensaje (GIF primero, luego Botones)
+    // 9. Enviar el mensaje
     try {
-        // 9a. Enviar el GIF (Mensaje de introducción)
-        await conn.sendMessage(idChat, {
-            video: { url: videoGif },
-            gifPlayback: true,
-            // El mensaje simple de introducción que se manda en el gif
-            caption: '¡Hola! Soy María Kojuo. 👋\n\nPresiona los botones para navegar por las funciones.',
-            contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
-        }, { quoted: m });
-        
-        // 9b. Enviar el ButtonMessage (con el encabezado y los 3 botones)
         await conn.sendMessage(idChat, buttonMessage, { quoted: m });
-
     } catch (e) {
-        console.error("Error al enviar el ButtonMessage o el GIF:", e);
+        console.error("Error al enviar el ButtonMessage con GIF:", e);
         
-        // Fallback a menú de texto simple si falla
-        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) => 
+        // Fallback a mensaje de texto simple si falla el botón/video
+        const fallbackText = `${fullCaption}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) => 
             `> ${data.emoji} *${name}*: ${usedPrefix}menu ${data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
         ).join('\n')}\n\n*${packname}*`;
         

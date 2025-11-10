@@ -15,7 +15,7 @@ const GITHUB_BRANCH = 'main';
 
 // --- Definición de Categorías y Mapeo de Tags ---
 const CATEGORIES = {
-    'Sub-Bot': { emoji: '🤖', tags: ['serbot'] }, // 🌟 REQ 1: Nueva categoría Sub-Bot
+    'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
     'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] }, 
     'Herramientas & Stickers': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
     'Grupos & Admin': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
@@ -57,6 +57,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
         console.error("Error al leer o parsear src/database/db.json:", e);
+        // Si falla, usa un mensaje simple y termina
         return conn.reply(m.chat, 'Error al leer la base de datos de medios.', m);
     }
 
@@ -194,7 +195,7 @@ ${textoComandos}
 *${packname}*
             `.trim();
 
-            // 🌟 REQ 2 y 3: Enviar GIF en el submenú
+            // Enviar GIF en el submenú
             try {
                 await conn.sendMessage(idChat, {
                     video: { url: videoGif },
@@ -203,7 +204,7 @@ ${textoComandos}
                     contextInfo
                 }, { quoted: m });
             } catch (e) {
-                console.error("Error al enviar el menú con video:", e);
+                console.error("Error al enviar el submenú con video:", e);
                 await conn.reply(idChat, textoFinal, m, { contextInfo });
             }
             return;
@@ -212,7 +213,7 @@ ${textoComandos}
 
     // 6b. Mostrar el Menú Principal (List Message con la información del bot)
 
-    // 🌟 REQ 3: Incluir la información del bot en el cuerpo del mensaje principal
+    // Incluir la información del bot en el cuerpo del mensaje principal
     const infoBot = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│ 🤖 E S T A D O S D E L B O T*
@@ -272,39 +273,30 @@ ${textoComandos}
         return conn.reply(idChat, `${encabezado}\n\n❌ No se encontraron comandos clasificados.`, m);
     }
 
-    // 7. Preparar List Message
+    // 7. Preparar List Message (AHORA SIN VIEWONCEMESSAGE)
     const listMessage = {
-        text: encabezado + '\n' + infoBot, // 🌟 Encabezado + Info Bot + Decoración
+        text: encabezado + '\n' + infoBot,
         footer: `*${packname}*`,
         title: "✅ MENÚ INTERACTIVO 👑",
         buttonText: "VER CATEGORÍAS",
         sections: secciones,
-        listType: 1
+        listType: 1, // Asegura que es un ListMessage
+        contextInfo: { ...contextInfo, mentionedJid: [m.sender] } // ContextInfo para el ListMessage
     };
     
-    // 8. Enviar List Message con Video/GIF y Newsletter Context
-    
-    const interactiveMsg = generateWAMessageFromContent(idChat, {
-        viewOnceMessage: {
-            message: {
-                listMessage: listMessage
-            }
-        }
-    }, { userJid: idChat, quoted: m });
-    
-    // 9. Enviar el mensaje
-    let msgEnviado;
+    // 8. Enviar el mensaje (GIF y luego ListMessage respondiendo al GIF)
+    let videoMsg;
     try {
-        // Enviar el GIF/Video con la lista de botones como quoted
-        msgEnviado = await conn.sendMessage(idChat, {
+        // 8a. Enviar el GIF/Video con un texto introductorio simple
+        videoMsg = await conn.sendMessage(idChat, {
             video: { url: videoGif },
             gifPlayback: true,
-            caption: '¡Hola! Soy María Koju. 👋\n\nPresiona el botón *VER CATEGORÍAS* abajo para navegar por mis funciones.',
+            caption: '¡Hola! Soy María Koju. 👋\n\nPresiona *VER CATEGORÍAS* para navegar por mis funciones.',
             contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
         }, { quoted: m });
         
-        // Enviar el mensaje interactivo respondiendo al GIF
-        await conn.relayMessage(idChat, interactiveMsg.message, { messageId: interactiveMsg.key.id });
+        // 8b. Enviar el ListMessage respondiendo al GIF/Video (Mejora la compatibilidad)
+        await conn.sendMessage(idChat, listMessage, { quoted: videoMsg });
 
     } catch (e) {
         console.error("Error al enviar el menú interactivo:", e);

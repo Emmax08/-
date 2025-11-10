@@ -96,8 +96,8 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     const tiempoActividad = clockString(process.uptime() * 1000);
     const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
     
-    // Lógica de hora y fecha (Lima/Perú)
-    const lugarFecha = moment().tz('America/Lima'); 
+    // Lógica de hora y fecha (México Central)
+    const lugarFecha = moment().tz('America/Mexico_City'); 
     const formatoFecha = {
         weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
         months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -179,8 +179,8 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     // 6. Lógica para manejar la subcategoría (submenú de texto si se pasa un argumento)
     const selectedCategory = args[0]?.toLowerCase();
     
-    // Bloque de Submenú (6a) - Se mantiene la funcionalidad para generar el submenú de texto
-    if (selectedCategory && selectedCategory !== 'menu') {
+    // Bloque de Submenú de Texto (6a) - Se mantiene la funcionalidad de comandos
+    if (selectedCategory && selectedCategory !== 'menu' && selectedCategory !== '1' && selectedCategory !== '2' && selectedCategory !== '3' && selectedCategory !== '4') {
         let categoryData;
         
         for (const [name, data] of Object.entries(CATEGORIES)) {
@@ -220,7 +220,7 @@ ${textoComandos}
             `.trim();
 
             try {
-                await conn.sendMessage(idChat, {
+                 await conn.sendMessage(idChat, {
                     video: { url: videoGif },
                     gifPlayback: true,
                     caption: `*${data.emoji} Abriste la categoría ${name.toUpperCase()}*`,
@@ -238,7 +238,7 @@ ${textoComandos}
     }
 
 
-    // 6b. Mostrar el Menú Principal (List Message) - GENERADO POR CATEGORIES (TU LISTA)
+    // 6b. Mostrar el Menú Principal con Botones Paginado
 
     const infoBot = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
@@ -248,92 +248,103 @@ ${textoComandos}
 *│* 🔗 *Principal:* wa.me/${numeroPrincipal}
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
 
-*Selecciona una categoría de la lista para ver los comandos:*
+*Selecciona una categoría para ver sus comandos:*
     `.trim();
 
-    let secciones = [];
-    const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
+    // 7. Lógica de Paginación de Botones
+    const allCategories = Object.entries(CATEGORIES);
+    const totalCategories = allCategories.length;
+    const categoriesPerButtonPage = 3; // 3 botones de contenido por mensaje
+    const totalPages = Math.ceil(totalCategories / categoriesPerButtonPage);
     
-    // Crear secciones para el List Message usando el objeto CATEGORIES
-    for (const [name, data] of Object.entries(CATEGORIES)) {
-        if (name === 'Otros') continue; // Se añade "Otros" al final
-        
-        const categoriaNombre = `${data.emoji} ${name.toUpperCase()}`;
-        const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
-
-        if (comandos.length > 0) {
-            // Usamos el primer tag como rowId para disparar el submenú de texto (Sección 6a)
-            const rowIdTag = data.tags.length > 0 ? data.tags[0] : name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            secciones.push({
-                title: categoriaNombre,
-                rows: [
-                    {
-                        title: `Abrir ${name}`,
-                        description: `Comandos: ${comandos.length}`,
-                        rowId: `${usedPrefix}menu ${rowIdTag}`
-                    }
-                ]
-            });
-        }
+    // La página actual se determina por el argumento pasado (si existe)
+    // Si no es un argumento de categoría, se asume que es el número de página.
+    let page = 1;
+    if (args[0] && !isNaN(parseInt(args[0]))) {
+        page = parseInt(args[0]);
+    }
+    
+    if (page < 1 || page > totalPages) {
+        page = 1; // Volver a la primera página si es inválido
     }
 
-    // Añadir la categoría 'Otros' dinámicamente
-    const todosLosTagsNoCategorizados = Object.keys(global.plugins || {})
-        .flatMap(key => global.plugins[key].tags || [])
-        .filter(tag => !tagsCategorizadas.has(tag) && tag.length > 0);
-
-    const comandosOtrosLength = getCommandsByTags(global.plugins, todosLosTagsNoCategorizados, usedPrefix).length;
+    const startIndex = (page - 1) * categoriesPerButtonPage;
+    const currentCategories = allCategories.slice(startIndex, startIndex + categoriesPerButtonPage);
     
-    if (comandosOtrosLength > 0) {
-        secciones.push({
-            title: '📂 OTROS COMANDOS',
-            rows: [{
-                title: `Abrir Otros Comandos`,
-                description: `Comandos: ${comandosOtrosLength}`,
-                rowId: `${usedPrefix}menu otros`
-            }]
+    let buttons = [];
+
+    // 7a. Crear botones para las categorías de la página actual
+    for (const [name, data] of currentCategories) {
+        // Usamos el primer tag como rowId para disparar el submenú de texto (Sección 6a)
+        const rowIdTag = data.tags.length > 0 ? data.tags[0] : name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        buttons.push({
+            buttonId: `${usedPrefix}menu ${rowIdTag}`,
+            buttonText: { displayText: `${data.emoji} ${name}` },
+            type: 1
         });
     }
-    
-    if (secciones.length === 0) {
-        return conn.reply(idChat, `${encabezado}\n\n❌ No se encontraron comandos clasificados.`, m);
+
+    // 7b. Agregar botón de navegación
+    if (page < totalPages) {
+        buttons.push({
+            buttonId: `${usedPrefix}menu ${page + 1}`,
+            buttonText: { displayText: '⏩ Siguiente Página' },
+            type: 1
+        });
     }
 
-    // 8. Preparar List Message
-    const listMessage = {
-        text: encabezado + '\n' + infoBot,
-        footer: `*${packname}*`,
-        title: "✅ MENÚ INTERACTIVO 👑",
-        buttonText: "VER CATEGORÍAS",
-        sections: secciones,
-        listType: 1,
-        contextInfo: { ...contextInfo, mentionedJid: [m.sender] } 
+    if (page > 1) {
+        buttons.push({
+            buttonId: `${usedPrefix}menu ${page - 1}`,
+            buttonText: { displayText: '⏪ Página Anterior' },
+            type: 1
+        });
+    }
+
+    // Asegurarse de que no haya más de 3 botones en total
+    if (buttons.length > 3) {
+        buttons = buttons.slice(0, 3);
+    }
+    
+    const textoPagina = `\n\n*Página ${page}/${totalPages}*`;
+
+    // 8. Preparar el Mensaje de Botones
+    const buttonMessage = {
+        image: { url: miniaturaRandom }, 
+        // El caption debe contener el encabezado + infoBot + textoPagina
+        caption: encabezado + '\n' + infoBot + textoPagina,
+        footer: `*${packname}* | Navega con los botones.`,
+        headerType: 4, // 4 es para imagen
+        buttons: buttons,
+        contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
     };
     
-    // 9. Enviar el mensaje (GIF primero, luego ListMessage)
+    // 9. Enviar el mensaje (GIF primero, luego Botones)
     try {
+        // 9a. Enviar el GIF
         await conn.sendMessage(idChat, {
             video: { url: videoGif },
             gifPlayback: true,
-            caption: '¡Hola! Soy María Kojuo. 👋\n\nPresiona *VER CATEGORÍAS* para navegar por mis funciones.',
+            caption: '¡Hola! Soy María Kojuo. 👋\n\nPresiona los botones para navegar por las funciones.',
             contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
         }, { quoted: m });
         
-        await conn.sendMessage(idChat, listMessage, { quoted: m });
+        // 9b. Enviar el ButtonMessage (con el encabezado)
+        await conn.sendMessage(idChat, buttonMessage, { quoted: m });
 
     } catch (e) {
-        console.error("Error al enviar el GIF o el ListMessage:", e);
+        console.error("Error al enviar el ButtonMessage o el GIF:", e);
         
-        // Fallback a menú de texto simple si falla
-        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.flatMap(sec => sec.rows).map(row => 
-            `> ${row.title}: ${row.rowId}`
+        // Fallback a menú de texto simple
+        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) => 
+            `> ${data.emoji} *${name}*: ${usedPrefix}menu ${data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
         ).join('\n')}\n\n*${packname}*`;
         
         await conn.reply(idChat, fallbackText, m, { contextInfo });
     }
 };
 
-handler.help = ['menu'];
+handler.help = ['menu', 'menu <página>'];
 handler.tags = ['main'];
 handler.command = ['menu', 'menú', 'help'];
 

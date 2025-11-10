@@ -1,5 +1,4 @@
-BY:ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ 
-
+//BY:ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ 
 // Asegúrate de que esta función (o similar) esté definida en tu entorno, 
 // ya que es crucial para acceder a la base de datos de usuarios.
 const ensureDB = () => {

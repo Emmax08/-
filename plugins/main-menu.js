@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment-timezone';
 import axios from 'axios';
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys'; // Necesario para el List Message
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys'; 
 
 // --- Configuración del Bot y Estilo ---
 const newsletterJid = '120363401893800327@newsletter';
@@ -15,6 +15,7 @@ const GITHUB_BRANCH = 'main';
 
 // --- Definición de Categorías y Mapeo de Tags ---
 const CATEGORIES = {
+    'Sub-Bot': { emoji: '🤖', tags: ['serbot'] }, // 🌟 REQ 1: Nueva categoría Sub-Bot
     'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] }, 
     'Herramientas & Stickers': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
     'Grupos & Admin': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
@@ -26,7 +27,6 @@ const CATEGORIES = {
     'Economía & RPG': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
     'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] }, 
     '+18 / NSFW': { emoji: '🔞', tags: ['+18', 'nsfw'] },
-    'Otros': { emoji: '📂', tags: ['otros', 'misc'] }, // Categoría placeholder para comandos sin tag definido
 };
 
 // Función para obtener todos los comandos asociados a un conjunto de tags
@@ -56,18 +56,15 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         const dbRaw = fs.readFileSync(dbPath);
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
-        console.error("Error al leer src/database/db.json:", e);
+        console.error("Error al leer o parsear src/database/db.json:", e);
         return conn.reply(m.chat, 'Error al leer la base de datos de medios.', m);
     }
 
     if (m.quoted?.id && m.quoted?.fromMe) return;
 
-    // Cooldown eliminado completamente.
-
     const idChat = m.chat;
-    const ahora = Date.now();
     
-    // 3. Obtener Datos del Bot y Usuario
+    // 2. Obtener Datos del Bot y Usuario
     let nombre;
     try {
         nombre = await conn.getName(m.sender);
@@ -86,7 +83,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
     const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
     
-    // 4. Lógica de Versión
+    // 3. Lógica de Versión
     let localVersion = 'N/A', serverVersion = 'N/A', updateStatus = 'Desconocido';
     try {
         const packageJsonPath = path.join(process.cwd(), 'package.json');
@@ -110,29 +107,51 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         updateStatus = '❌ No se pudo verificar la actualización';
     }
 
-    // 5. Encabezado del Menú
+    // 4. Encabezado del Menú (Más decorado)
     const encabezado = `
-👑 |--- *mᥲríᥲ k᥆ȷᥙ᥆-Bot* | 🪽
-| 👤 *Usuario:* ${nombre}
-| 🌎 *Hora CDMX:* ${horaCDMX}
-|-------------------------------------------|
-| 🚀 *VERSION DEL BOT*
-| ➡️ *Local:* ${localVersion}
-| ➡️ *Servidor:* ${serverVersion}
-| 📊 *Estado:* ${updateStatus}
-|-------------------------------------------|
-| 🤖 *Bot:* ${esPrincipal ? 'Principal' : `Sub-Bot | Principal: wa.me/${numeroPrincipal}`}
-| 📦 *Comandos:* ${totalComandos}
-| ⏱️ *Tiempo Activo:* ${tiempoActividad}
-| 👥 *Usuarios Reg:* ${totalRegistros}
-| 👑 *Dueño:* se quito por spam
-|-------------------------------------------|
+*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
+*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
+*│* 👤 *Usuario:* ${nombre}
+*│* 🌎 *Hora CDMX:* ${horaCDMX}
+*├┈───────┈─┈──┈─┈──┈─┈*
+*│ 🚀 V E R S I Ó N*
+*│* ➡️ *Local:* ${localVersion}
+*│* ➡️ *Servidor:* ${serverVersion}
+*│* 📊 *Estado:* ${updateStatus}
+*├┈───────┈─┈──┈─┈──┈─┈*
+*│ 📊 I N F O R M A C I Ó N*
+*│* 📦 *Comandos:* ${totalComandos}
+*│* ⏱️ *Actividad:* ${tiempoActividad}
+*│* 👥 *Regis. Usuarios:* ${totalRegistros}
+*│* 👑 *Dueño:* Emmax
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
 `.trim();
+
+    // 5. ContextInfo para Reutilizar
+    const contextInfo = {
+        mentionedJid: [m.sender],
+        isForwarded: true,
+        forwardingScore: 999,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid,
+            newsletterName,
+            serverMessageId: -1
+        },
+        externalAdReply: {
+            title: packname,
+            body: '👑 Menú de Comandos | mᥲríᥲ k᥆ȷᥙ᥆-Bot 🪽',
+            thumbnailUrl: miniaturaRandom,
+            sourceUrl: redes,
+            mediaType: 1,
+            renderLargerThumbnail: false
+        }
+    };
 
     // 6. Lógica para manejar la subcategoría
     const selectedCategory = args[0]?.toLowerCase();
     
-    // 6a. Si se seleccionó una subcategoría (ej: .menu Ajustes)
+    // 6a. Si se seleccionó una subcategoría (submenú)
     if (selectedCategory && selectedCategory !== 'menu') {
         let categoryData;
         
@@ -159,60 +178,71 @@ let handler = async (m, { conn, usedPrefix, args }) => {
             const [name, data] = categoryData;
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
             
-            const textoCategoria = comandos.length > 0
+            const textoComandos = comandos.length > 0
                 ? comandos.map(cmd => `> ${cmd}`).join('\n')
                 : 'No hay comandos disponibles en esta categoría por ahora.';
             
-            const mensajeFinal = `*${data.emoji} ${name.toUpperCase()}*\n\n${textoCategoria}\n\n*${packname}*`;
+            // 🌟 Decoración del submenú
+            const textoFinal = `
+*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
+*│* ${data.emoji} *C A T E G O R Í A: ${name.toUpperCase()}*
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
+*│*
+${textoComandos}
+*│*
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
+*${packname}*
+            `.trim();
 
-            await conn.reply(idChat, mensajeFinal, m, { 
-                contextInfo: {
-                    mentionedJid: [m.sender],
-                    isForwarded: true,
-                    forwardingScore: 999,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid,
-                        newsletterName,
-                        serverMessageId: -1
-                    },
-                    externalAdReply: {
-                        title: packname,
-                        body: name,
-                        thumbnailUrl: miniaturaRandom,
-                        sourceUrl: redes,
-                        mediaType: 1,
-                        renderLargerThumbnail: false
-                    }
-                }
-            });
-            // Cooldown no aplicado
+            // 🌟 REQ 2 y 3: Enviar GIF en el submenú
+            try {
+                await conn.sendMessage(idChat, {
+                    video: { url: videoGif },
+                    gifPlayback: true,
+                    caption: textoFinal,
+                    contextInfo
+                }, { quoted: m });
+            } catch (e) {
+                console.error("Error al enviar el menú con video:", e);
+                await conn.reply(idChat, textoFinal, m, { contextInfo });
+            }
             return;
         }
     }
 
-    // 6b. Mostrar el Menú Principal (List Message)
+    // 6b. Mostrar el Menú Principal (List Message con la información del bot)
+
+    // 🌟 REQ 3: Incluir la información del bot en el cuerpo del mensaje principal
+    const infoBot = `
+*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
+*│ 🤖 E S T A D O S D E L B O T*
+*├┈───────┈─┈──┈─┈──┈─┈*
+*│* 👑 *Bot:* ${esPrincipal ? 'Principal' : 'Sub-Bot'}
+*│* 🔗 *Principal:* wa.me/${numeroPrincipal}
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
+
+*Selecciona una categoría de la lista para ver los comandos:*
+    `.trim();
 
     let secciones = [];
     const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
-    let comandosOtrosLength = 0;
-
+    
     // Iterar sobre las categorías predefinidas para crear las secciones de la lista
     for (const [name, data] of Object.entries(CATEGORIES)) {
-        // Excluir la categoría 'Otros' por ahora, se maneja al final
+        // Excluir la categoría 'Otros' por ahora
         if (name === 'Otros') continue; 
         
         const categoriaNombre = `${data.emoji} ${name.toUpperCase()}`;
         const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
 
         if (comandos.length > 0) {
-            // Usamos el primer tag como identificador para el submenú
             const rowIdTag = data.tags.length > 0 ? data.tags[0] : name.toLowerCase().replace(/[^a-z0-9]/g, '');
             secciones.push({
                 title: categoriaNombre,
                 rows: [
                     {
                         title: `Abrir ${name}`,
-                        description: `Ver los ${comandos.length} comandos de ${name}`,
+                        description: `Comandos: ${comandos.length}`,
                         rowId: `${usedPrefix}menu ${rowIdTag}`
                     }
                 ]
@@ -225,15 +255,14 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         .flatMap(key => global.plugins[key].tags || [])
         .filter(tag => !tagsCategorizadas.has(tag) && tag.length > 0);
 
-    const comandosOtros = getCommandsByTags(global.plugins, todosLosTagsNoCategorizados, usedPrefix);
-    comandosOtrosLength = comandosOtros.length;
+    const comandosOtrosLength = getCommandsByTags(global.plugins, todosLosTagsNoCategorizados, usedPrefix).length;
     
     if (comandosOtrosLength > 0) {
         secciones.push({
             title: '📂 OTROS COMANDOS',
             rows: [{
                 title: `Abrir Otros Comandos`,
-                description: `Ver los ${comandosOtrosLength} comandos no clasificados`,
+                description: `Comandos: ${comandosOtrosLength}`,
                 rowId: `${usedPrefix}menu otros`
             }]
         });
@@ -245,8 +274,8 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 
     // 7. Preparar List Message
     const listMessage = {
-        text: encabezado,
-        footer: `Selecciona una categoría de la lista para ver los comandos.\n\n*${packname}*`,
+        text: encabezado + '\n' + infoBot, // 🌟 Encabezado + Info Bot + Decoración
+        footer: `*${packname}*`,
         title: "✅ MENÚ INTERACTIVO 👑",
         buttonText: "VER CATEGORÍAS",
         sections: secciones,
@@ -264,38 +293,28 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     }, { userJid: idChat, quoted: m });
     
     // 9. Enviar el mensaje
+    let msgEnviado;
     try {
+        // Enviar el GIF/Video con la lista de botones como quoted
+        msgEnviado = await conn.sendMessage(idChat, {
+            video: { url: videoGif },
+            gifPlayback: true,
+            caption: '¡Hola! Soy María Koju. 👋\n\nPresiona el botón *VER CATEGORÍAS* abajo para navegar por mis funciones.',
+            contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
+        }, { quoted: m });
+        
+        // Enviar el mensaje interactivo respondiendo al GIF
         await conn.relayMessage(idChat, interactiveMsg.message, { messageId: interactiveMsg.key.id });
+
     } catch (e) {
         console.error("Error al enviar el menú interactivo:", e);
         // Fallback a menú de texto simple si falla el interactivo
-        const fallbackText = `${encabezado}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.map(sec => 
+        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.map(sec => 
             `> ${sec.title}: ${sec.rows[0].rowId}`
         ).join('\n')}\n\n*${packname}*`;
         
-        await conn.reply(idChat, fallbackText, m, { 
-            contextInfo: {
-                mentionedJid: [m.sender],
-                isForwarded: true,
-                forwardingScore: 999,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid,
-                    newsletterName,
-                    serverMessageId: -1
-                },
-                externalAdReply: {
-                    title: packname,
-                    body: '👑 Menú de Comandos | mᥲríᥲ k᥆ȷᥙ᥆-Bot 🪽',
-                    thumbnailUrl: miniaturaRandom,
-                    sourceUrl: redes,
-                    mediaType: 1,
-                    renderLargerThumbnail: false
-                }
-            }
-        });
+        await conn.reply(idChat, fallbackText, m, { contextInfo });
     }
-
-    // Cooldown no aplicado
 };
 
 handler.help = ['menu'];

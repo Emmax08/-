@@ -2,7 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment-timezone';
 import axios from 'axios';
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys'; 
+import { getDevice } from '@whiskeysockets/baileys'; 
+import { promises } from 'fs';
+import { join } from 'path';
+
+// Función readMore
+const more = String.fromCharCode(8206);
+const readMore = more.repeat(4001);
 
 // --- Configuración del Bot y Estilo ---
 const newsletterJid = '120363401893800327@newsletter';
@@ -13,7 +19,10 @@ const GITHUB_REPO_OWNER = 'Emmax08';
 const GITHUB_REPO_NAME = '-';
 const GITHUB_BRANCH = 'main';
 
-// --- Definición de Categorías y Mapeo de Tags ---
+// 🌐 VARIABLE GLOBAL DE REDES 🌐
+const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'; 
+
+// --- Definición de Categorías y Mapeo de Tags (USADO PARA GENERAR LA LISTA) ---
 const CATEGORIES = {
     'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
     'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] }, 
@@ -48,16 +57,16 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 // Handler principal
-let handler = async (m, { conn, usedPrefix, args }) => {
+let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     // 1. Manejo de Enlaces Multimedia (db.json)
     let enlacesMultimedia;
     try {
-        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
+        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json'); 
         const dbRaw = fs.readFileSync(dbPath);
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
         console.error("Error al leer o parsear src/database/db.json:", e);
-        return conn.reply(m.chat, 'Error al leer la base de datos de medios.', m);
+        enlacesMultimedia = { video: ['https://example.com/error.mp4'], imagen: ['https://example.com/error.jpg'] };
     }
 
     if (m.quoted?.id && m.quoted?.fromMe) return;
@@ -65,6 +74,15 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     const idChat = m.chat;
     
     // 2. Obtener Datos del Bot y Usuario
+    let _package;
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
+        _package = JSON.parse(packageJsonRaw);
+    } catch (error) {
+        _package = {};
+    }
+
     let nombre;
     try {
         nombre = await conn.getName(m.sender);
@@ -77,19 +95,28 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     const totalComandos = Object.keys(global.plugins || {}).length;
     const tiempoActividad = clockString(process.uptime() * 1000);
     const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
-    const horaCDMX = moment().tz("America/Mexico_City").format('h:mm A');
-
+    
+    // Lógica de hora y fecha (Lima/Perú)
+    const lugarFecha = moment().tz('America/Lima'); 
+    const formatoFecha = {
+        weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    };
+    lugarFecha.locale('es', formatoFecha);
+    const horarioFecha = lugarFecha.format('dddd, DD [de] MMMM [del] YYYY || HH:mm A').replace(/^\w/, (c) => c.toUpperCase());
+    
     const videoGif = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
     const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
-    const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
     
+    const totalChatsBanned = Object.entries(global.db?.data?.chats || {}).filter((chat) => chat[1].isBanned).length;
+    const totalUsersBanned = Object.entries(global.db?.data?.users || {}).filter((user) => user[1].banned).length;
+    const rtotalreg = Object.values(global.db?.data?.users || {}).filter((u) => u.registered == true).length;
+
+
     // 3. Lógica de Versión
     let localVersion = 'N/A', serverVersion = 'N/A', updateStatus = 'Desconocido';
     try {
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
-        const packageJson = JSON.parse(packageJsonRaw);
-        localVersion = packageJson.version || 'N/A';
+        localVersion = _package.version || 'N/A';
     } catch (error) { localVersion = 'Error'; }
 
     try {
@@ -107,15 +134,14 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         updateStatus = '❌ No se pudo verificar la actualización';
     }
 
-    // 4. Encabezado del Menú (Más decorado)
+    // 4. Encabezado del Menú (Datos de Gata integrados)
     const encabezado = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-*│* 👤 *Usuario:* ${nombre}
-*│* 🌎 *Hora CDMX:* ${horaCDMX}
+⎔ \`\`\`${horarioFecha}\`\`\`
 *├┈───────┈─┈──┈─┈──┈─┈*
-*│ 🚀 V E R S I Ó N*
+*│ 🚀 V E R S I Ó N Y E S T A D O*
 *│* ➡️ *Local:* ${localVersion}
 *│* ➡️ *Servidor:* ${serverVersion}
 *│* 📊 *Estado:* ${updateStatus}
@@ -123,7 +149,9 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 *│ 📊 I N F O R M A C I Ó N*
 *│* 📦 *Comandos:* ${totalComandos}
 *│* ⏱️ *Actividad:* ${tiempoActividad}
-*│* 👥 *Regis. Usuarios:* ${totalRegistros}
+*│* 👥 *Regis. Usuarios:* ${rtotalreg}/${totalRegistros}
+*│* 🚫 *Chats Bloqueados:* ${totalChatsBanned}
+*│* 🚫 *Usuarios Bloqueados:* ${totalUsersBanned}
 *│* 👑 *Dueño:* Emmax
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
 `.trim();
@@ -148,14 +176,13 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         }
     };
 
-    // 6. Lógica para manejar la subcategoría
+    // 6. Lógica para manejar la subcategoría (submenú de texto si se pasa un argumento)
     const selectedCategory = args[0]?.toLowerCase();
     
-    // 6a. Si se seleccionó una subcategoría (submenú)
+    // Bloque de Submenú (6a) - Se mantiene la funcionalidad para generar el submenú de texto
     if (selectedCategory && selectedCategory !== 'menu') {
         let categoryData;
         
-        // Buscar por nombre de categoría o por cualquiera de sus tags
         for (const [name, data] of Object.entries(CATEGORIES)) {
             const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
             if (normalizedName === selectedCategory || data.tags.includes(selectedCategory)) {
@@ -164,7 +191,6 @@ let handler = async (m, { conn, usedPrefix, args }) => {
             }
         }
         
-        // Manejar la categoría "Otros" por defecto si se solicita
         if (!categoryData && selectedCategory === 'otros') {
             const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
             const todosLosTags = Object.keys(global.plugins || {})
@@ -182,7 +208,6 @@ let handler = async (m, { conn, usedPrefix, args }) => {
                 ? comandos.map(cmd => `> ${cmd}`).join('\n')
                 : 'No hay comandos disponibles en esta categoría por ahora.';
             
-            // 🌟 Decoración del submenú
             const textoFinal = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│* ${data.emoji} *C A T E G O R Í A: ${name.toUpperCase()}*
@@ -194,9 +219,7 @@ ${textoComandos}
 *${packname}*
             `.trim();
 
-            // 🌟 Enviar GIF y Mensaje (Submenú)
             try {
-                // 1. Enviar el GIF/Video con un título introductorio
                 await conn.sendMessage(idChat, {
                     video: { url: videoGif },
                     gifPlayback: true,
@@ -204,19 +227,18 @@ ${textoComandos}
                     contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
                 }, { quoted: m });
                 
-                // 2. Enviar el mensaje de comandos justo después
                 await conn.reply(idChat, textoFinal, m, { contextInfo });
 
             } catch (e) {
                 console.error("Error al enviar el submenú con video:", e);
-                // Fallback a solo texto
                 await conn.reply(idChat, textoFinal, m, { contextInfo });
             }
             return;
         }
     }
 
-    // 6b. Mostrar el Menú Principal (List Message)
+
+    // 6b. Mostrar el Menú Principal (List Message) - GENERADO POR CATEGORIES (TU LISTA)
 
     const infoBot = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
@@ -232,14 +254,15 @@ ${textoComandos}
     let secciones = [];
     const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
     
-    // Crear secciones para el List Message
+    // Crear secciones para el List Message usando el objeto CATEGORIES
     for (const [name, data] of Object.entries(CATEGORIES)) {
-        if (name === 'Otros') continue; 
+        if (name === 'Otros') continue; // Se añade "Otros" al final
         
         const categoriaNombre = `${data.emoji} ${name.toUpperCase()}`;
         const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
 
         if (comandos.length > 0) {
+            // Usamos el primer tag como rowId para disparar el submenú de texto (Sección 6a)
             const rowIdTag = data.tags.length > 0 ? data.tags[0] : name.toLowerCase().replace(/[^a-z0-9]/g, '');
             secciones.push({
                 title: categoriaNombre,
@@ -276,7 +299,7 @@ ${textoComandos}
         return conn.reply(idChat, `${encabezado}\n\n❌ No se encontraron comandos clasificados.`, m);
     }
 
-    // 7. Preparar List Message
+    // 8. Preparar List Message
     const listMessage = {
         text: encabezado + '\n' + infoBot,
         footer: `*${packname}*`,
@@ -287,26 +310,23 @@ ${textoComandos}
         contextInfo: { ...contextInfo, mentionedJid: [m.sender] } 
     };
     
-    // 8. Enviar el mensaje (GIF primero, luego ListMessage)
+    // 9. Enviar el mensaje (GIF primero, luego ListMessage)
     try {
-        // 8a. Enviar el GIF/Video con un texto introductorio simple
         await conn.sendMessage(idChat, {
             video: { url: videoGif },
             gifPlayback: true,
-            caption: '¡Hola! Soy María Koju. 👋\n\nPresiona *VER CATEGORÍAS* para navegar por mis funciones.',
+            caption: '¡Hola! Soy María Kojuo. 👋\n\nPresiona *VER CATEGORÍAS* para navegar por mis funciones.',
             contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
         }, { quoted: m });
         
-        // 8b. Enviar el ListMessage justo después.
-        // Esto envía la lista de forma independiente, solucionando el problema de renderizado.
         await conn.sendMessage(idChat, listMessage, { quoted: m });
 
     } catch (e) {
         console.error("Error al enviar el GIF o el ListMessage:", e);
         
         // Fallback a menú de texto simple si falla
-        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.map(sec => 
-            `> ${sec.title}: ${sec.rows[0].rowId}`
+        const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.flatMap(sec => sec.rows).map(row => 
+            `> ${row.title}: ${row.rowId}`
         ).join('\n')}\n\n*${packname}*`;
         
         await conn.reply(idChat, fallbackText, m, { contextInfo });

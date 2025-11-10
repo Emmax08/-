@@ -1,27 +1,75 @@
-let handler = async (m, { conn, text }) => {
-  let user = global.db.data.users[m.sender];
-  if (!text) return conn.reply(m.chat, `${emoji} Ingresa el tipo de membresía y la duración.*\n> Ejemplo: #comprarpremium 1 dia`, m);
+BY:ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ 
 
-  let [amount, unit] = text.split(' ');
-  amount = parseInt(amount);
-  if (isNaN(amount)) return conn.reply(m.chat, `${emoji2} La cantidad debe ser un número.`, m);
-  
-  const units = { minuto: 1, minutos: 1, hora: 60, horas: 60, dia: 1440, dias: 1440 };
-  if (!units[unit.toLowerCase()]) return conn.reply(m.chat, `${emoji2} Unidad de tiempo no válida. Usa minutos, horas o días.`, m);
+// Asegúrate de que esta función (o similar) esté definida en tu entorno, 
+// ya que es crucial para acceder a la base de datos de usuarios.
+const ensureDB = () => {
+  if (!global.db) global.db = { data: { users: {} } }
+  if (!global.db.data) global.db.data = { users: {} }
+  if (!global.db.data.users) global.db.data.users = {}
+}
 
-  let cost = amount * (units[unit.toLowerCase()] / 200);
-  if (user.coin < cost) return conn.reply(m.chat, `${emoji2} No tienes suficientes ${moneda}. Necesitas ${cost} ${moneda} para comprar esta membresía.`, m);
+let handler = async (m, { conn }) => {
+    // 1. Configuración de la compra
+    ensureDB() // Asegura que la DB está inicializada
+    const COSTO = 500000 // 500.000 monedas
+    const CURRENCY = 'Monedas'
+    const userJid = m.sender
 
-  user.coin -= cost;
-  user.premium = true;
-  user.premiumTime = +new Date() + amount * units[unit.toLowerCase()] * 60 * 1000; 
-  
-  conn.reply(m.chat, `${emoji} ¡Felicitaciones! Ahora eres miembro premium por ${amount} ${unit}. Has gastado ${cost} ${moneda}.`, m);
-};
+    // 2. Obtener datos del usuario, asegurando que 'money' y 'premium' existen
+    // Agregamos 'premium: false' como valor por defecto si el usuario es nuevo.
+    const user = global.db.data.users[userJid] || { 
+        money: 0, 
+        exp: 0, 
+        level: 1, 
+        premium: false 
+    }
+    
+    // Si el usuario es nuevo en la DB, inicializarlo con los valores por defecto
+    if (!global.db.data.users[userJid]) {
+         global.db.data.users[userJid] = user
+    }
 
-handler.help = ['comprarpremium'];
-handler.tags = ['premium'];
-handler.command = ['comprarpremium', 'premium', 'vip'];
-handler.register = true;
+    // 3. Verificación: ¿Ya es Premium?
+    if (user.premium) {
+        await conn.sendMessage(m.chat, { 
+            text: `*👑 ¡Ya eres un Usuario Premium!* No necesitas comprarlo de nuevo. Disfruta de tus privilegios.` 
+        }, { quoted: m })
+        return
+    }
 
-export default handler;
+    // 4. Verificación: ¿Tiene fondos suficientes?
+    if (user.money < COSTO) {
+        const remaining = COSTO - user.money
+        await conn.sendMessage(m.chat, {
+            text: `*¡FONDOS INSUFICIENTES!* ❌\n\nNecesitas un total de *${COSTO.toLocaleString()} ${CURRENCY}* para comprar el estado Premium.\n\nTe faltan: *${remaining.toLocaleString()} ${CURRENCY}*.`
+        }, { quoted: m })
+        return
+    }
+
+    // 5. Procesar la compra
+    
+    // Restar el costo
+    user.money -= COSTO
+    
+    // Asignar estado premium
+    user.premium = true
+
+    // 6. Mensaje de éxito
+    const successMsg = `
+*¡COMPRA EXITOSA!* 🎉
+
+Has adquirido el estado *Usuario Premium* por *${COSTO.toLocaleString()} ${CURRENCY}*.
+
+*Tu nuevo saldo:* ${user.money.toLocaleString()} ${CURRENCY}
+
+¡Disfruta de tus nuevos beneficios exclusivos! 💎
+    `.trim()
+
+    await conn.sendMessage(m.chat, { text: successMsg }, { quoted: m })
+}
+
+handler.help = ['comprarpremuser']
+handler.tags = ['rpg', 'main']
+handler.command = ['comprarpremuser', 'buypremium'] // Alias por si acaso
+
+export default handler

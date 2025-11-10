@@ -57,7 +57,6 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
         console.error("Error al leer o parsear src/database/db.json:", e);
-        // Si falla, usa un mensaje simple y termina
         return conn.reply(m.chat, 'Error al leer la base de datos de medios.', m);
     }
 
@@ -195,25 +194,30 @@ ${textoComandos}
 *${packname}*
             `.trim();
 
-            // Enviar GIF en el submenú
+            // 🌟 Enviar GIF y Mensaje (Submenú)
             try {
+                // 1. Enviar el GIF/Video con un título introductorio
                 await conn.sendMessage(idChat, {
                     video: { url: videoGif },
                     gifPlayback: true,
-                    caption: textoFinal,
-                    contextInfo
+                    caption: `*${data.emoji} Abriste la categoría ${name.toUpperCase()}*`,
+                    contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
                 }, { quoted: m });
+                
+                // 2. Enviar el mensaje de comandos justo después
+                await conn.reply(idChat, textoFinal, m, { contextInfo });
+
             } catch (e) {
                 console.error("Error al enviar el submenú con video:", e);
+                // Fallback a solo texto
                 await conn.reply(idChat, textoFinal, m, { contextInfo });
             }
             return;
         }
     }
 
-    // 6b. Mostrar el Menú Principal (List Message con la información del bot)
+    // 6b. Mostrar el Menú Principal (List Message)
 
-    // Incluir la información del bot en el cuerpo del mensaje principal
     const infoBot = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│ 🤖 E S T A D O S D E L B O T*
@@ -228,9 +232,8 @@ ${textoComandos}
     let secciones = [];
     const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
     
-    // Iterar sobre las categorías predefinidas para crear las secciones de la lista
+    // Crear secciones para el List Message
     for (const [name, data] of Object.entries(CATEGORIES)) {
-        // Excluir la categoría 'Otros' por ahora
         if (name === 'Otros') continue; 
         
         const categoriaNombre = `${data.emoji} ${name.toUpperCase()}`;
@@ -251,7 +254,7 @@ ${textoComandos}
         }
     }
 
-    // Encontrar y añadir la categoría 'Otros' dinámicamente
+    // Añadir la categoría 'Otros' dinámicamente
     const todosLosTagsNoCategorizados = Object.keys(global.plugins || {})
         .flatMap(key => global.plugins[key].tags || [])
         .filter(tag => !tagsCategorizadas.has(tag) && tag.length > 0);
@@ -273,34 +276,35 @@ ${textoComandos}
         return conn.reply(idChat, `${encabezado}\n\n❌ No se encontraron comandos clasificados.`, m);
     }
 
-    // 7. Preparar List Message (AHORA SIN VIEWONCEMESSAGE)
+    // 7. Preparar List Message
     const listMessage = {
         text: encabezado + '\n' + infoBot,
         footer: `*${packname}*`,
         title: "✅ MENÚ INTERACTIVO 👑",
         buttonText: "VER CATEGORÍAS",
         sections: secciones,
-        listType: 1, // Asegura que es un ListMessage
-        contextInfo: { ...contextInfo, mentionedJid: [m.sender] } // ContextInfo para el ListMessage
+        listType: 1,
+        contextInfo: { ...contextInfo, mentionedJid: [m.sender] } 
     };
     
-    // 8. Enviar el mensaje (GIF y luego ListMessage respondiendo al GIF)
-    let videoMsg;
+    // 8. Enviar el mensaje (GIF primero, luego ListMessage)
     try {
         // 8a. Enviar el GIF/Video con un texto introductorio simple
-        videoMsg = await conn.sendMessage(idChat, {
+        await conn.sendMessage(idChat, {
             video: { url: videoGif },
             gifPlayback: true,
             caption: '¡Hola! Soy María Koju. 👋\n\nPresiona *VER CATEGORÍAS* para navegar por mis funciones.',
             contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
         }, { quoted: m });
         
-        // 8b. Enviar el ListMessage respondiendo al GIF/Video (Mejora la compatibilidad)
-        await conn.sendMessage(idChat, listMessage, { quoted: videoMsg });
+        // 8b. Enviar el ListMessage justo después.
+        // Esto envía la lista de forma independiente, solucionando el problema de renderizado.
+        await conn.sendMessage(idChat, listMessage, { quoted: m });
 
     } catch (e) {
-        console.error("Error al enviar el menú interactivo:", e);
-        // Fallback a menú de texto simple si falla el interactivo
+        console.error("Error al enviar el GIF o el ListMessage:", e);
+        
+        // Fallback a menú de texto simple si falla
         const fallbackText = `${encabezado}\n${infoBot}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${secciones.map(sec => 
             `> ${sec.title}: ${sec.rows[0].rowId}`
         ).join('\n')}\n\n*${packname}*`;

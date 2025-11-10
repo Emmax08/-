@@ -18,7 +18,7 @@ const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
 
 // --- Carga de Datos Estáticos al Objeto Global (Ejecución Única) ---
 
-// 1. Inicialización de variables globales
+// 1. Inicialización de variables globales (Si no existen, las crea)
 if (typeof global.enlacesMultimedia === 'undefined') {
     global.enlacesMultimedia = { video: [], imagen: [] };
 }
@@ -80,10 +80,4 @@ const CATEGORIES = {
     'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] }, 
     'Herramientas & Stickers': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
     'Grupos & Admin': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
-    'Inteligencia Artificial (AI)': { emoji: '🧠', tags: ['ai', 'image', 'ia', 'openai'] },
-    'Diversión & Juegos': { emoji: '🕹️', tags: ['games', 'game', 'fun'] },
-    'Anime & Emociones': { emoji: '✨', tags: ['anime', 'emox', 'waifus', 'gacha'] }, 
-    'Información': { emoji: 'ℹ️', tags: ['info'] },
-    'Principal': { emoji: '🏠', tags: ['main'] },
-    'Economía & RPG': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
-    'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] },
+    'Inteligencia Artificial (AI)': { emoji: '🧠', tags: ['ai', 'image', '

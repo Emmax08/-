@@ -56,7 +56,7 @@ else global.conns = []
 
 // ⚠️ Nuevo: Mapa para prevenir el mensaje de éxito duplicado
 const connectionSuccessSent = new Map() // Map<JID_Usuario, Boolean>
-const jadi = 'jadibot' // Carpeta base para las sesiones
+const jadi = 'MariaJadiBots' // Carpeta base para las sesiones
 
 // --- Funciones de Utilidad (Asumidas) ---
 function msToTime(duration) {

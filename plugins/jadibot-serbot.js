@@ -18,7 +18,7 @@ import fs from "fs"
 import path from "path"
 import pino from 'pino'
 import chalk from 'chalk'
-import util from 'util' 
+import util from 'util'
 import * as ws from 'ws'
 const { child, spawn, exec } = await import('child_process')
 const { CONNECTING } = ws
@@ -39,7 +39,7 @@ let rtx2 = `✐ Cσɳҽxισɳ SυႦ-Bσƚ Mσԃҽ Cσԃҽ\n
 \`4\` » Escriba el Código para iniciar sesion con el bot\n
 ✧ No es recomendable usar tu cuenta principal.\n
 a`
-                
+        
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -60,29 +60,29 @@ return m.reply(`${emoji2} No se han encontrado espacios para *Sub-Bots* disponib
 }*/
 let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 let id = `${who.split`@`[0]}`  //conn.getName(who)
-let pathEllenJadiBot = path.join(`./${jadi}/`, id)
+let pathMariaJadiBot = path.join(`./${jadi}/`, id)
 if (!fs.existsSync(pathMariaJadiBot)){
-fs.mkdirSync(pathEllenJadiBot, { recursive: true })
+fs.mkdirSync(pathMariaJadiBot, { recursive: true })
 }
-MariaJBOptions.pathEllenJadiBot = pathEllenJadiBot
+MariaJBOptions.pathMariaJadiBot = pathMariaJadiBot
 MariaJBOptions.m = m
 MariaJBOptions.conn = conn
 MariaJBOptions.args = args
 MariaJBOptions.usedPrefix = usedPrefix
 MariaJBOptions.command = command
 MariaJBOptions.fromCommand = true
-EllenJadiBot(EllenJBOptions)
+MariaJadiBot(MariaJBOptions)
 global.db.data.users[m.sender].Subs = new Date * 1
-} 
+}
 handler.help = ['qr', 'code']
 handler.tags = ['serbot']
 handler.command = ['qr', 'code']
-export default handler 
+export default handler
 
 export async function MariaJadiBot(options) {
 let { pathMariaJadiBot, m, conn, args, usedPrefix, command } = options
 if (command === 'code') {
-command = 'qr'; 
+command = 'qr';
 args.unshift('code')}
 const mcode = args[0] && /(--code|code)/.test(args[0].trim()) ? true : args[1] && /(--code|code)/.test(args[1].trim()) ? true : false
 let txtCode, codeBot, txtQR
@@ -116,7 +116,7 @@ printQRInTerminal: false,
 auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
 msgRetry,
 msgRetryCache,
-browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Maria Kujou (Sub Bot)', 'Chrome','2.0.0'],
+browser: mcode ? ['Ubuntu', 'Chrome', '110.0.5585.95'] : ['Maria Kojuo Bot (Sub Bot)', 'Chrome','2.0.0'],
 version: version,
 generateHighQualityLinkPreview: true
 };
@@ -150,13 +150,13 @@ if (qr && !mcode) {
 if (m?.chat) {
 txtQR = await conn.sendMessage(m.chat, { image: await qrcode.toBuffer(qr, { scale: 8 }), caption: rtx.trim()}, { quoted: m})
 } else {
-return 
+return
 }
 if (txtQR && txtQR.key) {
 setTimeout(() => { conn.sendMessage(m.sender, { delete: txtQR.key })}, 30000)
 }
 return
-} 
+}
 if (qr && mcode) {
 let secret = await sock.requestPairingCode((m.sender.split`@`[0]))
 secret = secret.match(/.{1,4}/g)?.join("-")
@@ -164,7 +164,7 @@ secret = secret.match(/.{1,4}/g)?.join("-")
 txtCode = await conn.sendMessage(m.chat, {text : rtx2}, { quoted: m })
 codeBot = await m.reply(secret)
 //} else {
-//txtCode = await conn.sendButton(m.chat, rtx2.trim(), wm, null, [], secret, null, m) 
+//txtCode = await conn.sendButton(m.chat, rtx2.trim(), wm, null, [], secret, null, m)
 //}
 console.log(secret)
 }
@@ -181,8 +181,8 @@ sock.ws.close()
 } catch {
 }
 sock.ev.removeAllListeners()
-let i = global.conns.indexOf(sock)                
-if (i < 0) return 
+let i = global.conns.indexOf(sock)
+if (i < 0) return
 delete global.conns[i]
 global.conns.splice(i, 1)
 }}
@@ -194,7 +194,7 @@ console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄�
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 408) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathMAriaJadiBot)}) se perdió o expiró. Razón: ${reason}. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ La conexión (+${path.basename(pathMariaJadiBot)}) se perdió o expiró. Razón: ${reason}. Intentando reconectar...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 440) {
@@ -214,26 +214,26 @@ console.error(chalk.bold.yellow(`Error 405 no se pudo enviar mensaje a: +${path.
 fs.rmdirSync(pathMariaJadiBot, { recursive: true })
 }
 if (reason === 500) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Conexión perdida en la sesión (+${path.basename(pathEllenJadiBot)}). Borrando datos...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Conexión perdida en la sesión (+${path.basename(pathMariaJadiBot)}). Borrando datos...\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 if (options.fromCommand) m?.chat ? await conn.sendMessage(`${path.basename(pathMariaJadiBot)}@s.whatsapp.net`, {text : '*CONEXIÓN PÉRDIDA*\n\n> *INTENTÉ MANUALMENTE VOLVER A SER SUB-BOT*' }, { quoted: m || null }) : ""
 return creloadHandler(true).catch(console.error)
-//fs.rmdirSync(pathEllenJadiBot, { recursive: true })
+//fs.rmdirSync(pathMariaJadiBot, { recursive: true })
 }
 if (reason === 515) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Reinicio automático para la sesión (+${path.basename(pathEllenJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Reinicio automático para la sesión (+${path.basename(pathMariaJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
 await creloadHandler(true).catch(console.error)
 }
 if (reason === 403) {
-console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Sesión cerrada o cuenta en soporte para la sesión (+${path.basename(pathEllenJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
-fs.rmdirSync(pathEllenJadiBot, { recursive: true })
+console.log(chalk.bold.magentaBright(`\n╭┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡\n┆ Sesión cerrada o cuenta en soporte para la sesión (+${path.basename(pathMariaJadiBot)}).\n╰┄┄┄┄┄┄┄┄┄┄┄┄┄┄ • • • ┄┄┄┄┄┄┄┄┄┄┄┄┄┄⟡`))
+fs.rmdirSync(pathMariaJadiBot, { recursive: true })
 }}
 if (global.db.data == null) loadDatabase()
 if (connection == `open`) {
 if (!global.db.data?.users) loadDatabase()
-let userName, userJid 
+let userName, userJid
 userName = sock.authState.creds.me.name || 'Anónimo'
-userJid = sock.authState.creds.me.jid || `${path.basename(pathEllenJadiBot)}@s.whatsapp.net`
-console.log(chalk.bold.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│\n│ 🟢 ${userName} (+${path.basename(pathEllenJadiBot)}) conectado exitosamente.\n│\n❒⸺⸺⸺【• CONECTADO •】⸺⸺⸺❒`))
+userJid = sock.authState.creds.me.jid || `${path.basename(pathMariaJadiBot)}@s.whatsapp.net`
+console.log(chalk.bold.cyanBright(`\n❒⸺⸺⸺⸺【• SUB-BOT •】⸺⸺⸺⸺❒\n│\n│ 🟢 ${userName} (+${path.basename(pathMariaJadiBot)}) conectado exitosamente.\n│\n❒⸺⸺⸺【• CONECTADO •】⸺⸺⸺❒`))
 sock.isInit = true
 global.conns.push(sock)
 await joinChannels(sock)
@@ -243,11 +243,11 @@ m?.chat ? await conn.sendMessage(m.chat, {text: args[0] ? `@${m.sender.split('@'
 }}
 setInterval(async () => {
 if (!sock.user) {
-try { sock.ws.close() } catch (e) {      
+try { sock.ws.close() } catch (e) {
 //console.log(await creloadHandler(true).catch(console.error))
 }
 sock.ev.removeAllListeners()
-let i = global.conns.indexOf(sock)                
+let i = global.conns.indexOf(sock)
 if (i < 0) return
 delete global.conns[i]
 global.conns.splice(i, 1)

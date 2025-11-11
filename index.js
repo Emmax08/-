@@ -350,7 +350,7 @@ return true
 
 //Arranque nativo para sub-bots por - ReyEndymion >> https://github.com/ReyEndymion
 
-global.rutaJadiBot = join(__dirname, './${jadi}')
+global.rutaJadiBot = join(__dirname, './MariaJadiBots')
 
 if (global.MariaJadibts) {
 if (!existsSync(global.rutaJadiBot)) {

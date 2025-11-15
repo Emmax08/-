@@ -3,14 +3,16 @@ import baileys from '@whiskeysockets/baileys';
 
 // --- CONFIGURACIÓN DE LA API DE NEVI (Actualizada) ---
 const NEVI_API_URL = 'http://neviapi.ddns.net:5000';
-const NEVI_API_KEY = 'maria'; 
+const NEVI_API_KEY = 'ellen'; 
 // ----------------------------------------------------
 
+// La función 'generateWAMessage' se importa desde el paquete principal, 
+// no es necesario desestructurar 'generateWAMessageContent' y 'proto' si no se usan directamente aquí.
+const { generateWAMessageFromContent, generateWAMessage, delay } = baileys;
 
-// Funciones auxiliares (sendAlbumMessage, etc.)
-// ... (sendAlbumMessage y otras funciones auxiliares se mantienen sin cambios) ...
-
-async function sendAlbumMessage(jid, medias, options = {}) {
+// --- FUNCIONES AUXILIARES (Necesarias para el Álbum) ---
+// Ahora acepta 'conn' como primer argumento
+async function sendAlbumMessage(conn, jid, medias, options = {}) {
   if (typeof jid !== "string") throw new TypeError(`⚠️ El JID debe ser un texto válido.`);
   if (medias.length < 2) throw new RangeError("⚠️ Se requieren al menos dos imágenes para crear un álbum.");
 
@@ -22,9 +24,10 @@ async function sendAlbumMessage(jid, medias, options = {}) {
   }
 
   const caption = options.text || options.caption || "";
-  const delay = !isNaN(options.delay) ? options.delay : 500;
+  const albumDelay = !isNaN(options.delay) ? options.delay : 500; // Renombrado a albumDelay para evitar conflicto con importacion de Baileys
 
-  const album = baileys.generateWAMessageFromContent(
+  // Creación del mensaje padre del álbum (contenedor)
+  const album = generateWAMessageFromContent(
     jid,
     {
       messageContextInfo: {},
@@ -49,9 +52,10 @@ async function sendAlbumMessage(jid, medias, options = {}) {
 
   await conn.relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id });
 
+  // Envío de los mensajes individuales asociados al álbum
   for (let i = 0; i < medias.length; i++) {
     const { type, data } = medias[i];
-    const img = await baileys.generateWAMessage(
+    const img = await generateWAMessage(
       album.key.remoteJid,
       { [type]: data, ...(i === 0 ? { caption } : {}) },
       { upload: conn.waUploadToServer }
@@ -60,28 +64,26 @@ async function sendAlbumMessage(jid, medias, options = {}) {
       messageAssociation: { associationType: 1, parentMessageKey: album.key },
     };
     await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
-    await baileys.delay(delay);
+    await delay(albumDelay);
   }
 
   return album;
 }
 
-// 🎯 FUNCIÓN PINS ACTUALIZADA PARA USAR NEVI API
+// 🎯 FUNCIÓN PINS MANTENIDA (Usa NEVI API por POST y clave)
 const pins = async (query) => {
   try {
-    const apiEndpoint = `${NEVI_API_URL}/pinterest`;
-    
-    // 1. Usa POST y envía la clave API
+    const apiEndpoint = `${NEVI_API_URL}/pinterest`;
+    
     const res = await axios.post(apiEndpoint, { query: query }, {
-        headers: {
-            'Content-Type': 'application/json',
-            'X-API-KEY': NEVI_API_KEY,
-        }
-    });
+        headers: {
+            'Content-Type': 'application/json',
+            'X-API-KEY': NEVI_API_KEY,
+        }
+    });
 
     const json = res.data;
 
-    // 2. Verifica la respuesta de NEVI API (asumiendo formato del handler anterior)
     if (json.status === "success" && Array.isArray(json.urls)) {
       return json.urls.map(url => ({
         image_large_url: url,
@@ -110,8 +112,7 @@ let handler = async (m, { conn, text }) => {
 
   try {
     await m.react('🔍');
-    // Llama a la función 'pins' que ahora usa NEVI API
-    const results = await pins(text); 
+    const results = await pins(text); 
     if (!results.length)
       return conn.reply(m.chat, `❌ No se encontraron resultados para *${text}*. Intenta con otro término. (Vía NEVI API)`, m);
 
@@ -127,7 +128,8 @@ let handler = async (m, { conn, text }) => {
       });
     }
 
-    await sendAlbumMessage(m.chat, medias, {
+    // 🚨 CAMBIO APLICADO AQUÍ: Pasando 'conn' como primer argumento
+    await sendAlbumMessage(conn, m.chat, medias, {
       caption: `🌸 *Masha Kujou* te trae los resultados:\n\n📌 *Búsqueda:* ${text}\n🖼️ *Resultados:* ${max}\n👤 *Creador:* ${dev}\n\n[Datos obtenidos vía NEVI API]`,
       quoted: m
     });

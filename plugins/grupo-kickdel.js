@@ -1,47 +1,69 @@
 let handler = async (m, { conn, participants, usedPrefix, command }) => {
-    // Check if a message is quoted for deletion
+    // 1. Validar la cita
     if (!m.quoted) {
-        return conn.reply(m.chat, `${emoji} Por favor, cita el mensaje que deseas eliminar y cuyo remitente deseas expulsar.`, m);
+        return conn.reply(m.chat, `⚠️ Por favor, cita el mensaje de la persona que deseas expulsar y borrar su historial.`, m);
     }
 
-    let userToKick = m.quoted.sender; // The sender of the quoted message
+    let userToKick = m.quoted.sender; // Remitente del mensaje citado
+    const MESSAGES_TO_DELETE = 50; // Cantidad de mensajes a buscar y eliminar
 
-    // --- Kick Logic ---
+    // --- Protecciones y Validación de usuario ---
     const groupInfo = await conn.groupMetadata(m.chat);
     const ownerGroup = groupInfo.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
-    const ownerBot = global.owner[0][0] + '@s.whatsapp.net'; // Assuming global.owner is defined
+    const ownerBot = global.owner?.[0]?.[0] + '@s.whatsapp.net'; // Uso opcional chaining por seguridad
 
     if (userToKick === conn.user.jid) {
-        return conn.reply(m.chat, `${emoji2} No puedo eliminar el bot del grupo.`, m);
+        return conn.reply(m.chat, `❌ No puedo eliminar el bot del grupo.`, m);
     }
-    if (userToKick === ownerGroup) {
-        return conn.reply(m.chat, `${emoji2} No puedo eliminar al propietario del grupo.`, m);
-    }
-    if (userToKick === ownerBot) {
-        return conn.reply(m.chat, `${emoji2} No puedo eliminar al propietario del bot.`, m);
+    if (userToKick === ownerGroup || userToKick === ownerBot) {
+        return conn.reply(m.chat, `❌ No puedo eliminar al propietario del grupo ni al propietario del bot.`, m);
     }
 
-    // --- Delete Logic ---
+    // --- 2. Buscar y Eliminar Mensajes (Lógica con Placeholder) ---
+    conn.reply(m.chat, `⏳ Buscando y eliminando los últimos ${MESSAGES_TO_DELETE} mensajes enviados por ${userToKick.split('@')[0]}...`, m);
+
     try {
-        let delet = m.message.extendedTextMessage.contextInfo.participant;
-        let bang = m.message.extendedTextMessage.contextInfo.stanzaId;
-        // Attempt to delete message properly (as an admin)
-        await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet }});
+        // !!! ATENCIÓN: Esta función 'conn.fetchMessages' es un PLACEHOLDER.
+        // Debe ser reemplazada por el método real que tu librería use para obtener historial.
+        let messages = await conn.fetchMessages(m.chat, { 
+            limit: MESSAGES_TO_DELETE * 2, // Buscar el doble de mensajes para asegurar encontrar 50
+            before: m.id // Empezar a buscar antes del mensaje del comando
+        });
+
+        let deletedCount = 0;
+        
+        for (let msg of messages) {
+            // Verifica que el mensaje sea del usuario objetivo
+            if (msg.key && msg.key.participant === userToKick) {
+                // Intenta eliminar el mensaje
+                await conn.sendMessage(m.chat, { 
+                    delete: msg.key 
+                });
+                deletedCount++;
+
+                if (deletedCount >= MESSAGES_TO_DELETE) break;
+            }
+        }
+
+        conn.reply(m.chat, `✅ Se eliminaron ${deletedCount} mensajes de ${userToKick.split('@')[0]}.`, m);
+        
     } catch (e) {
-        // Fallback for older message types or if direct deletion fails
-        await conn.sendMessage(m.chat, { delete: m.quoted.vM.key });
+        console.error("Error al buscar/eliminar mensajes:", e);
+        conn.reply(m.chat, `⚠️ Hubo un error al intentar eliminar los mensajes. Procediendo solo con la expulsión.`, m);
     }
 
-    // --- Perform Kick ---
+    // --- 3. Ejecutar Expulsión ---
     await conn.groupParticipantsUpdate(m.chat, [userToKick], 'remove');
-    conn.reply(m.chat, `¡Mensaje eliminado y usuario expulsado!`, m); // Confirmation message
+
+    // --- 4. Confirmación Final ---
+    conn.reply(m.chat, `🚫 ¡Usuario ${userToKick.split('@')[0]} expulsado con éxito!`, m);
 };
 
-handler.help = ['kickdel'];
+handler.help = ['kickpurge'];
 handler.tags = ['grupo'];
-handler.command = ['kickdel'];
-handler.group = true;       // Command only works in groups
-handler.admin = true;       // Only group admins can use
-handler.botAdmin = true;    // Bot must be a group admin
+handler.command = ['kickpurge'];
+handler.group = true;
+handler.admin = true;
+handler.botAdmin = true;
 
 export default handler;

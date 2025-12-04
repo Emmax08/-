@@ -1,8 +1,8 @@
 import { igdl } from 'ruhend-scraper' // Assuming 'igdl' can handle Facebook links based on the original code's usage
 
 // --- Constantes y Configuración de Transmisión (Estilo Ellen Joe) ---
-const newsletterJid = '120363418071540900@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐄llen 𝐉ᴏ𝐄\'s 𝐒ervice';
+const newsletterJid = '120363401893800327@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 
 const handler = async (m, { text, conn, args }) => {
   const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ const handler = async (m, { text, conn, args }) => {
       serverMessageId: -1
     },
     externalAdReply: {
-      title: 'Ellen Joe: Pista localizada. 🦈',
+      title: 'mᥲríᥲ k᥆ȷᥙ᥆: rastro localizado. 🌀',
       body: `Procesando solicitud para el/la Proxy ${name}...`,
       thumbnail: icons, // Ensure 'icons' and 'redes' are globally defined
       sourceUrl: redes,

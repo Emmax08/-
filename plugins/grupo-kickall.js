@@ -1,5 +1,5 @@
 
-/* © nevi-dev
+/* © ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
     Este código está diseñado para expulsar a todos
     los miembros de un grupo de WhatsApp, excepto
     al propietario del bot, el propietario del grupo

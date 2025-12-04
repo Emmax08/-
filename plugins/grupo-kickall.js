@@ -1,74 +1,74 @@
-
-/* © ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
-    Este código está diseñado para expulsar a todos
-    los miembros de un grupo de WhatsApp, excepto
-    al propietario del bot, el propietario del grupo
-    y los administradores del grupo.
-*/
-
-var handler = async (m, { conn, participants, usedPrefix, command }) => {
-    // Validar si el usuario que ejecuta el comando es un administrador.
-    if (!m.isGroup) {
-        return; // Detener la ejecución si no es un grupo
+let handler = async (m, { conn, participants, usedPrefix, command }) => {
+    // 1. Validar la cita
+    if (!m.quoted) {
+        return conn.reply(m.chat, `⚠️ Por favor, cita el mensaje de la persona que deseas expulsar y borrar su historial.`, m);
     }
 
+    let userToKick = m.quoted.sender; // Remitente del mensaje citado
+    const MESSAGES_TO_DELETE = 50; // Cantidad de mensajes a buscar y eliminar
+
+    // --- Protecciones y Validación de usuario ---
     const groupInfo = await conn.groupMetadata(m.chat);
-    const ownerGroup = groupInfo.owner || m.chat.split`@s.whatsapp.net`[0] + '@s.whatsapp.net';
-    const ownerBot = global.owner[0][0] + '@s.whatsapp.net';
+    const ownerGroup = groupInfo.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
+    
+    // CORRECCIÓN: Definición segura del propietario del bot
+    // Si global.owner no está definido o tiene un formato incorrecto, ownerBot será una cadena vacía ('').
+    const ownerBot = (global.owner?.[0]?.[0] || '') + '@s.whatsapp.net'; 
 
-    let usersToKick;
-    let attempts = 0;
-    const maxAttempts = 10; // Aumentar los reintentos para grupos grandes o lentos
+    if (userToKick === conn.user.jid) {
+        return conn.reply(m.chat, `❌ No puedo eliminar el bot del grupo.`, m);
+    }
+    // No permite expulsar al propietario del grupo ni al propietario del bot.
+    if (userToKick === ownerGroup || (ownerBot !== '@s.whatsapp.net' && userToKick === ownerBot)) {
+        return conn.reply(m.chat, `❌ No puedo eliminar al propietario del grupo ni al propietario del bot.`, m);
+    }
+    // -----------------------------------------------------------------
 
-    // Bucle para reintentar la expulsión hasta que no queden usuarios no protegidos
-    while (true) {
-        attempts++;
+    // --- 2. Buscar y Eliminar Mensajes (Lógica con Placeholder) ---
+    conn.reply(m.chat, `⏳ Buscando y eliminando los últimos ${MESSAGES_TO_DELETE} mensajes enviados por ${userToKick.split('@')[0]}...`, m);
 
-        // Obtener la lista actualizada de participantes en cada iteración
-        const updatedParticipants = await conn.groupMetadata(m.chat).then(meta => meta.participants);
-        const admins = updatedParticipants.filter(p => p.admin).map(p => p.id);
+    try {
+        // !!! ADVERTENCIA: 'conn.fetchMessages' debe ser un método válido de tu librería de bot.
+        // Si el bot no tiene acceso al historial, esta parte fallará.
+        let messages = await conn.fetchMessages(m.chat, { 
+            limit: MESSAGES_TO_DELETE * 2, 
+            before: m.id 
+        });
 
-        // Obtener la lista de participantes a expulsar
-        usersToKick = updatedParticipants
-            .filter(user => 
-                !admins.includes(user.id) && 
-                user.id !== ownerGroup && 
-                user.id !== ownerBot && 
-                user.id !== conn.user.jid
-            )
-            .map(user => user.id);
+        let deletedCount = 0;
+        
+        for (let msg of messages) {
+            // Verifica que el mensaje sea del usuario objetivo
+            if (msg.key && msg.key.participant === userToKick) {
+                // Intenta eliminar el mensaje
+                await conn.sendMessage(m.chat, { 
+                    delete: msg.key 
+                });
+                deletedCount++;
 
-        // Si no hay usuarios para expulsar, sal del bucle
-        if (usersToKick.length === 0) {
-            conn.reply(m.chat, `✅ *¡Todos los miembros no-administradores han sido expulsados!*`, m);
-            break;
-        }
-
-        // Si se supera el número de intentos, sal para evitar un bucle infinito
-        if (attempts > maxAttempts) {
-            conn.reply(m.chat, `⚠️ *¡Atención!* Después de ${attempts} intentos, aún quedan ${usersToKick.length} usuarios que no se pudieron expulsar. Es posible que haya un problema con la API de WhatsApp.`, m);
-            break;
-        }
-
-        // Iterar sobre la lista y expulsar a cada usuario
-        for (const user of usersToKick) {
-            try {
-                await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-            } catch (error) {
-                console.error(`Error al expulsar a ${user}:`, error);
+                if (deletedCount >= MESSAGES_TO_DELETE) break;
             }
         }
 
-        // Pequeña pausa para evitar colapsar la API de WhatsApp
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Aumentar la pausa
+        conn.reply(m.chat, `✅ Se eliminaron ${deletedCount} mensajes de ${userToKick.split('@')[0]}.`, m);
+        
+    } catch (e) {
+        console.error("Error al buscar/eliminar mensajes:", e);
+        conn.reply(m.chat, `⚠️ Hubo un error al intentar eliminar los mensajes. Procediendo solo con la expulsión.`, m);
     }
+
+    // --- 3. Ejecutar Expulsión ---
+    await conn.groupParticipantsUpdate(m.chat, [userToKick], 'remove');
+
+    // --- 4. Confirmación Final ---
+    conn.reply(m.chat, `🚫 ¡Usuario ${userToKick.split('@')[0]} expulsado con éxito!`, m);
 };
 
-handler.help = ['kickall'];
+handler.help = ['kickall1'];
 handler.tags = ['grupo'];
-handler.command = ['kickall'];
+handler.command = ['kickall1'];
 handler.group = true;
+handler.admin = true;
 handler.botAdmin = true;
-handler.rowner = true;
 
 export default handler;

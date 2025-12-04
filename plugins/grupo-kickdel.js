@@ -9,8 +9,9 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
 
     // --- Protecciones y Validación de usuario ---
     const groupInfo = await conn.groupMetadata(m.chat);
+    // Uso de optional chaining (?) para mayor seguridad si global.owner no está definido
     const ownerGroup = groupInfo.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
-    const ownerBot = global.owner?.[0]?.[0] + '@s.whatsapp.net'; // Uso opcional chaining por seguridad
+    const ownerBot = global.owner?.[0]?.[0] + '@s.whatsapp.net'; 
 
     if (userToKick === conn.user.jid) {
         return conn.reply(m.chat, `❌ No puedo eliminar el bot del grupo.`, m);
@@ -24,10 +25,10 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
 
     try {
         // !!! ATENCIÓN: Esta función 'conn.fetchMessages' es un PLACEHOLDER.
-        // Debe ser reemplazada por el método real que tu librería use para obtener historial.
+        // Reemplaza esta línea con el método real que tu librería usa para obtener el historial.
         let messages = await conn.fetchMessages(m.chat, { 
-            limit: MESSAGES_TO_DELETE * 2, // Buscar el doble de mensajes para asegurar encontrar 50
-            before: m.id // Empezar a buscar antes del mensaje del comando
+            limit: MESSAGES_TO_DELETE * 2, 
+            before: m.id 
         });
 
         let deletedCount = 0;
@@ -56,14 +57,4 @@ let handler = async (m, { conn, participants, usedPrefix, command }) => {
     await conn.groupParticipantsUpdate(m.chat, [userToKick], 'remove');
 
     // --- 4. Confirmación Final ---
-    conn.reply(m.chat, `🚫 ¡Usuario ${userToKick.split('@')[0]} expulsado con éxito!`, m);
-};
-
-handler.help = ['kickpurge'];
-handler.tags = ['grupo'];
-handler.command = ['kickpurge'];
-handler.group = true;
-handler.admin = true;
-handler.botAdmin = true;
-
-export default handler;
+    conn.reply(m.chat, `🚫 ¡Usuario ${userToKick.split('@')[0]} expulsado con éxito!`,

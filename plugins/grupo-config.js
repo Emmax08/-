@@ -1,27 +1,34 @@
 let handler = async (m, { conn, args, usedPrefix, command }) => {
 const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => icono) 
-let isClose = { // Switch Case Like :v
-'open': 'not_announcement',
-'close': 'announcement',
-'abierto': 'not_announcement',
-'cerrado': 'announcement',
-'abrir': 'not_announcement',
-'cerrar': 'announcement',
-}[(args[0] || '')]
-if (isClose === undefined)
-return conn.reply(m.chat, `${emoji} *Elija una opción para configurar el grupo*\n\nEjemplo:\n*✰ #${command} abrir*\n*✰ #${command} cerrar*\n*✰ #${command} close*\n*✰ #${command} open*`, m)
+
+// La lógica ahora mapea el comando usado (e.g., 'open', 'close') 
+// en lugar de un argumento (e.g., args[0]).
+let isClose = {
+    'open': 'not_announcement',  // Abierto (todos pueden escribir)
+    'abrir': 'not_announcement', 
+    'close': 'announcement',     // Cerrado (solo admins pueden escribir)
+    'cerrar': 'announcement',
+}[command] 
+
+// Como el comando define la acción, ya no es necesario el chequeo de 'isClose === undefined'
+// ni el mensaje de uso incorrecto, ya que solo se ejecuta con los comandos definidos.
+
 await conn.groupSettingUpdate(m.chat, isClose)
 
 if (isClose === 'not_announcement'){
-m.reply(`${emoji} *Ya pueden escribir en este grupo.*`)
+    // Mensaje para cuando se abre
+    m.reply(`${emoji} *El grupo ha sido abierto. Ya pueden escribir todos los miembros.*`)
 }
 
 if (isClose === 'announcement'){
-m.reply(`${emoji2} *Solos los admins pueden escribir en este grupo.*`)
+    // Mensaje para cuando se cierra
+    m.reply(`${emoji2} *El grupo ha sido cerrado. Solos los admins pueden escribir.*`)
 }}
-handler.help = ['group open / close', 'grupo abrir / cerrar']
+
+// Se actualizan las propiedades del handler para usar los nuevos comandos
+handler.help = ['open', 'close', 'abrir', 'cerrar']
 handler.tags = ['grupo']
-handler.command = ['group', 'grupo']
+handler.command = ['open', 'close', 'abrir', 'cerrar'] // ¡Nuevos comandos!
 handler.admin = true
 handler.botAdmin = true
 

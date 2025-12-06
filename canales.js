@@ -8,9 +8,9 @@ const strings = [
     'Formato incorrecto',
     '\n\nUso: *',
     '<link> | <emoji>',
-    '.', 
+    '.',
     'split',
-    '|', 
+    '|',
     'map',
     'trim',
     'length',
@@ -54,7 +54,7 @@ const strings = [
     '• *¡Reacciones de ',
     ' enviadas exitosamente!*',
     'edit',
-    'key',
+    'key', 'AdonixKey8hig531055'
     '• *No se pudo enviar las reacciones*',
     '\n\nPosibles causas:\n• API Key expirada\n• Enlace no válido\n• API fuera de servicio\n• Límite de uso alcanzado',
     'console',
@@ -74,166 +74,32 @@ const handler = async (message, {
     usedPrefix,
     command
 }) => {
-    
-    // --- LÍNEAS DE DEPURACIÓN AÑADIDAS AQUÍ ---
-    console.log('--- DEBUG COMANDO INICIO ---');
-    console.log('Comando recibido:', command);
-    console.log('Texto de argumentos (text):', text);
-    console.log('Prefijo usado:', usedPrefix);
-    console.log('Propietario:', isOwner ? 'SÍ' : 'NO');
-    console.log('------------------------------');
-    // --- FIN LÍNEAS DE DEPURACIÓN ---
-
-
     // 1. Verificación de Propietario
     if (!isOwner) {
         return conn.reply(message.chat, decodeString(2), message);
     }
 
     // 2. Verificación de Argumentos
-    // Comprueba si el texto existe y si tiene el separador '|'
-    if (!text || !text.includes(decodeString(11))) { 
+    if (!text) {
         return conn.reply(message.chat, decodeString(4) + decodeString(5) + conn.user.name + decodeString(6) + decodeString(7) + usedPrefix + command + ' ' + decodeString(8), message);
     }
-    
-    // Split por '|'
-    const args = text.split(decodeString(11)) 
+
+    const args = text.split(decodeString(9))
         .map(item => item.trim());
 
-    // Debe tener exactamente 2 partes: [0] = cifra/link, [1] = rawEmojis
-    if (2 !== args[decodeString(14)]) { 
+    if (2 !== args[decodeString(14)]) {
         return conn.reply(message.chat, decodeString(15) + decodeString(7) + usedPrefix + command + ' ' + decodeString(8), message);
     }
-    
-    // Asignación de variables
-    const [linkArg, rawEmojis] = args;
-    
-    // Separación de Cifra y Link por espacios
-    const linkParts = linkArg.split(/\s+/).filter(p => p.length > 0); 
-    
-    if (linkParts.length < 2) {
-         return conn.reply(message.chat, decodeString(15) + '\n• Faltan la cifra y/o el enlace.', message);
-    }
-    
-    const cifraRaw = linkParts[0];
-    const link = linkParts.slice(1).join(' ');
 
-    // Validación de Emojis
+    const [link, rawEmojis] = args;
     const emojis = rawEmojis.split(',')
         .map(item => item.trim())
         .filter(emoji => emoji);
 
     // 3. Validación de Enlace (WhatsApp Channel)
     if (!link.includes(decodeString(16)) && !link.includes(decodeString(17))) {
-        return conn.reply(message.chat, decodeString(19), message);
+        return conn.reply(message.chat, decodeString(18), message);
     }
 
-    // 4. Validación de Emojis: entre 1 y 3
-    if (0 === emojis[decodeString(14)] || emojis[decodeString(14)] > 3) {
-        return conn.reply(message.chat, decodeString(21), message); 
-    }
-    
-    // --- LÓGICA DE MANEJO DE CIFRA ---
-    let cantidad = 0;
-    try {
-        let cifra_str = cifraRaw.toLowerCase();
-        // Limpiamos los prefijos comunes ('#', '.', '$')
-        cifra_str = cifra_str.replace(/^[#.$]/, ''); 
-        
-        if (cifra_str.endsWith('k')) {
-            const base = parseFloat(cifra_str.slice(0, -1));
-            cantidad = parseInt(base * 1000);
-        } else if (cifra_str.endsWith('m')) {
-            const base = parseFloat(cifra_str.slice(0, -1));
-            cantidad = parseInt(base * 1000000);
-        } else {
-            cantidad = parseInt(cifra_str);
-        }
-        
-        if (isNaN(cantidad) || cantidad <= 0) {
-            return conn.reply(message.chat, '• Formato incorrecto\n• La cifra debe ser un número válido (ej: 1k, 500, 2.5k)', message);
-        }
-    } catch (error) {
-        return conn.reply(message.chat, '• Error al procesar la cifra\n• Asegúrate de usar un formato válido', message);
-    }
-    
-    // --- LÓGICA DE ENVÍO A LA API ADONIX ---
-    try {
-        // Construir el mensaje de envío
-        const loadingMsg = `• *Enviando ${cantidad.toLocaleString()} reacciones al canal...*`;
-        const sentMsg = await conn.sendMessage(message.chat, { text: loadingMsg }, { quoted: message });
-        
-        // Preparar datos para la API
-        const apiKey = 'AdonixKey8hig531055'; // CLAVE AÑADIDA AQUÍ
-        const encodedLink = encodeURIComponent(link);
-        const encodedEmojis = encodeURIComponent(emojis.join(','));
-        
-        // Construir URL de la API
-        const apiUrl = `${decodeString(25)}${decodeString(26)}${apiKey}${decodeString(27)}${encodedLink}${decodeString(28)}${encodedEmojis}&amount=${cantidad}`;
-        
-        console.log('URL API:', apiUrl);
-        
-        // Realizar la petición a la API
-        const response = await fetch(apiUrl, {
-            method: decodeString(30),
-            headers: {
-                [decodeString(32)]: decodeString(33),
-                [decodeString(34)]: decodeString(35),
-                [decodeString(36)]: decodeString(37),
-                [decodeString(38)]: decodeString(25)
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API respondió con status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Verificar respuesta de la API
-        if (data.status && data.status.toLowerCase().includes('exitosamente') || 
-            data.message && data.message.toLowerCase().includes('success') ||
-            data.success === true) {
-            
-            // Mensaje de éxito
-            const successMsg = `${decodeString(40)}${cantidad.toLocaleString()}${decodeString(41)}`;
-            await conn.sendMessage(message.chat, { 
-                text: successMsg 
-            }, { 
-                quoted: message 
-            });
-            
-            // Editar mensaje anterior
-            await conn.sendMessage(message.chat, {
-                text: successMsg,
-                edit: sentMsg.key
-            });
-            
-        } else {
-            // Error en la API
-            const errorMsg = `${decodeString(44)}${decodeString(45)}`;
-            await conn.sendMessage(message.chat, { 
-                text: errorMsg 
-            }, { 
-                quoted: message 
-            });
-        }
-        
-    } catch (error) {
-        console.error('Error en la API:', error);
-        const errorMsg = `${decodeString(46)}\n\n${error.message || 'Error desconocido'}`;
-        await conn.sendMessage(message.chat, { 
-            text: errorMsg 
-        }, { 
-            quoted: message 
-        });
-    }
-};
-
-// Configuración del comando
-handler.command = /^(react|reaccionar|reactions)$/i;
-handler.rowner = true;
-handler.group = true;
-handler.botAdmin = false;
-
-export default handler;
+    // 4. Validación de Emojis
+    if (0 === emojis[decodeString(14)] || emojis

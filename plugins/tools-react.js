@@ -5,7 +5,7 @@ const msgglobal = '❌ Ha ocurrido un error inesperado al intentar enviar las re
 
 const handler = async (m, { conn, args }) => {
   // 1. Unir los argumentos en una sola cadena
-  const fullArgs = args.join(' ')
+  const fullArgs = args.join(' ').trim()
 
   // 2. Comprobación de argumentos
   if (!fullArgs) {
@@ -78,6 +78,7 @@ const handler = async (m, { conn, args }) => {
 
 handler.command = ['react'];
 handler.help = ['react'];
-handler.tags = ['utils'];
+handler.tags = ['owner']; // Cambiado a 'owner' ya que el comando es restringido
+handler.owner = true; // <--- Línea agregada para restringir el uso al propietario
 
 export default handler;

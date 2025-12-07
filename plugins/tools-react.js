@@ -78,7 +78,7 @@ const handler = async (m, { conn, args }) => {
 
 handler.command = ['react'];
 handler.help = ['react'];
-handler.tags = ['owner']; // Cambiado a 'owner' ya que el comando es restringido
-handler.owner = true; // <--- Línea agregada para restringir el uso al propietario
+handler.tags = ['rowner']; // Cambiado a 'owner' ya que el comando es restringido
+handler.rowner = true; // <--- Línea agregada para restringir el uso al propietario
 
 export default handler;

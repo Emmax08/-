@@ -11,9 +11,8 @@ Let handler = async (m, { conn, usedPrefix, command }) => {
     }
 }
 
-handler.help = ['restart']
-handler.tags = ['owner']
-handler.command = ['restart', 'reiniciar', 'res', 'resat'] // <-- Modificación aquí
-handler.rowner = true
+// Manteniendo las propiedades esenciales para que el bot lo cargue y ejecute
+handler.command = ['restart', 'reiniciar', 'res', 'resat'] 
+handler.rowner = true // Se mantiene la restricción de dueño
 
 export default handler

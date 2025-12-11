@@ -1,4 +1,4 @@
-let handler = async (m, { conn, usedPrefix, command }) => {
+Let handler = async (m, { conn, usedPrefix, command }) => {
 
     try {
         m.reply('「❀」 Reiniciando El Bot....')
@@ -13,7 +13,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 
 handler.help = ['restart']
 handler.tags = ['owner']
-handler.command = ['restart', 'reiniciar'] 
+handler.command = ['restart', 'reiniciar', 'res', 'resat'] // <-- Modificación aquí
 handler.rowner = true
 
 export default handler

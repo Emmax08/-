@@ -9,6 +9,7 @@ import fetch from 'node-fetch'
 import failureHandler from './lib/respuesta.js';
 import { manejarRespuestasBotones } from './lib/botones.js';
 import { manejarRespuestasStickers } from './lib/stickers.js';
+import { messageProcessor } from './lib/messageProcessor.js';
 
 const { proto } = (await import('@whiskeysockets/baileys')).default
 const isNumber = x => typeof x === 'number' && !isNaN(x)
@@ -56,6 +57,8 @@ if (await manejarRespuestasStickers(this, m)) return;
         if (!m)
             return
 
+        if (await messageProcessor(this, m)) return;
+        
         sender = m.isGroup ? (m.key.participant ? m.key.participant : m.sender) : m.key.remoteJid;
 
         const groupMetadata_lid = m.isGroup ? { ...(this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}), ...(((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants) && { participants: ((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants || []).map(p => ({ ...p, id: p.jid, jid: p.jid, lid: p.lid })) }) } : {}

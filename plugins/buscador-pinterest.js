@@ -1,4 +1,4 @@
-import axios from 'axios';
+
 // Importamos 'fetch' ya que la API de Dorratz usa un método GET simple (como en el primer código).
 // Si quieres usar axios para TODO, puedes hacerlo, pero por coherencia con el primer código, usaré 'fetch'.
 import fetch from 'node-fetch'; 
@@ -58,4 +58,100 @@ async function sendAlbumMessage(conn, jid, medias, options = {}) {
 
   // Envío de los mensajes individuales asociados al álbum
   for (let i = 0; i < medias.length; i++) {
-    const { type, data } = medias
+    const { type, data } = medias[i];
+    const img = await generateWAMessage(
+      album.key.remoteJid,
+      { [type]: data, ...(i === 0 ? { caption } : {}) },
+      { upload: conn.waUploadToServer }
+    );
+    img.message.messageContextInfo = {
+      messageAssociation: { associationType: 1, parentMessageKey: album.key },
+    };
+    await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
+    await delay(albumDelay);
+  }
+
+  return album;
+}
+
+// 🎯 FUNCIÓN PINS DORRATZ (Implementación del primer comando)
+const pinsDorratz = async (query) => {
+  try {
+    // Uso de fetch para la API GET de Dorratz
+    const res = await fetch(`https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(query)}`);
+
+    if (!res.ok) {
+        console.error(`💥 Error en la API de Dorratz: ${res.status} ${res.statusText}`);
+        return [];
+    }
+
+    const data = await res.json();
+    
+    // La API de Dorratz devuelve un array directamente
+    if (Array.isArray(data)) {
+        return data.map(item => ({
+            // Mantenemos el formato de salida para el handler
+            image_large_url: item.image_large_url || item.image_medium_url || item.image_small_url,
+            image_medium_url: item.image_medium_url || item.image_large_url,
+            image_small_url: item.image_small_url || item.image_large_url
+        }));
+    }
+    return [];
+  } catch (err) {
+    console.error('💥 Error al obtener resultados de Pinterest (Dorratz API):', err.message);
+    return [];
+  }
+};
+
+let handler = async (m, { conn, text }) => {
+  const dev = 'Emmax 🌸';
+  const botname = 'MashaBot ✨';
+
+  if (!text) {
+    return conn.reply(
+      m.chat,
+      `📌 *Uso correcto:*\nEscribe el término que deseas buscar.\n\n✨ *Ejemplo:* .pinterest anime girl`,
+      m
+    );
+  }
+
+  try {
+    await m.react('🔍');
+    // 🚨 CAMBIO APLICADO: Usando la nueva función de Dorratz
+    const results = await pinsDorratz(text); 
+    
+    if (!results.length)
+      return conn.reply(m.chat, `❌ No se encontraron resultados para *${text}*. Intenta con otro término. (Vía Dorratz API)`, m);
+
+    const max = Math.min(results.length, 15);
+    const medias = [];
+
+    for (let i = 0; i < max; i++) {
+      medias.push({
+        type: 'image',
+        data: {
+          url: results[i].image_large_url || results[i].image_medium_url || results[i].image_small_url
+        }
+      });
+    }
+
+    await sendAlbumMessage(conn, m.chat, medias, {
+      caption: `🌸 *Masha Kujou* te trae los resultados:\n\n📌 *Búsqueda:* ${text}\n🖼️ *Resultados:* ${max}\n👤 *Creador:* ${dev}\n\n[Datos obtenidos vía Dorratz API]`,
+      quoted: m
+    });
+
+    await conn.sendMessage(m.chat, { react: { text: '🌺', key: m.key } });
+
+  } catch (e) {
+    console.error(e);
+    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar la búsqueda en Pinterest (Error de Dorratz API o conexión).', m);
+  }
+};
+
+handler.help = ['pinterest'];
+handler.command = ['pinterest', 'pin'];
+handler.tags = ['buscador'];
+handler.register = true;
+
+export default handler;
+

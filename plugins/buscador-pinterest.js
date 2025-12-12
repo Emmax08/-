@@ -1,17 +1,12 @@
 
-// Importamos 'fetch' ya que la API de Dorratz usa un método GET simple (como en el primer código).
-// Si quieres usar axios para TODO, puedes hacerlo, pero por coherencia con el primer código, usaré 'fetch'.
+// Importamos 'fetch' ya que la API de Dorratz usa un método GET simple.
 import fetch from 'node-fetch'; 
 import baileys from '@whiskeysockets/baileys';
 
-// --- CONFIGURACIÓN DE LA API DE NEVI (Originalmente aquí, ahora solo se usa para pinsDorratz) ---
-// La API de Dorratz no requiere clave.
-// ------------------------------------------------------------------------------------------------
-
-// La función 'generateWAMessage' se importa desde el paquete principal, 
+// Desestructuración de Baileys
 const { generateWAMessageFromContent, generateWAMessage, delay } = baileys;
 
-// --- FUNCIONES AUXILIARES (sendAlbumMessage se mantiene, recibe conn) ---
+// --- FUNCIONES AUXILIARES (sendAlbumMessage) ---
 
 async function sendAlbumMessage(conn, jid, medias, options = {}) {
   if (typeof jid !== "string") throw new TypeError(`⚠️ El JID debe ser un texto válido.`);
@@ -74,10 +69,9 @@ async function sendAlbumMessage(conn, jid, medias, options = {}) {
   return album;
 }
 
-// 🎯 FUNCIÓN PINS DORRATZ (Implementación del primer comando)
+// 🎯 FUNCIÓN PINS DORRATZ (API de Dorratz)
 const pinsDorratz = async (query) => {
   try {
-    // Uso de fetch para la API GET de Dorratz
     const res = await fetch(`https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(query)}`);
 
     if (!res.ok) {
@@ -87,10 +81,8 @@ const pinsDorratz = async (query) => {
 
     const data = await res.json();
     
-    // La API de Dorratz devuelve un array directamente
     if (Array.isArray(data)) {
         return data.map(item => ({
-            // Mantenemos el formato de salida para el handler
             image_large_url: item.image_large_url || item.image_medium_url || item.image_small_url,
             image_medium_url: item.image_medium_url || item.image_large_url,
             image_small_url: item.image_small_url || item.image_large_url
@@ -110,14 +102,13 @@ let handler = async (m, { conn, text }) => {
   if (!text) {
     return conn.reply(
       m.chat,
-      `📌 *Uso correcto:*\nEscribe el término que deseas buscar.\n\n✨ *Ejemplo:* .pinterest anime girl`,
+      `📌 *Uso correcto:*\nEscribe el término que deseas buscar.\n\n✨ *Ejemplo:* #pin anime girl (o .pin anime girl)`,
       m
     );
   }
 
   try {
     await m.react('🔍');
-    // 🚨 CAMBIO APLICADO: Usando la nueva función de Dorratz
     const results = await pinsDorratz(text); 
     
     if (!results.length)

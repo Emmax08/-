@@ -4,7 +4,6 @@ import * as fs from 'fs'
 var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
 
     // 1. Validar que haya texto o una cita.
-    // Usaremos un emoji placeholder, asumiendo que 'emoji' no es global aquí.
     let emoji = '⚠️'; 
     if (!m.quoted && !text) {
         return conn.reply(m.chat, `${emoji} Debes enviar un texto para hacer un tag o citar un mensaje/media.`, m);
@@ -29,7 +28,7 @@ var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
         htextos = quoted.text || quoted.caption || "*Mensaje citado reenviado!*";
     }
     
-    // Fallback por si acaso, aunque el chequeo inicial debería evitarlo.
+    // Fallback
     if (!htextos) {
         htextos = "*Hola, grupo!*";
     }
@@ -41,7 +40,7 @@ var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
     // 6. Enviar el mensaje con el tag a todos
     try {
         if (isMedia && m.quoted) {
-            // Manejo de Media (Imagen, Video, Audio, Sticker) si el usuario citó algo
+            // Manejo de Media (Imagen, Video, Audio, Sticker)
             var mediax = await quoted.download?.();
             
             if (quoted.mtype === 'imageMessage') {
@@ -54,20 +53,14 @@ var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
                 await conn.sendMessage(m.chat, { sticker: mediax, mentions: users }, { quoted: null });
             }
         } else {
-            // Manejo de Texto (incluye el caso de citar un texto, que es lo que pediste)
-            // NOTA: Asegúrate de definir 'icons' y 'redes' o elimina la parte 'externalAdReply'.
-            let icons = 'https://ejemplo.com/icono.jpg';
-            let redes = 'https://ejemplo.com/enlace';
+            // Manejo de Texto (QUITANDO el link/AdReply)
             
             await conn.relayMessage(m.chat, {
                 extendedTextMessage:{
                     text: `${masss}\n${htextos}\n`,
                     contextInfo: { 
                         mentionedJid: users,
-                        externalAdReply: { 
-                            thumbnail: icons, 
-                            sourceUrl: redes 
-                        }
+                        // SE ELIMINÓ: externalAdReply: { thumbnail: icons, sourceUrl: redes }
                     }
                 }
             }, {});

@@ -33,9 +33,7 @@ var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
         htextos = "*Hola, grupo!*";
     }
     
-    // 5. Caracteres invisibles para el "hidetag" de texto (método robusto)
-    let more = String.fromCharCode(8206);
-    let masss = more.repeat(850);
+    // 5. ¡IMPORTANTE! Eliminamos las variables `more` y `masss` para evitar el espacio largo.
 
     // 6. Enviar el mensaje con el tag a todos
     try {
@@ -53,17 +51,10 @@ var handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
                 await conn.sendMessage(m.chat, { sticker: mediax, mentions: users }, { quoted: null });
             }
         } else {
-            // Manejo de Texto (QUITANDO el link/AdReply)
+            // Manejo de Texto: Enviar el texto directamente CON las menciones.
             
-            await conn.relayMessage(m.chat, {
-                extendedTextMessage:{
-                    text: `${masss}\n${htextos}\n`,
-                    contextInfo: { 
-                        mentionedJid: users,
-                        // SE ELIMINÓ: externalAdReply: { thumbnail: icons, sourceUrl: redes }
-                    }
-                }
-            }, {});
+            // Usamos un simple sendMessage con el texto y el array de menciones.
+            await conn.sendMessage(m.chat, { text: htextos, mentions: users }, { quoted: m });
         }
 
     } catch (e) {  

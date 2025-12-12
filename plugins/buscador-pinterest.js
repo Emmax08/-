@@ -127,7 +127,7 @@ let handler = async (m, { conn, text }) => {
     }
 
     await sendAlbumMessage(conn, m.chat, medias, {
-      caption: `🌸 *Masha Kujou* te trae los resultados:\n\n📌 *Búsqueda:* ${text}\n🖼️ *Resultados:* ${max}\n👤 *Creador:* ${dev}\n\n[Datos obtenidos vía Dorratz API]`,
+      caption: `🌸 *Masha Kujou* te trae los resultados:\n\n📌 *Búsqueda:* ${text}\n🖼️ *Resultados:* ${max}\n👤 *Creador:* ${dev}\n\n`,
       quoted: m
     });
 
@@ -135,7 +135,7 @@ let handler = async (m, { conn, text }) => {
 
   } catch (e) {
     console.error(e);
-    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar la búsqueda en Pinterest (Error de Dorratz API o conexión).', m);
+    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar la búsqueda en Pinterest.', m);
   }
 };
 

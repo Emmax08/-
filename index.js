@@ -1,7 +1,7 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './settings.js'
 import { setupMaster, fork } from 'cluster'
-import { checkCypherTransInbound } from './plugins/_checkCypherTrans.js';
+import { checkCodesEndpoint } from './lib/apiChecker.js';
 import { watchFile, unwatchFile } from 'fs'
 import cfonts from 'cfonts'
 import {createRequire} from 'module'
@@ -255,17 +255,17 @@ if (connection == 'open') {
 console.log(chalk.bold.green('\n❀ mᥲríᥲ k᥆ȷᥙ᥆ Conectado Exitosamente ❀'))
 }
 // -------------------------------------------------------------------
-// 🔥 INICIO DE LA LÓGICA DE CHEQUEO DE CYPHERTRANS 🔥
+// 🔑 INICIO DE LA LÓGICA DE CHEQUEO DEL ENDPOINT DE CÓDIGOS (MARIA) 🔑
+// Ahora es completamente silencioso, solo reporta errores.
 // -------------------------------------------------------------------
-console.log(chalk.bold.cyan('🎛️  Inicializando monitoreo de transferencias CypherTrans...'));
 
 // 1. Ejecutar el chequeo inmediatamente al conectar
-checkCypherTransInbound(conn); 
+checkCodesEndpoint(conn, global.db.data); 
 
 // 2. Ejecutar el chequeo cada 60 segundos (60,000 milisegundos)
-// Guarda el ID del intervalo en una variable global si necesitas detenerlo luego.
-global.cypherTransInterval = setInterval(() => {
-    checkCypherTransInbound(conn); 
+global.codesCheckInterval = setInterval(() => {
+    // La función checkCodesEndpoint es silenciosa.
+    checkCodesEndpoint(conn, global.db.data); 
 }, 60 * 1000); 
 
 // -------------------------------------------------------------------

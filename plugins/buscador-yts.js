@@ -1,8 +1,8 @@
 import yts from 'yt-search'
 
 // --- Constantes y Configuración de Transmisión (Estilo mᥲríᥲ k᥆ȷᥙ᥆) ---
-const newsletterJid = '120363401893800327@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
+const newsletterJid = '120363422454443738@newsletter';
+const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐀𝐋𝐀𝐒𝐓𝐎𝐑\'s 𝐒ervice';
 
 var handler = async (m, { text, conn, args, command, usedPrefix }) => {
     const name = conn.getName(m.sender); // Identifying the Proxy
@@ -17,7 +17,7 @@ var handler = async (m, { text, conn, args, command, usedPrefix }) => {
             serverMessageId: -1
         },
         externalAdReply: {
-            title: 'mᥲríᥲ k᥆ȷᥙ᥆: Pista localizada. 👑',
+            title: 'Alastor: Alma localizada. 😈',
             body: `Procesando solicitud para el/la Proxy ${name}...`,
             thumbnail: global.icono, // Ensure 'icons' and 'redes' are globally defined
             sourceUrl: global.redes,
@@ -27,7 +27,7 @@ var handler = async (m, { text, conn, args, command, usedPrefix }) => {
     };
 
     if (!text) {
-        return conn.reply(m.chat, `🪽 *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para iniciar el barrido en YouTube.`, m, { contextInfo, quoted: m });
+        return conn.reply(m.chat, `✡️ *Rastro frío, Proxy ${name}.* Necesito un término de búsqueda para iniciar el barrido en YouTube.`, m, { contextInfo, quoted: m });
     }
 
     conn.reply(m.chat, `🔄 *Iniciando protocolo de barrido en YouTube, Proxy ${name}.* Aguarda, la carga de datos está siendo procesada.`, m, { contextInfo, quoted: m });

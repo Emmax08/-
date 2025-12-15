@@ -1,12 +1,17 @@
-// Credits: ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ
+// Este código maneja los eventos de Bienvenida y Despedida en grupos de WhatsApp.
 
-import fs from 'fs'
 import { WAMessageStubType } from '@whiskeysockets/baileys'
 
-function calcularDiasEnGrupo(participant, groupMetadata) {
-    // La propiedad 'date' debe ser un número (timestamp)
-    if (!participant || typeof participant.date !== 'number') return 0
+/**
+ * Calcula los días que un participante ha estado en el grupo.
+ * @param {object} participant - Objeto de participante con propiedad 'date' (timestamp en segundos).
+ * @returns {number} Número de días en el grupo (mínimo 1).
+ */
+function calcularDiasEnGrupo(participant) {
+    // La propiedad 'date' debe ser un número (timestamp en segundos)
+    if (!participant || typeof participant.date !== 'number') return 1
     
+    // El timestamp de Baileys suele ser en segundos, se convierte a milisegundos.
     const fechaIngreso = new Date(participant.date * 1000)
     const fechaActual = new Date()
     const diferencia = fechaActual.getTime() - fechaIngreso.getTime()
@@ -15,6 +20,11 @@ function calcularDiasEnGrupo(participant, groupMetadata) {
     return Math.max(1, dias)
 }
 
+/**
+ * Obtiene la fecha de creación del grupo en formato legible (CDMX).
+ * @param {object} groupMetadata - Metadatos del grupo.
+ * @returns {string} Fecha de creación formateada.
+ */
 function obtenerFechaCreacion(groupMetadata) {
     if (!groupMetadata.creation) return 'Fecha desconocida'
     
@@ -28,48 +38,33 @@ function obtenerFechaCreacion(groupMetadata) {
     })
 }
 
+/**
+ * Genera la estructura de datos para el mensaje de Bienvenida.
+ */
 async function generarBienvenida({ conn, userId, groupMetadata, chat }) {
     const username = `@${userId.split('@')[0]}`
-    const nombreUsuario = userId.split('@')[0] 
     
+    // --- ESPACIOS PARA CONFIGURACIÓN DE MEDIOS ---
     const avatar = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/b75b29441bbd967deda4365441497221.jpg')
+    const background = 'https://qu.ax/YrVNX.jpg' // URL de imagen de fondo para el canvas/card
+    const audioBienvenida = 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/welcome-audio.mp3' // URL del audio en MP3
+    // ---------------------------------------------
     
-    const background = 'https://qu.ax/YrVNX.jpg'
     const descripcion = `${username}`
-    
     const apiUrl = `https://api.siputzx.my.id/api/canvas/welcomev4?avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(descripcion)}`
-    
-    // NOTA: Esta variable 'fecha' no se usa en el caption final, pero se mantiene por si se usara.
-    const fecha = new Date().toLocaleDateString("es-ES", { 
-        // ZONA HORARIA CDMX APLICADA
-        timeZone: "America/Mexico_City", 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    })
     
     const groupSize = groupMetadata.participants.length
     const fechaCreacion = obtenerFechaCreacion(groupMetadata)
     const desc = groupMetadata.desc?.toString() || 'Sin descripción'
     
-    const audioBienvenida = 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/welcome-audio.mp3'
-    
     const infoGrupo = `
 📋 INFORMACIÓN DEL GRUPO:
 ├─ 🗓️ Creado: ${fechaCreacion}
-├─ 👥 Miembros: ${groupSize} participantes
+├─ 👥 Miembros: *${groupSize} participantes*
 ├─ 📝 Descripción:
-${desc}
-
-📜 REGLAS DEL GRUPO:
-${chat.sRules || `1. Respetar a todos los miembros
-2. No spam ni contenido inapropiado
-3. Mantener el orden y la cordialidad
-4. Usar el grupo para su propósito designado
-5. Seguir las indicaciones de los administradores
-
- Personaliza las reglas usando: */setrules*`}`
+${desc}`
     
+    // Se usa el mensaje personalizado o el predefinido con la info del grupo
     const mensaje = (chat.sWelcome || infoGrupo)
         .replace(/{usuario}/g, `${username}`)
         .replace(/{grupo}/g, `*${groupMetadata.subject}*`)
@@ -95,18 +90,22 @@ ${mensaje}
     }
 }
 
+/**
+ * Genera la estructura de datos para el mensaje de Despedida.
+ */
 async function generarDespedida({ conn, userId, groupMetadata, chat }) {
     const username = `@${userId.split('@')[0]}`
-    const nombreUsuario = userId.split('@')[0]
     
     const participantInfo = groupMetadata.participants.find(p => p.id === userId)
-    const diasEnGrupo = calcularDiasEnGrupo(participantInfo, groupMetadata)
+    const diasEnGrupo = calcularDiasEnGrupo(participantInfo)
     
+    // --- ESPACIOS PARA CONFIGURACIÓN DE MEDIOS ---
     const avatar = await conn.profilePictureUrl(userId, 'image').catch(() => 'https://raw.githubusercontent.com/speed3xz/Storage/refs/heads/main/Arlette-Bot/b75b29441bbd967deda4365441497221.jpg')
+    const background = 'https://qu.ax/YrVNX.jpg' // URL de imagen de fondo para el canvas/card
+    // NOTA: El audio solo se configuró para bienvenida, aquí no se usa audioUrl
+    // ---------------------------------------------
     
-    const background = 'https://qu.ax/YrVNX.jpg'
     const descripcion = `${username}`
-    
     const apiUrl = `https://api.siputzx.my.id/api/canvas/goodbyev4?avatar=${encodeURIComponent(avatar)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(descripcion)}`
     
     const fecha = new Date().toLocaleDateString("es-ES", { 
@@ -117,15 +116,16 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
         year: 'numeric' 
     })
     
-    const groupSize = groupMetadata.participants.length - 1
+    const groupSize = groupMetadata.participants.length - 1 // Miembros restantes
     const desc = groupMetadata.desc?.toString() || 'Sin descripción'
     
     const infoDespedida = `
 📊 ESTADÍSTICAS:
-├─ 👥 Miembros restantes: ${groupSize}
-├─ 📅 Tiempo en el grupo: ${diasEnGrupo} día${diasEnGrupo !== 1 ? 's' : ''}
+├─ 👥 Miembros restantes: *${groupSize}*
+├─ 📅 Tiempo en el grupo: *${diasEnGrupo} día${diasEnGrupo !== 1 ? 's' : ''}*
 ├─ 🗓️ Fecha de salida: ${fecha}`
     
+    // Se usa el mensaje personalizado o el predefinido con la info de la salida
     const mensaje = (chat.sBye || infoDespedida)
         .replace(/{usuario}/g, `${username}`)
         .replace(/{grupo}/g, `${groupMetadata.subject}`)
@@ -151,40 +151,18 @@ ${mensaje}
     }
 }
 
-// Handler principal para el comando /setrules
-let handler = async function (m, { conn, isAdmin, isOwner, isROwner }) {
-    if (!m.isGroup || !m.text) return
-    
-    const args = m.text.split(' ')
-    const command = args[0].toLowerCase()
-    
-    if (command === 'setrules' || command === 'setreglas') {
-        if (!isAdmin && !isOwner && !isROwner) return m.reply('❌ Solo los administradores pueden cambiar las reglas del grupo.')
-        
-        const rulesText = m.text.slice(command.length + 1).trim()
-        if (!rulesText) return m.reply('❌ Por favor, proporciona las nuevas reglas.\nEjemplo: .setrules 1. Respetar a todos\\n2. No spam...')
-        
-        // Se asegura que la estructura del chat exista en la DB
-        if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
-        global.db.data.chats[m.chat].sRules = rulesText
-        
-        await m.reply('✅ *Reglas del grupo actualizadas correctamente.*\n\nLas nuevas reglas se mostrarán en los mensajes de bienvenida.')
-    }
-}
-
-// Configuración del handler para el comando /setrules
-handler.command = /^(setrules|setreglas)$/i
-handler.admin = true
-handler.group = true
-handler.botAdmin = true
-
 // *** LÓGICA DE BIENVENIDA Y DESPEDIDA (EVENTOS STUB) ***
-// Esta es la única función handler.before.
+let handler = {} // Se inicializa el objeto handler, pero se elimina el comando /setrules.
+
 handler.before = async function (m, { conn, groupMetadata }) {
     // 1. Verificar si es un evento Stub y de Grupo
     if (!m.messageStubType || !m.isGroup) return !0
     
-    // 2. Comprobación de Bot Primario
+    // Verifica si global.db.data.chats existe, si no, lo inicializa para evitar errores.
+    global.db.data.chats = global.db.data.chats || {}
+    if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
+    
+    // 2. Comprobación de Bot Primario (Opcional, si tu base de datos lo soporta)
     const primaryBot = global.db.data.chats[m.chat]?.primaryBot
     if (primaryBot && conn.user.jid !== primaryBot) return !1
     
@@ -201,7 +179,7 @@ handler.before = async function (m, { conn, groupMetadata }) {
         })
         
         try {
-            // Envío de Imagen/Texto (más robusto)
+            // Envío de Imagen/Texto
             await conn.sendMessage(m.chat, {
                 image: { url: imageUrl },
                 caption: caption,
@@ -218,13 +196,15 @@ handler.before = async function (m, { conn, groupMetadata }) {
         }
         
         // Envío de Audio (manejo separado de errores)
-        try {
-            await conn.sendMessage(m.chat, {
-                audio: { url: audioUrl },
-                mimetype: 'audio/mpeg'
-            }, { quoted: null })
-        } catch (audioError) {
-            console.error('Error enviando audio de bienvenida:', audioError)
+        if (audioUrl) {
+            try {
+                await conn.sendMessage(m.chat, {
+                    audio: { url: audioUrl },
+                    mimetype: 'audio/mpeg'
+                }, { quoted: null })
+            } catch (audioError) {
+                console.error('Error enviando audio de bienvenida:', audioError)
+            }
         }
     }
     

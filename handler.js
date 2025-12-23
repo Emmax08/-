@@ -30,17 +30,17 @@ global.dfail = (type, m, conn) => {
 
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
-this.uptime = this.uptime || Date.now()
-if (!chatUpdate) return
+    this.uptime = this.uptime || Date.now()
+    if (!chatUpdate) return
 
-this.pushMessage(chatUpdate.messages).catch(console.error)
-let m = chatUpdate.messages[chatUpdate.messages.length - 1]
-if (!m) return
+    this.pushMessage(chatUpdate.messages).catch(console.error)
+    let m = chatUpdate.messages[chatUpdate.messages.length - 1]
+    if (!m) return
 
-// Manejo de botones con archivo externo
-if (await manejarRespuestasBotones(this, m)) return;
-// Manejo de stickers con archivo externo
-if (await manejarRespuestasStickers(this, m)) return;
+    // Manejo de botones con archivo externo
+    if (await manejarRespuestasBotones(this, m)) return;
+    // Manejo de stickers con archivo externo
+    if (await manejarRespuestasStickers(this, m)) return;
 
     if (m.isGroup && global.conns && global.conns.length > 1) {
         let botsEnGrupo = global.conns.filter(c => c.user && c.user.jid && c.ws && c.ws.socket && c.ws.socket.readyState !== 3)
@@ -143,9 +143,10 @@ if (await manejarRespuestasStickers(this, m)) return;
                 if (!isNumber(chat.expired)) chat.expired = 0
                 if (!('antiLag' in chat)) chat.antiLag = false
                 if (!('per' in chat)) chat.per = []
+                if (!('primaryBot' in chat)) chat.primaryBot = false 
             } else
                 global.db.data.chats[m.chat] = {
-                    sAutoresponder: '', welcome: true, isBanned: false, autolevelup: false, autoresponder: false, delete: false, autoAceptar: false, autoRechazar: false, detect: true, antiBot: false, antiBot2: false, modoadmin: false, antiLink: true, antifake: false, reaction: false, nsfw: false, expired: 0, antiLag: false, per: [],
+                    sAutoresponder: '', welcome: true, isBanned: false, autolevelup: false, autoresponder: false, delete: false, autoAceptar: false, autoRechazar: false, detect: true, antiBot: false, antiBot2: false, modoadmin: false, antiLink: true, antifake: false, reaction: false, nsfw: false, expired: 0, antiLag: false, per: [], primaryBot: false
                 }
             var settings = global.db.data.settings[this.user.jid]
             if (typeof settings !== 'object') global.db.data.settings[this.user.jid] = {}
@@ -161,6 +162,15 @@ if (await manejarRespuestasStickers(this, m)) return;
         } catch (e) {
             console.error(e)
         }
+
+        // --- CÓDIGO AGREGADO INICIO ---
+        // Verifica si hay un bot principal asignado para este chat
+        const chatObj = global.db.data.chats[m.chat]
+        if (chatObj && chatObj.primaryBot && chatObj.primaryBot !== this.user.jid) {
+            return // Si yo no soy el "Pecador más fuerte", me quedo callado.
+        }
+        // --- CÓDIGO AGREGADO FIN ---
+
         const mainBot = global.conn.user.jid
         const chat = global.db.data.chats[m.chat] || {}
         const isSubbs = chat.antiLag === true

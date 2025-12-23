@@ -5,7 +5,7 @@ const creatorsList = [
     { 
       id: 'owner1',
       name: 'ঔৣ⃟▒𝐄𝐌𝐌𝐀𝐗ღೋ', 
-      number: '5217225305296',
+      number: '527223004357',
       rango: 'Creador de la bot'
     },
     { 

@@ -75,7 +75,7 @@ console.log(chalk.cyan(`
               %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                      
 `))
 
-cfonts.say('mᥲríᥲ k᥆ȷᥙ᥆', {
+say('mᥲríᥲ k᥆ȷᥙ᥆', {
   font: 'chrome',
   align: 'center',
   gradient: ['#00FFFF', '#8A2BE2'], // Colores cyberpunk: Cian y Azul-Violeta

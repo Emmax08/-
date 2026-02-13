@@ -1,4 +1,4 @@
-Process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './settings.js'
 import { setupMaster, fork } from 'cluster'
 import { checkCodesEndpoint } from './lib/apiChecker.js';
@@ -75,7 +75,7 @@ console.log(chalk.cyan(`
               %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                      
 `))
 
-say('mᥲríᥲ k᥆ȷᥙ᥆', {
+cfonts.say('mᥲríᥲ k᥆ȷᥙ᥆', {
   font: 'chrome',
   align: 'center',
   gradient: ['#00FFFF', '#8A2BE2'], // Colores cyberpunk: Cian y Azul-Violeta

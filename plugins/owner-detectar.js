@@ -29,7 +29,7 @@ var handler = async (m, { usedPrefix, command }) => {
                 const errorLine = errorLineMatch ? errorLineMatch[1] : 'Desconocido'
 
                 response += `💔 *Error encontrado* (◕︿◕✿)\n\n`
-                response += `📁 *Archivo:* \`${file}\`\n`
+                response += `📁 *Archivo:* ${file}\n`
                 response += `📝 *Mensaje:* ${error.message}\n`
                 response += `📍 *Línea:* ${errorLine}\n`
                 response += `━━━━━━━━━━━━━━━━━━━\n\n`
@@ -45,7 +45,7 @@ var handler = async (m, { usedPrefix, command }) => {
             response += `😢 *Resumen de errores:*\n\n`
             response += `❌ Total de errores: ${errorCount}\n`
             response += `📂 Archivos revisados: ${files.length}\n`
-            response += `💭 Por favor, revisa los archivos mencionados (つω`･)\n`
+            response += `💭 Por favor, revisa los archivos mencionados (つω\`･)\n`
             response += `✨ ¡Ganbatte kudasai! ｡◕‿◕｡`
         }
 
@@ -53,7 +53,7 @@ var handler = async (m, { usedPrefix, command }) => {
         await m.react(hasErrors ? '💔' : '💖')
     } catch (err) {
         await m.react('😭') 
-        await conn.reply(m.chat, `😢 *¡Oh no!* (´；ω；｀)\n\n❌ Ocurrió un error inesperado:\n\`\`\`${err.message}\`\`\`\n\n💭 *Gomen nasai, onii-chan...*`, m)
+        await conn.reply(m.chat, `😢 *¡Oh no!* (´；ω；\｀)\n\n❌ Ocurrió un error inesperado:\n\n📝 *Error:* ${err.message}\n\n💭 *Gomen nasai, onii-chan...*`, m)
     }
 }
 

@@ -2,10 +2,8 @@ const toxicRegex = /g0re|g0r3|g\.o\.r\.e|sap0|sap4|malparido|malparida|malparido
 
 let handler = m => m
 handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) { 
-    if (m.isBaileys && m.fromMe)
-        return !0
-    if (!m.isGroup)
-        return !1
+    if (m.isBaileys && m.fromMe) return !0
+    if (!m.isGroup) return !1
     
     let user = global.db.data.users[m.sender]
     let chat = global.db.data.chats[m.chat]
@@ -18,12 +16,22 @@ handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
         user.warn += 1
         
         if (!(user.warn >= 3)) {
-            await m.reply(`*@${m.sender.split`@`[0]}*, dijiste una palabra prohibida: *${isToxic[0]}*\n\n⚠️ *Advertencias: ${user.warn}/3*`, false, { mentions: [m.sender] })
+            await m.reply(
+                `*@${m.sender.split`@`[0]}*, dijiste una palabra prohibida: *${isToxic[0]}*\n\n` +
+                `⚠️ *Advertencias: ${user.warn}/3*`, 
+                false, 
+                { mentions: [m.sender] }
+            )
         }
 
         if (user.warn >= 3) {
             user.warn = 0
-            await m.reply(`🚫 *Serás eliminado del grupo*\n\n*@${m.sender.split`@`[0]}* alcanzó el límite de advertencias (3/3)`, false, { mentions: [m.sender] })
+            await m.reply(
+                `🚫 *Serás eliminado del grupo*\n\n` +
+                `*@${m.sender.split`@`[0]}* alcanzó el límite de advertencias (3/3)`, 
+                false, 
+                { mentions: [m.sender] }
+            )
             user.banned = true
             await this.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
             //await this.updateBlockStatus(m.sender, 'block')

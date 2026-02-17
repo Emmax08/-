@@ -49,15 +49,13 @@ export async function handler(chatUpdate) {
 
     if (global.db.data == null)
         await global.loadDatabase()       
-    
+
     let sender;
     try {
         m = smsg(this, m) || m
         if (!m)
             return
 
-        if (await messageProcessor(this, m)) return;
-        
         sender = m.isGroup ? (m.key.participant ? m.key.participant : m.sender) : m.key.remoteJid;
 
         const groupMetadata_lid = m.isGroup ? { ...(this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}), ...(((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants) && { participants: ((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants || []).map(p => ({ ...p, id: p.jid, jid: p.jid, lid: p.lid })) }) } : {}
@@ -162,13 +160,11 @@ export async function handler(chatUpdate) {
             console.error(e)
         }
 
-        // --- CÓDIGO AGREGADO INICIO ---
         // Verifica si hay un bot principal asignado para este chat
         const chatObj = global.db.data.chats[m.chat]
         if (chatObj && chatObj.primaryBot && chatObj.primaryBot !== this.user.jid) {
-            return // Si yo no soy el "Pecador más fuerte", me quedo callado.
+            return // Si yo no soy el bot principal, me quedo callado.
         }
-        // --- CÓDIGO AGREGADO FIN ---
 
         const mainBot = global.conn.user.jid
         const chat = global.db.data.chats[m.chat] || {}
@@ -186,10 +182,10 @@ export async function handler(chatUpdate) {
         const _user = global.db.data.users[sender]
         const groupMetadata = m.isGroup ? { ...(this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}), ...(((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants) && { participants: ((this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null) || {}).participants || []).map(p => ({ ...p, id: p.jid, jid: p.jid, lid: p.lid })) }) } : {}
         const participants = ((m.isGroup ? groupMetadata.participants : []) || []).map(participant => ({ id: participant.jid, jid: participant.jid, lid: participant.lid, admin: participant.admin }))
-        
+
         const user = (m.isGroup ? participants.find((u) => this.decodeJid(u.jid) === sender) : {}) || {}
         const bot = (m.isGroup ? participants.find((u) => this.decodeJid(u.jid) == this.user.jid) : {}) || {}
-        
+
         const isRAdmin = user?.admin == "superadmin" || false
         const isAdmin = isRAdmin || user?.admin == "admin" || false
         const isBotAdmin = bot?.admin || false
@@ -318,14 +314,14 @@ export async function handler(chatUpdate) {
                 try {
                     await plugin.call(this, m, extra)
                     if (!isPrems) m.coin = m.coin || plugin.coin || false
-               } catch (e) {
-    m.error = e
-    console.error(e)
-    if (e) {
-        let text = format(e)
-        for (let key of Object.values(global.APIKeys))
-            text = text.replace(new RegExp(key, 'g'), 'Administrador')
-                       m.reply(text)
+                } catch (e) {
+                    m.error = e
+                    console.error(e)
+                    if (e) {
+                        let text = format(e)
+                        for (let key of Object.values(global.APIKeys))
+                            text = text.replace(new RegExp(key, 'g'), 'Administrador')
+                        m.reply(text)
                     }
                 } finally {
                     if (typeof plugin.after === 'function') {
@@ -404,10 +400,9 @@ export async function handler(chatUpdate) {
 
 const file = global.__filename(import.meta.url, true);
 
-// NO TOCAR
 watchFile(file, async () => {
     unwatchFile(file);
-    console.log(chalk.green('Actualizando "handler.js"'));
+    console.log(chalk.green('✨ Actualizando "handler.js" ✨'));
     if (global.conns && global.conns.length > 0 ) {
         const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])];
         for (const userr of users) {

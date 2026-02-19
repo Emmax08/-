@@ -229,4 +229,4 @@ handler.before = async function (m, { conn, groupMetadata }) {
 
 
 export { generarBienvenida, generarDespedida, calcularDiasEnGrupo, obtenerFechaCreacion }
-export default handler qye hace este?
+export default handler

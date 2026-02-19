@@ -39,6 +39,7 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 let handler = async (m, { conn, usedPrefix, args }) => {
+    // 1. IMPORTAR MULTIMEDIA DESDE EL JSON
     let enlaces;
     try {
         const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
@@ -58,6 +59,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 
     const selectedCategory = args[0]?.toLowerCase();
 
+    // 2. Lógica de Sub-menú (GIF ACTIVADO)
     if (selectedCategory && isNaN(selectedCategory)) {
         let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
             data.tags.includes(selectedCategory) || name.toLowerCase().includes(selectedCategory)
@@ -68,7 +70,8 @@ let handler = async (m, { conn, usedPrefix, args }) => {
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
             return await conn.sendMessage(m.chat, {
                 video: { url: videoGif },
-                gifPlayback: true, // <--- AQUÍ ESTÁ EL CAMBIO
+                gifPlayback: true,
+                mimetype: 'video/mp4',
                 caption: `*${data.emoji} CATEGORÍA: ${name.toUpperCase()}*\n\n${comandos.map(cmd => `> ${cmd}`).join('\n')}\n\n${packname}`,
                 contextInfo: { 
                     externalAdReply: { title: packname, body: name, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
@@ -77,6 +80,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         }
     }
 
+    // 3. Paginación de Botones
     const allCategories = Object.entries(CATEGORIES);
     const totalPages = Math.ceil(allCategories.length / 3);
     let page = (args[0] && !isNaN(args[0])) ? parseInt(args[0]) : 1;
@@ -92,9 +96,11 @@ let handler = async (m, { conn, usedPrefix, args }) => {
     if (page > 1) buttons.push({ buttonId: `${usedPrefix}menu ${page - 1}`, buttonText: { displayText: '⏪ Anterior' }, type: 1 });
     if (page < totalPages) buttons.push({ buttonId: `${usedPrefix}menu ${page + 1}`, buttonText: { displayText: '⏩ Siguiente' }, type: 1 });
 
+    // 4. MENÚ PRINCIPAL (GIF FORZADO CON MIMETYPE)
     const buttonMessage = {
         video: { url: videoGif },
-        gifPlayback: true, // <--- AQUÍ TAMBIÉN PARA EL MENÚ PRINCIPAL
+        gifPlayback: true,
+        mimetype: 'video/mp4',
         caption: encabezado + readMore + `\n\n*Selecciona una categoría (Pág. ${page}/${totalPages}):*`,
         footer: packname,
         buttons: buttons,
@@ -102,7 +108,13 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         viewOnce: true,
         contextInfo: {
             mentionedJid: [m.sender],
-            externalAdReply: { title: 'MENU PRINCIPAL', body: packname, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
+            externalAdReply: { 
+                title: '👑 MENU PRINCIPAL 🪽', 
+                body: packname, 
+                thumbnailUrl: miniaturaRandom, 
+                sourceUrl: redes, 
+                mediaType: 1 
+            }
         }
     };
 

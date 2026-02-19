@@ -39,22 +39,17 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 let handler = async (m, { conn, usedPrefix, command, args }) => {
+    // 1. IMPORTACIÓN DESDE EL JSON
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json')
     const json = JSON.parse(fs.readFileSync(dbPath, 'utf-8'))
     const videoMenu = json.links.video[0]
     const imagenMenu = json.links.imagen[0]
     const horarioFecha = moment().tz('America/Mexico_City').format('HH:mm A')
 
-    // Botón de Canal (Se usa en todos los envíos)
-    const buttons = [
-        { buttonId: `${usedPrefix}menu`, buttonText: { displayText: 'Menú Principal' }, type: 1 },
-        { buttonId: `url`, buttonText: { displayText: 'Ver Canal' }, type: 1, url: redes }
-    ]
-
     let finalTexto = ''
     let titleHeader = '👑 MENU 🪽'
 
-    // --- 1. LÓGICA MENU COMPLETO ---
+    // --- LÓGICA MENU COMPLETO ---
     if (command === 'menucompleto' || command === 'allmenu') {
         finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`MENÚ TOTAL | ${horarioFecha}\`\`\`${readMore}\n\n`
         for (const [name, data] of Object.entries(CATEGORIES)) {
@@ -65,10 +60,10 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
                 finalTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
             }
         }
-        titleHeader = 'FULL LIST'
+        titleHeader = 'FULL LIST COMMANDS'
     } 
 
-    // --- 2. LÓGICA POR SECCIÓN ---
+    // --- LÓGICA POR SECCIÓN ---
     else if (command.replace('menu', '').toLowerCase() || args[0]) {
         let categoryKey = command.replace('menu', '').toLowerCase() || args[0]?.toLowerCase()
         let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
@@ -85,27 +80,26 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
         }
     }
 
-    // --- 3. MENU DE INICIO (Si no hubo match arriba) ---
+    // --- MENU DE INICIO ---
     if (!finalTexto) {
         finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
         titleHeader = 'HELP CENTER'
     }
 
-    // ENVÍO FINAL CON EL BOTÓN DE CANAL
+    // ENVÍO FINAL (Sin botones en el cuerpo, pero con botón de enlace en la cabecera)
     return await conn.sendMessage(m.chat, {
         video: { url: videoMenu },
         gifPlayback: true,
         caption: finalTexto.trim(),
-        footer: 'Haz clic abajo para ver el canal oficial',
-        buttons: buttons,
-        headerType: 4,
         contextInfo: {
             externalAdReply: { 
                 title: titleHeader, 
-                body: packname, 
+                body: 'Clic aquí para ir al Canal ➜', // Aquí indicas que es un link
                 thumbnailUrl: imagenMenu, 
-                sourceUrl: redes, 
-                mediaType: 1 
+                sourceUrl: redes, // El link directo del canal
+                mediaType: 1,
+                showAdAttribution: true, // Esto le da un toque de botón oficial
+                renderLargerThumbnail: false
             }
         }
     }, { quoted: m })

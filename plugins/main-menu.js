@@ -2,9 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment-timezone';
 import axios from 'axios';
-// import { getDevice } from '@whiskeysockets/baileys'; // Mantenemos solo lo necesario
-// import { promises } from 'fs';
-// import { join } from 'path';
 
 // Función readMore
 const more = String.fromCharCode(8206);
@@ -19,10 +16,8 @@ const GITHUB_REPO_OWNER = 'Emmax08';
 const GITHUB_REPO_NAME = '-';
 const GITHUB_BRANCH = 'main';
 
-// 🌐 VARIABLE GLOBAL DE REDES 🌐
 const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
 
-// --- Definición de Categorías y Mapeo de Tags (USADO PARA GENERAR LA LISTA) ---
 const CATEGORIES = {
     'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
     'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] },
@@ -38,7 +33,6 @@ const CATEGORIES = {
     '+18 / NSFW': { emoji: '🔞', tags: ['+18', 'nsfw'] },
 };
 
-// Función para obtener todos los comandos asociados a un conjunto de tags
 function getCommandsByTags(plugins, tags, usedPrefix) {
     let commands = [];
     for (const plugin of Object.values(plugins)) {
@@ -56,301 +50,133 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
     return [...new Set(commands)].sort((a, b) => a.localeCompare(b));
 }
 
-// Handler principal
-let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
-    // 1. Manejo de Enlaces Multimedia (db.json)
+let handler = async (m, { conn, usedPrefix, args }) => {
     let enlacesMultimedia;
     try {
         const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
         const dbRaw = fs.readFileSync(dbPath);
         enlacesMultimedia = JSON.parse(dbRaw).links;
     } catch (e) {
-        console.error("Error al leer o parsear src/database/db.json:", e);
-        enlacesMultimedia = { video: ['https://example.com/error.mp4'], imagen: ['https://example.com/error.jpg'] };
+        enlacesMultimedia = { video: ['https://qu.ax/Yvpx.mp4'], imagen: ['https://qu.ax/Yvpx.jpg'] };
     }
 
-    if (m.quoted?.id && m.quoted?.fromMe) return;
-
-    const idChat = m.chat;
-
-    // 2. Obtener Datos del Bot y Usuario
     let _package;
     try {
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
-        _package = JSON.parse(packageJsonRaw);
-    } catch (error) {
-        _package = {};
-    }
-
-    let nombre;
-    try {
-        nombre = await conn.getName(m.sender);
-    } catch {
-        nombre = 'Usuario';
-    }
+        _package = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
+    } catch { _package = { version: '1.0.0' }; }
 
     const esPrincipal = conn.user.jid === global.conn.user.jid;
     const numeroPrincipal = global.conn?.user?.jid?.split('@')[0] || "Desconocido";
     const totalComandos = Object.keys(global.plugins || {}).length;
     const tiempoActividad = clockString(process.uptime() * 1000);
     const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
+    const rtotalreg = Object.values(global.db?.data?.users || {}).filter((u) => u.registered == true).length;
 
-    // Lógica de hora y fecha (México Central)
     const lugarFecha = moment().tz('America/Mexico_City');
-    const formatoFecha = {
-        weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-        months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    };
-    lugarFecha.locale('es', formatoFecha);
-    const horarioFecha = lugarFecha.format('dddd, DD [de] MMMM [del] YYYY || HH:mm A').replace(/^\w/, (c) => c.toUpperCase());
+    const horarioFecha = lugarFecha.format('dddd, DD [de] MMMM [del] YYYY || HH:mm A');
 
     const videoGif = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
     const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
 
-    const totalChatsBanned = Object.entries(global.db?.data?.chats || {}).filter((chat) => chat[1].isBanned).length;
-    const totalUsersBanned = Object.entries(global.db?.data?.users || {}).filter((user) => user[1].banned).length;
-    const rtotalreg = Object.values(global.db?.data?.users || {}).filter((u) => u.registered == true).length;
-
-
-    // 3. Lógica de Versión
-    let localVersion = 'N/A', serverVersion = 'N/A', updateStatus = 'Desconocido';
+    let localVersion = _package.version || '1.0.0';
+    let serverVersion = 'N/A';
     try {
-        localVersion = _package.version || 'N/A';
-    } catch (error) { localVersion = 'Error'; }
+        const res = await axios.get(`https://raw.githubusercontent.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/${GITHUB_BRANCH}/package.json`);
+        serverVersion = res.data.version;
+    } catch { serverVersion = localVersion; }
 
-    try {
-        const githubPackageJsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/${GITHUB_BRANCH}/package.json`;
-        const response = await axios.get(githubPackageJsonUrl);
-        serverVersion = response.data.version || 'N/A';
-
-        if (localVersion !== 'N/A' && serverVersion !== 'N/A') {
-            updateStatus = (localVersion === serverVersion)
-                ? '✅ En última versión'
-                : `⚠️ Actualización disponible. Actualiza con *${usedPrefix}update*`;
-        }
-    } catch (error) {
-        serverVersion = 'Error';
-        updateStatus = '❌ No se pudo verificar la actualización';
-    }
-
-    // 4. Encabezado del Menú (Datos de Gata integrados)
     const encabezado = `
 *╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
 *│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*
 *╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
 ⎔ \`\`\`${horarioFecha}\`\`\`
 *├┈───────┈─┈──┈─┈──┈─┈*
-*│ 🚀 V E R S I Ó N Y E S T A D O*
-*│* ➡️ *Local:* ${localVersion}
-*│* ➡️ *Servidor:* ${serverVersion}
-*│* 📊 *Estado:* ${updateStatus}
-*├┈───────┈─┈──┈─┈──┈─┈*
-*│ 📊 I N F O R M A C I Ó N*
+*│* ➡️ *Versión:* ${localVersion}
 *│* 📦 *Comandos:* ${totalComandos}
 *│* ⏱️ *Actividad:* ${tiempoActividad}
-*│* 👥 *Regis. Usuarios:* ${rtotalreg}/${totalRegistros}
-*│* 🚫 *Chats Bloqueados:* ${totalChatsBanned}
-*│* 🚫 *Usuarios Bloqueados:* ${totalUsersBanned}
-*│* 👑 *Dueño:* Emmax
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-`.trim();
+*│* 👥 *Usuarios:* ${rtotalreg}/${totalRegistros}
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*`.trim();
 
-    // 5. ContextInfo para Reutilizar
-    const contextInfo = {
-        mentionedJid: [m.sender],
-        isForwarded: true,
-        forwardingScore: 999,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid,
-            newsletterName,
-            serverMessageId: -1
-        },
-        externalAdReply: {
-            title: packname,
-            body: '👑 Menú de Comandos | mᥲríᥲ k᥆ȷᥙ᥆-Bot 🪽',
-            thumbnailUrl: miniaturaRandom,
-            sourceUrl: redes,
-            mediaType: 1,
-            renderLargerThumbnail: false
-        }
-    };
-
-    // 6. Lógica para manejar la subcategoría (submenú de texto)
     const selectedCategory = args[0]?.toLowerCase();
 
-    // Bloque de Submenú de Texto (6a) - Mantiene la funcionalidad de comandos
-    if (selectedCategory && selectedCategory !== 'menu' && !/^\d+$/.test(selectedCategory)) {
+    // --- Lógica de Sub-menú ---
+    if (selectedCategory && isNaN(selectedCategory)) {
         let categoryData;
-
         for (const [name, data] of Object.entries(CATEGORIES)) {
-            const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (normalizedName === selectedCategory || data.tags.includes(selectedCategory)) {
+            if (data.tags.includes(selectedCategory) || name.toLowerCase().includes(selectedCategory)) {
                 categoryData = [name, data];
                 break;
             }
         }
 
-        if (!categoryData && selectedCategory === 'otros') {
-            const tagsCategorizadas = new Set(Object.values(CATEGORIES).flatMap(c => c.tags));
-            const todosLosTags = Object.keys(global.plugins || {})
-                .flatMap(key => global.plugins[key].tags || [])
-                .filter(tag => !tagsCategorizadas.has(tag) && tag.length > 0);
-
-            categoryData = ['Otros Comandos', { emoji: '📂', tags: todosLosTags }];
-        }
-
         if (categoryData) {
             const [name, data] = categoryData;
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
-
-            const textoComandos = comandos.length > 0
-                ? comandos.map(cmd => `> ${cmd}`).join('\n')
-                : 'No hay comandos disponibles en esta categoría por ahora.';
-
-            const textoFinal = `
-*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
-*│* ${data.emoji} *C A T E G O R Í A: ${name.toUpperCase()}*
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-*│*
-${textoComandos}
-*│*
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-*${packname}*
-            `.trim();
-
-            try {
-                // Enviamos el submenú de comandos con el GIF
-                await conn.sendMessage(idChat, {
-                    video: { url: videoGif },
-                    gifPlayback: true,
-                    caption: textoFinal,
-                    contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
-                }, { quoted: m });
-
-            } catch (e) {
-                console.error("Error al enviar el submenú con video:", e);
-                // Fallback a texto simple si falla el video
-                await conn.reply(idChat, textoFinal, m, { contextInfo });
-            }
-            return;
+            const textoFinal = `*${data.emoji} CATEGORÍA: ${name.toUpperCase()}*\n\n${comandos.map(cmd => `> ${cmd}`).join('\n')}\n\n${packname}`;
+            
+            return await conn.sendMessage(m.chat, {
+                video: { url: videoGif },
+                gifPlayback: true,
+                caption: textoFinal,
+                contextInfo: { externalAdReply: { title: packname, body: name, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }}
+            }, { quoted: m });
         }
     }
 
-
-    // 6b. Mostrar el Menú Principal con Botones Paginado (Máximo 5 Botones: 3 Cat + 2 Nav)
-
-    const infoBot = `
-*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
-*│ 🤖 E S T A D O S D E L B O T*
-*├┈───────┈─┈──┈─┈──┈─┈*
-*│* 👑 *Bot:* ${esPrincipal ? 'Principal' : 'Sub-Bot'}
-*│* 🔗 *Principal:* wa.me/${numeroPrincipal}
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-    `.trim();
-
-    // 7. Lógica de Paginación y Botones (3 Categorías + 2 Navegación)
+    // --- Lógica de Paginación ---
     const allCategories = Object.entries(CATEGORIES);
-    const totalCategories = allCategories.length;
-    const categoriesPerButtonPage = 3; // ¡Cambiado a 3!
-    const totalPages = Math.ceil(totalCategories / categoriesPerButtonPage);
+    const totalPages = Math.ceil(allCategories.length / 3);
+    let page = (args[0] && !isNaN(args[0])) ? parseInt(args[0]) : 1;
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
 
-    // Determinar la página actual
-    let page = 1;
-    if (args[0] && /^\d+$/.test(args[0])) {
-        page = parseInt(args[0]);
-    }
-
-    if (page < 1 || page > totalPages) {
-        page = 1; // Volver a la primera página si es inválido
-    }
-
-    const startIndex = (page - 1) * categoriesPerButtonPage;
-    let currentCategories = allCategories.slice(startIndex, startIndex + categoriesPerButtonPage);
+    const startIndex = (page - 1) * 3;
+    const currentCategories = allCategories.slice(startIndex, startIndex + 3);
 
     let buttons = [];
-
-    // 7a. Crear botones para las categorías de la página actual
-    for (const [name, data] of currentCategories) {
-        const rowIdTag = data.tags.length > 0 ? data.tags[0] : name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    currentCategories.forEach(([name, data]) => {
         buttons.push({
-            buttonId: `${usedPrefix}menu ${rowIdTag}`,
+            buttonId: `${usedPrefix}menu ${data.tags[0]}`,
             buttonText: { displayText: `${data.emoji} ${name}` },
             type: 1
         });
-    }
+    });
 
-    // 7b. Agregar botones de navegación (Máximo 5 botones en total)
-    const hasNextPage = page < totalPages;
-    const hasPreviousPage = page > 1;
+    if (page > 1) buttons.push({ buttonId: `${usedPrefix}menu ${page - 1}`, buttonText: { displayText: '⏪ Anterior' }, type: 1 });
+    if (page < totalPages) buttons.push({ buttonId: `${usedPrefix}menu ${page + 1}`, buttonText: { displayText: '⏩ Siguiente' }, type: 1 });
 
-    // Crear la fila de botones de navegación (Anterior y Siguiente)
-    let navButtons = [];
-    
-    if (hasPreviousPage) {
-        navButtons.push({
-            buttonId: `${usedPrefix}menu ${page - 1}`,
-            buttonText: { displayText: `⏪ Página Anterior (${page - 1}/${totalPages})` },
-            type: 1
-        });
-    }
-
-    if (hasNextPage) {
-        navButtons.push({
-            buttonId: `${usedPrefix}menu ${page + 1}`,
-            buttonText: { displayText: `⏩ Siguiente Página (${page + 1}/${totalPages})` },
-            type: 1
-        });
-    }
-    
-    // Concatenar y asegurar el límite de 5 botones (3 categorías + 2 navegación)
-    buttons = buttons.concat(navButtons).slice(0, 5);
-
-
-    // 7c. Crear el contenido del mensaje (caption)
-    const pageStatus = `\n\n*⭐ Estás en la Página ${page}/${totalPages} ⭐*`;
-    const instruction = "\n\n*Presiona los botones para navegar por las funciones:*";
-
-    // Incluimos readMore en el caption
-    const fullCaption = encabezado + '\n' + infoBot + pageStatus + instruction + readMore;
-
-
-    // 8. Preparar el Mensaje de Botones (Usando GIF como medio)
     const buttonMessage = {
         video: { url: videoGif },
         gifPlayback: true,
-        // Usar el caption completo
-        caption: fullCaption,
-        footer: `*Página ${page}/${totalPages} | ${packname}*`,
-        headerType: 4, // 4 es para video/gif
+        caption: encabezado + readMore + `\n\n*Selecciona una categoría (Pág. ${page}/${totalPages}):*`,
+        footer: packname,
         buttons: buttons,
-        contextInfo: { ...contextInfo, mentionedJid: [m.sender] }
+        headerType: 4,
+        viewOnce: true,
+        contextInfo: {
+            mentionedJid: [m.sender],
+            externalAdReply: {
+                title: 'MENU PRINCIPAL',
+                body: packname,
+                thumbnailUrl: miniaturaRandom,
+                sourceUrl: redes,
+                mediaType: 1
+            }
+        }
     };
 
-    // 9. Enviar el mensaje
-    try {
-        await conn.sendMessage(idChat, buttonMessage, { quoted: m });
-    } catch (e) {
-        console.error("Error al enviar el ButtonMessage con GIF (Paginación 5 botones):", e);
-
-        // Fallback a mensaje de texto simple si falla el botón/video
-        const fallbackText = `${fullCaption}\n\n*MENÚ POR CATEGORÍAS (Texto)*\n\n${allCategories.map(([name, data]) =>
-            `> ${data.emoji} *${name}*: ${usedPrefix}menu ${data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '')}`
-        ).join('\n')}\n\n*${packname}*`;
-
-        await conn.reply(idChat, fallbackText, m, { contextInfo });
-    }
+    return await conn.sendMessage(m.chat, buttonMessage, { quoted: m });
 };
 
-handler.help = ['menu', 'menu <página>'];
+handler.help = ['menu'];
 handler.tags = ['main'];
-handler.command = ['menu', 'menú', 'help'];
+handler.command = /^(menu|help|menú)$/i;
 
 export default handler;
 
 function clockString(ms) {
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor(ms / 60000) % 60;
-    const s = Math.floor(ms / 1000) % 60;
+    let h = Math.floor(ms / 3600000);
+    let m = Math.floor(ms / 60000) % 60;
+    let s = Math.floor(ms / 1000) % 60;
     return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 }

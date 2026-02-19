@@ -2,13 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment-timezone';
 
-// Función readMore para ocultar los comandos
 const more = String.fromCharCode(8206);
 const readMore = more.repeat(4001);
 
-// --- Configuración Visual ---
-const newsletterJid = '120363401893800327@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice';
 const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot';
 const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
 
@@ -43,30 +39,25 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 let handler = async (m, { conn, usedPrefix, args }) => {
-    // 1. IMPORTAR MULTIMEDIA DESDE EL JSON (Ruta dinámica)
     let enlaces;
     try {
         const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
-        const dbData = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-        enlaces = dbData.links;
+        enlaces = JSON.parse(fs.readFileSync(dbPath, 'utf-8')).links;
     } catch (e) {
-        console.error("Error leyendo db.json:", e);
-        // Link de emergencia por si borras el JSON por error
-        enlaces = { video: ["https://qu.ax/Yvpx.mp4"], imagen: ["https://qu.ax/Yvpx.jpg"] };
+        enlaces = { 
+            video: ["https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/fa3f90a6d1d5c9dd.mp4"], 
+            imagen: ["https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/23e7f3919e8839a3.jpg"] 
+        };
     }
 
-    // Selección aleatoria de lo que haya en el JSON
     const videoGif = enlaces.video[Math.floor(Math.random() * enlaces.video.length)];
     const miniaturaRandom = enlaces.imagen[Math.floor(Math.random() * enlaces.imagen.length)];
-
-    const rtotalreg = Object.values(global.db?.data?.users || {}).filter((u) => u.registered == true).length;
     const horarioFecha = moment().tz('America/Mexico_City').format('dddd, DD [de] MMMM [del] YYYY || HH:mm A');
 
     const encabezado = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\``.trim();
 
     const selectedCategory = args[0]?.toLowerCase();
 
-    // Lógica de Sub-menú (Categorías individuales)
     if (selectedCategory && isNaN(selectedCategory)) {
         let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
             data.tags.includes(selectedCategory) || name.toLowerCase().includes(selectedCategory)
@@ -77,21 +68,19 @@ let handler = async (m, { conn, usedPrefix, args }) => {
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
             return await conn.sendMessage(m.chat, {
                 video: { url: videoGif },
-                gifPlayback: true,
+                gifPlayback: true, // <--- AQUÍ ESTÁ EL CAMBIO
                 caption: `*${data.emoji} CATEGORÍA: ${name.toUpperCase()}*\n\n${comandos.map(cmd => `> ${cmd}`).join('\n')}\n\n${packname}`,
                 contextInfo: { 
-                    externalAdReply: { title: packname, body: `Lista: ${name}`, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
+                    externalAdReply: { title: packname, body: name, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
                 }
             }, { quoted: m });
         }
     }
 
-    // Paginación de Botones (Menú Principal)
     const allCategories = Object.entries(CATEGORIES);
     const totalPages = Math.ceil(allCategories.length / 3);
     let page = (args[0] && !isNaN(args[0])) ? parseInt(args[0]) : 1;
-    if (page < 1) page = 1; 
-    if (page > totalPages) page = totalPages;
+    if (page < 1) page = 1; if (page > totalPages) page = totalPages;
 
     const currentCategories = allCategories.slice((page - 1) * 3, page * 3);
     let buttons = currentCategories.map(([name, data]) => ({
@@ -100,28 +89,20 @@ let handler = async (m, { conn, usedPrefix, args }) => {
         type: 1
     }));
 
-    // Navegación
     if (page > 1) buttons.push({ buttonId: `${usedPrefix}menu ${page - 1}`, buttonText: { displayText: '⏪ Anterior' }, type: 1 });
     if (page < totalPages) buttons.push({ buttonId: `${usedPrefix}menu ${page + 1}`, buttonText: { displayText: '⏩ Siguiente' }, type: 1 });
 
     const buttonMessage = {
         video: { url: videoGif },
-        gifPlayback: true,
-        caption: encabezado + readMore + `\n\n*Presiona un botón para ver los comandos (Pág. ${page}/${totalPages}):*`,
+        gifPlayback: true, // <--- AQUÍ TAMBIÉN PARA EL MENÚ PRINCIPAL
+        caption: encabezado + readMore + `\n\n*Selecciona una categoría (Pág. ${page}/${totalPages}):*`,
         footer: packname,
         buttons: buttons,
         headerType: 4,
         viewOnce: true,
         contextInfo: {
             mentionedJid: [m.sender],
-            externalAdReply: { 
-                title: '👑 MENU PRINCIPAL 🪽', 
-                body: `Usuarios: ${rtotalreg}`, 
-                thumbnailUrl: miniaturaRandom, 
-                sourceUrl: redes, 
-                mediaType: 1,
-                renderLargerThumbnail: false
-            }
+            externalAdReply: { title: 'MENU PRINCIPAL', body: packname, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
         }
     };
 

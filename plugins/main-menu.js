@@ -39,7 +39,7 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 let handler = async (m, { conn, usedPrefix, command, args }) => {
-    // 1. IMPORTACIÓN DESDE EL JSON
+    // 1. Multimedia desde el JSON
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json')
     const json = JSON.parse(fs.readFileSync(dbPath, 'utf-8'))
     const videoMenu = json.links.video[0]
@@ -47,7 +47,6 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
     const horarioFecha = moment().tz('America/Mexico_City').format('HH:mm A')
 
     let finalTexto = ''
-    let titleHeader = '👑 MENU 🪽'
 
     // --- LÓGICA MENU COMPLETO ---
     if (command === 'menucompleto' || command === 'allmenu') {
@@ -60,7 +59,6 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
                 finalTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
             }
         }
-        titleHeader = 'FULL LIST COMMANDS'
     } 
 
     // --- LÓGICA POR SECCIÓN ---
@@ -76,30 +74,34 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
             finalTexto = `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} SECCIÓN: ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
             finalTexto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
             finalTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n${packname}`
-            titleHeader = `SECCIÓN: ${name}`
         }
     }
 
-    // --- MENU DE INICIO ---
+    // --- MENU DE INICIO (Si no hay selección) ---
     if (!finalTexto) {
         finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
-        titleHeader = 'HELP CENTER'
     }
 
-    // ENVÍO FINAL (Sin botones en el cuerpo, pero con botón de enlace en la cabecera)
+    // ENVÍO FINAL CON EL NEWSLETTER INFO (Botón de canal oficial)
     return await conn.sendMessage(m.chat, {
         video: { url: videoMenu },
         gifPlayback: true,
         caption: finalTexto.trim(),
         contextInfo: {
+            mentionedJid: [m.sender],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363420979328566@newsletter',
+                newsletterName: '⏤͟͞ू⃪𝐁𝕃𝐔𝔼 𝐋𝕆𝐂𝕂 𝐂𝕃𝐔𝔹 𑁯🩵ᰍ',
+                serverMessageId: -1
+            },
             externalAdReply: { 
-                title: titleHeader, 
-                body: 'Clic aquí para ir al Canal ➜', // Aquí indicas que es un link
+                title: '👑 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 🪽', 
+                body: '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice', 
                 thumbnailUrl: imagenMenu, 
-                sourceUrl: redes, // El link directo del canal
+                sourceUrl: redes, 
                 mediaType: 1,
-                showAdAttribution: true, // Esto le da un toque de botón oficial
-                renderLargerThumbnail: false
+                showAdAttribution: true
             }
         }
     }, { quoted: m })

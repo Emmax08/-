@@ -39,7 +39,7 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
 }
 
 let handler = async (m, { conn, usedPrefix, command, args }) => {
-    // 1. Multimedia desde el JSON
+    // 1. IMPORTACIÓN DESDE EL JSON
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json')
     const json = JSON.parse(fs.readFileSync(dbPath, 'utf-8'))
     const videoMenu = json.links.video[0]
@@ -77,12 +77,12 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
         }
     }
 
-    // --- MENU DE INICIO (Si no hay selección) ---
+    // --- MENU DE INICIO ---
     if (!finalTexto) {
         finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
     }
 
-    // ENVÍO FINAL CON EL NEWSLETTER INFO (Botón de canal oficial)
+    // ENVÍO FINAL CON TU NEWSLETTER ACTUALIZADO
     return await conn.sendMessage(m.chat, {
         video: { url: videoMenu },
         gifPlayback: true,
@@ -91,8 +91,8 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
             mentionedJid: [m.sender],
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363420979328566@newsletter',
-                newsletterName: '⏤͟͞ू⃪𝐁𝕃𝐔𝔼 𝐋𝕆𝐂𝕂 𝐂𝕃𝐔𝔹 𑁯🩵ᰍ',
+                newsletterJid: '120363401893800327@newsletter',
+                newsletterName: '👑 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 🪽',
                 serverMessageId: -1
             },
             externalAdReply: { 

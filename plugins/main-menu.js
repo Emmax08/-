@@ -170,7 +170,7 @@ let handler = async (m, { conn, usedPrefix, args }) => {
 
 handler.help = ['menu'];
 handler.tags = ['main'];
-handler.command = /^(menu|help|menú)$/i;
+handler.command = ['menu','help','menú']
 
 export default handler;
 

@@ -45,25 +45,32 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
     const imagenMenu = json.links.imagen[0]
     const horarioFecha = moment().tz('America/Mexico_City').format('HH:mm A')
 
-    // --- 1. COMANDO .menucompleto ---
+    // Botón de Canal (Se usa en todos los envíos)
+    const buttons = [
+        { buttonId: `${usedPrefix}menu`, buttonText: { displayText: 'Menú Principal' }, type: 1 },
+        { buttonId: `url`, buttonText: { displayText: 'Ver Canal' }, type: 1, url: redes }
+    ]
+
+    let finalTexto = ''
+    let titleHeader = '👑 MENU 🪽'
+
+    // --- 1. LÓGICA MENU COMPLETO ---
     if (command === 'menucompleto' || command === 'allmenu') {
-        let menuCompleto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`MENÚ TOTAL | ${horarioFecha}\`\`\`${readMore}\n\n`
+        finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`MENÚ TOTAL | ${horarioFecha}\`\`\`${readMore}\n\n`
         for (const [name, data] of Object.entries(CATEGORIES)) {
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
             if (comandos.length > 0) {
-                menuCompleto += `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
-                menuCompleto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
-                menuCompleto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
+                finalTexto += `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
+                finalTexto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
+                finalTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
             }
         }
-        return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: menuCompleto.trim(), contextInfo: { externalAdReply: { title: '👑 FULL LIST 🪽', body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
-    }
+        titleHeader = 'FULL LIST'
+    } 
 
-    // --- 2. COMANDOS POR SECCIÓN (ej: .menunsfw o .menu nsfw) ---
-    // Si el comando es "menunsfw", forzamos que busque la categoría "nsfw"
-    let categoryKey = command.replace('menu', '').toLowerCase() || args[0]?.toLowerCase()
-
-    if (categoryKey) {
+    // --- 2. LÓGICA POR SECCIÓN ---
+    else if (command.replace('menu', '').toLowerCase() || args[0]) {
+        let categoryKey = command.replace('menu', '').toLowerCase() || args[0]?.toLowerCase()
         let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
             data.tags.includes(categoryKey) || name.toLowerCase() === categoryKey
         )
@@ -71,22 +78,41 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
         if (categoryEntry) {
             const [name, data] = categoryEntry
             const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
-            let textoCat = `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} SECCIÓN: ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
-            textoCat += comandos.map(cmd => `*│* ${cmd}`).join('\n')
-            textoCat += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n${packname}`
-
-            return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: textoCat, contextInfo: { externalAdReply: { title: `SECCIÓN: ${name}`, body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
+            finalTexto = `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} SECCIÓN: ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
+            finalTexto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
+            finalTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n${packname}`
+            titleHeader = `SECCIÓN: ${name}`
         }
     }
 
-    // --- 3. MENÚ DE INICIO (.menu solo) ---
-    let helpTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
+    // --- 3. MENU DE INICIO (Si no hubo match arriba) ---
+    if (!finalTexto) {
+        finalTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
+        titleHeader = 'HELP CENTER'
+    }
 
-    return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: helpTexto, contextInfo: { externalAdReply: { title: 'HELP CENTER', body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
+    // ENVÍO FINAL CON EL BOTÓN DE CANAL
+    return await conn.sendMessage(m.chat, {
+        video: { url: videoMenu },
+        gifPlayback: true,
+        caption: finalTexto.trim(),
+        footer: 'Haz clic abajo para ver el canal oficial',
+        buttons: buttons,
+        headerType: 4,
+        contextInfo: {
+            externalAdReply: { 
+                title: titleHeader, 
+                body: packname, 
+                thumbnailUrl: imagenMenu, 
+                sourceUrl: redes, 
+                mediaType: 1 
+            }
+        }
+    }, { quoted: m })
 }
 
 handler.help = ['menu', 'menucompleto']
 handler.tags = ['main']
-handler.command = ['menu', 'help', 'menú', 'menucompleto', 'allmenu', 'menunsfw', 'menuaia', 'menudescargas'] // Agrega aquí los que quieras directos
+handler.command = ['menu', 'help', 'menú', 'menucompleto', 'allmenu', 'menunsfw', 'menuaia', 'menudescargas']
 
 export default handler

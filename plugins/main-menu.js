@@ -10,17 +10,17 @@ const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
 
 const CATEGORIES = {
     'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
-    'Ajustes & Config': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] },
-    'Herramientas & Stickers': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
-    'Grupos & Admin': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
-    'Inteligencia Artificial (AI)': { emoji: '🧠', tags: ['ai', 'image', 'ia', 'openai'] },
-    'Diversión & Juegos': { emoji: '🕹️', tags: ['games', 'game', 'fun'] },
-    'Anime & Emociones': { emoji: '✨', tags: ['anime', 'emox', 'waifus', 'gacha'] },
-    'Información': { emoji: 'ℹ️', tags: ['info'] },
+    'Ajustes': { emoji: '⚙️', tags: ['nable', 'owner', 'mods', 'setting'] },
+    'Herramientas': { emoji: '🛠️', tags: ['tools', 'transformador', 'herramientas', 'sticker'] },
+    'Grupos': { emoji: '👥', tags: ['grupo', 'group', 'admin'] },
+    'IA': { emoji: '🧠', tags: ['ai', 'image', 'ia', 'openai'] },
+    'Juegos': { emoji: '🕹️', tags: ['games', 'game', 'fun'] },
+    'Anime': { emoji: '✨', tags: ['anime', 'emox', 'waifus', 'gacha'] },
+    'Info': { emoji: 'ℹ️', tags: ['info'] },
     'Principal': { emoji: '🏠', tags: ['main'] },
-    'Economía & RPG': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
-    'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] },
-    '+18 / NSFW': { emoji: '🔞', tags: ['+18', 'nsfw'] },
+    'Economia': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
+    'Descargas': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] },
+    'Nsfw': { emoji: '🔞', tags: ['+18', 'nsfw'] },
 }
 
 function getCommandsByTags(plugins, tags, usedPrefix) {
@@ -38,57 +38,55 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
     return [...new Set(commands)].sort((a, b) => a.localeCompare(b))
 }
 
-let handler = async (m, { conn, usedPrefix }) => {
-    // 1. IMPORTACIÓN ÚNICA DESDE EL JSON
+let handler = async (m, { conn, usedPrefix, command, args }) => {
     const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json')
     const json = JSON.parse(fs.readFileSync(dbPath, 'utf-8'))
-    
-    // Usamos los enlaces directamente del JSON que me pasaste
     const videoMenu = json.links.video[0]
     const imagenMenu = json.links.imagen[0]
+    const horarioFecha = moment().tz('America/Mexico_City').format('HH:mm A')
 
-    const horarioFecha = moment().tz('America/Mexico_City').format('DD/MM/YYYY || HH:mm A')
+    // --- 1. COMANDO .menucompleto ---
+    if (command === 'menucompleto' || command === 'allmenu') {
+        let menuCompleto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`MENÚ TOTAL | ${horarioFecha}\`\`\`${readMore}\n\n`
+        for (const [name, data] of Object.entries(CATEGORIES)) {
+            const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
+            if (comandos.length > 0) {
+                menuCompleto += `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
+                menuCompleto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
+                menuCompleto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
+            }
+        }
+        return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: menuCompleto.trim(), contextInfo: { externalAdReply: { title: '👑 FULL LIST 🪽', body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
+    }
 
-    // 2. Construcción del Menú Completo
-    let menuTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
-*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
-⎔ \`\`\`${horarioFecha}\`\`\`
-*├┈───────┈─┈──┈─┈──┈─┈*
-*│* 👤 *Usuario:* @${m.sender.split('@')[0]}
-*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*${readMore}\n\n`
+    // --- 2. COMANDOS POR SECCIÓN (ej: .menunsfw o .menu nsfw) ---
+    // Si el comando es "menunsfw", forzamos que busque la categoría "nsfw"
+    let categoryKey = command.replace('menu', '').toLowerCase() || args[0]?.toLowerCase()
 
-    for (const [name, data] of Object.entries(CATEGORIES)) {
-        const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
-        if (comandos.length > 0) {
-            menuTexto += `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
-            menuTexto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
-            menuTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
+    if (categoryKey) {
+        let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
+            data.tags.includes(categoryKey) || name.toLowerCase() === categoryKey
+        )
+        
+        if (categoryEntry) {
+            const [name, data] = categoryEntry
+            const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
+            let textoCat = `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} SECCIÓN: ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
+            textoCat += comandos.map(cmd => `*│* ${cmd}`).join('\n')
+            textoCat += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n${packname}`
+
+            return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: textoCat, contextInfo: { externalAdReply: { title: `SECCIÓN: ${name}`, body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
         }
     }
 
-    menuTexto += `_Powered by Maria Kojuo Bot_`
+    // --- 3. MENÚ DE INICIO (.menu solo) ---
+    let helpTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\`\n*├┈───────┈─┈──┈─┈──┈─┈*\n*│* 💡 *Uso:* \`${usedPrefix}menu <sección>\`\n*│* 📜 *Todo:* \`${usedPrefix}menucompleto\`\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n\n*SECCIONES DISPONIBLES:*\n${Object.keys(CATEGORIES).map(cat => `*│* ${usedPrefix}menu ${cat.toLowerCase()}`).join('\n')}`
 
-    // 3. Envío usando las constantes que jalamos del JSON
-    return await conn.sendMessage(m.chat, {
-        video: { url: videoMenu },
-        gifPlayback: true,
-        caption: menuTexto.trim(),
-        mentions: [m.sender],
-        contextInfo: {
-            externalAdReply: { 
-                title: '👑 MENU COMPLETO 🪽', 
-                body: '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice', 
-                thumbnailUrl: imagenMenu, 
-                sourceUrl: redes, 
-                mediaType: 1
-            }
-        }
-    }, { quoted: m })
+    return await conn.sendMessage(m.chat, { video: { url: videoMenu }, gifPlayback: true, caption: helpTexto, contextInfo: { externalAdReply: { title: 'HELP CENTER', body: packname, thumbnailUrl: imagenMenu, sourceUrl: redes, mediaType: 1 }}}, { quoted: m })
 }
 
-handler.help = ['menu']
+handler.help = ['menu', 'menucompleto']
 handler.tags = ['main']
-handler.command = ['menu', 'help', 'menú']
+handler.command = ['menu', 'help', 'menú', 'menucompleto', 'allmenu', 'menunsfw', 'menuaia', 'menudescargas'] // Agrega aquí los que quieras directos
 
 export default handler

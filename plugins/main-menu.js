@@ -1,12 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-import moment from 'moment-timezone';
+import fs from 'fs'
+import path from 'path'
+import moment from 'moment-timezone'
 
-const more = String.fromCharCode(8206);
-const readMore = more.repeat(4001);
+const more = String.fromCharCode(8206)
+const readMore = more.repeat(4001)
 
-const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot';
-const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D';
+const packname = '˚mᥲríᥲ k᥆ȷᥙ᥆-bot'
+const redes = 'https://whatsapp.com/channel/0029Vb60E6xLo4hbOoM0NG3D'
 
 const CATEGORIES = {
     'Sub-Bot': { emoji: '🤖', tags: ['serbot'] },
@@ -21,108 +21,74 @@ const CATEGORIES = {
     'Economía & RPG': { emoji: '💰', tags: ['rpg', 'economia', 'economy'] },
     'Descargas & Buscadores': { emoji: '⬇️', tags: ['descargas', 'buscador', 'dl', 'internet', 'search'] },
     '+18 / NSFW': { emoji: '🔞', tags: ['+18', 'nsfw'] },
-};
-
-function getCommandsByTags(plugins, tags, usedPrefix) {
-    let commands = [];
-    for (const plugin of Object.values(plugins)) {
-        if (plugin.tags && plugin.help) {
-            const hasMatchingTag = plugin.tags.some(tag => tags.includes(tag));
-            if (hasMatchingTag) {
-                for (const help of plugin.help) {
-                    if (!/^\$|^=>|^>/.test(help)) commands.push(`${usedPrefix}${help}`);
-                }
-            }
-        }
-    }
-    return [...new Set(commands)].sort((a, b) => a.localeCompare(b));
 }
 
-let handler = async (m, { conn, usedPrefix, args }) => {
-    // 1. IMPORTAR MULTIMEDIA DESDE EL JSON
-    let enlaces;
-    try {
-        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
-        enlaces = JSON.parse(fs.readFileSync(dbPath, 'utf-8')).links;
-    } catch (e) {
-        enlaces = { 
-            video: ["https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/fa3f90a6d1d5c9dd.mp4"], 
-            imagen: ["https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/23e7f3919e8839a3.jpg"] 
-        };
-    }
-
-    const videoGif = enlaces.video[Math.floor(Math.random() * enlaces.video.length)];
-    const miniaturaRandom = enlaces.imagen[Math.floor(Math.random() * enlaces.imagen.length)];
-    const horarioFecha = moment().tz('America/Mexico_City').format('dddd, DD [de] MMMM [del] YYYY || HH:mm A');
-
-    const encabezado = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*\n*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*\n*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*\n⎔ \`\`\`${horarioFecha}\`\`\``.trim();
-
-    const selectedCategory = args[0]?.toLowerCase();
-
-    // 2. Lógica de Sub-menú (GIF ACTIVADO)
-    if (selectedCategory && isNaN(selectedCategory)) {
-        let categoryEntry = Object.entries(CATEGORIES).find(([name, data]) => 
-            data.tags.includes(selectedCategory) || name.toLowerCase().includes(selectedCategory)
-        );
-        
-        if (categoryEntry) {
-            const [name, data] = categoryEntry;
-            const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix);
-            return await conn.sendMessage(m.chat, {
-                video: { url: videoGif },
-                gifPlayback: true,
-                mimetype: 'video/mp4',
-                caption: `*${data.emoji} CATEGORÍA: ${name.toUpperCase()}*\n\n${comandos.map(cmd => `> ${cmd}`).join('\n')}\n\n${packname}`,
-                contextInfo: { 
-                    externalAdReply: { title: packname, body: name, thumbnailUrl: miniaturaRandom, sourceUrl: redes, mediaType: 1 }
+function getCommandsByTags(plugins, tags, usedPrefix) {
+    let commands = []
+    for (const plugin of Object.values(plugins)) {
+        if (plugin.tags && plugin.help) {
+            const hasMatchingTag = plugin.tags.some(tag => tags.includes(tag))
+            if (hasMatchingTag) {
+                for (const help of plugin.help) {
+                    if (!/^\$|^=>|^>/.test(help)) commands.push(`${usedPrefix}${help}`)
                 }
-            }, { quoted: m });
-        }
-    }
-
-    // 3. Paginación de Botones
-    const allCategories = Object.entries(CATEGORIES);
-    const totalPages = Math.ceil(allCategories.length / 3);
-    let page = (args[0] && !isNaN(args[0])) ? parseInt(args[0]) : 1;
-    if (page < 1) page = 1; if (page > totalPages) page = totalPages;
-
-    const currentCategories = allCategories.slice((page - 1) * 3, page * 3);
-    let buttons = currentCategories.map(([name, data]) => ({
-        buttonId: `${usedPrefix}menu ${data.tags[0]}`,
-        buttonText: { displayText: `${data.emoji} ${name}` },
-        type: 1
-    }));
-
-    if (page > 1) buttons.push({ buttonId: `${usedPrefix}menu ${page - 1}`, buttonText: { displayText: '⏪ Anterior' }, type: 1 });
-    if (page < totalPages) buttons.push({ buttonId: `${usedPrefix}menu ${page + 1}`, buttonText: { displayText: '⏩ Siguiente' }, type: 1 });
-
-    // 4. MENÚ PRINCIPAL (GIF FORZADO CON MIMETYPE)
-    const buttonMessage = {
-        video: { url: videoGif },
-        gifPlayback: true,
-        mimetype: 'video/mp4',
-        caption: encabezado + readMore + `\n\n*Selecciona una categoría (Pág. ${page}/${totalPages}):*`,
-        footer: packname,
-        buttons: buttons,
-        headerType: 4,
-        viewOnce: true,
-        contextInfo: {
-            mentionedJid: [m.sender],
-            externalAdReply: { 
-                title: '👑 MENU PRINCIPAL 🪽', 
-                body: packname, 
-                thumbnailUrl: miniaturaRandom, 
-                sourceUrl: redes, 
-                mediaType: 1 
             }
         }
-    };
+    }
+    return [...new Set(commands)].sort((a, b) => a.localeCompare(b))
+}
 
-    return await conn.sendMessage(m.chat, buttonMessage, { quoted: m });
-};
+let handler = async (m, { conn, usedPrefix }) => {
+    // 1. IMPORTACIÓN ÚNICA DESDE EL JSON
+    const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json')
+    const json = JSON.parse(fs.readFileSync(dbPath, 'utf-8'))
+    
+    // Usamos los enlaces directamente del JSON que me pasaste
+    const videoMenu = json.links.video[0]
+    const imagenMenu = json.links.imagen[0]
 
-handler.help = ['menu'];
-handler.tags = ['main'];
-handler.command = ['menu','help','menú']
+    const horarioFecha = moment().tz('America/Mexico_City').format('DD/MM/YYYY || HH:mm A')
 
-export default handler;
+    // 2. Construcción del Menú Completo
+    let menuTexto = `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*
+*│ 👑 | 𝐌𝐀𝐑𝐈𝐀 𝐊𝐎𝐉𝐔𝐎 𝐁𝐎𝐓 | 🪽*
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*
+⎔ \`\`\`${horarioFecha}\`\`\`
+*├┈───────┈─┈──┈─┈──┈─┈*
+*│* 👤 *Usuario:* @${m.sender.split('@')[0]}
+*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*${readMore}\n\n`
+
+    for (const [name, data] of Object.entries(CATEGORIES)) {
+        const comandos = getCommandsByTags(global.plugins, data.tags, usedPrefix)
+        if (comandos.length > 0) {
+            menuTexto += `*╭┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n*│ ${data.emoji} ${name.toUpperCase()}*\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n`
+            menuTexto += comandos.map(cmd => `*│* ${cmd}`).join('\n')
+            menuTexto += `\n*╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈*\n\n`
+        }
+    }
+
+    menuTexto += `_Powered by Maria Kojuo Bot_`
+
+    // 3. Envío usando las constantes que jalamos del JSON
+    return await conn.sendMessage(m.chat, {
+        video: { url: videoMenu },
+        gifPlayback: true,
+        caption: menuTexto.trim(),
+        mentions: [m.sender],
+        contextInfo: {
+            externalAdReply: { 
+                title: '👑 MENU COMPLETO 🪽', 
+                body: '⏤͟͞ू⃪፝͜⁞⟡ mᥲríᥲ k᥆ȷᥙ᥆\'s 𝐒ervice', 
+                thumbnailUrl: imagenMenu, 
+                sourceUrl: redes, 
+                mediaType: 1
+            }
+        }
+    }, { quoted: m })
+}
+
+handler.help = ['menu']
+handler.tags = ['main']
+handler.command = ['menu', 'help', 'menú']
+
+export default handler

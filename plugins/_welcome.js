@@ -1,3 +1,5 @@
+import { WAMessageStubType } from '@whiskeysockets/baileys'
+
 export async function before(m, { conn, usedPrefix }) {
   if (!m.isGroup) return
   if (!m.messageStubType) return
@@ -24,12 +26,11 @@ export async function before(m, { conn, usedPrefix }) {
   try {
     profile = await conn.profilePictureUrl(who, 'image')
   } catch {
-    // Foto por defecto estable si el usuario no tiene perfil
     profile = 'https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/23e7f3919e8839a3.jpg'
   }
 
-  // --- BIENVENIDA (Stub 27) ---
-  if (m.messageStubType === 27) {
+  // --- LÓGICA DE BIENVENIDA (CUANDO ENTRA ALGUIEN) ---
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD || m.messageStubType === 27) {
     const welcomeImg = `https://api.siputzx.my.id/api/canvas/welcomev4?avatar=${encodeURIComponent(profile)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(taguser)}`
 
     await conn.sendMessage(m.chat, {
@@ -49,8 +50,8 @@ export async function before(m, { conn, usedPrefix }) {
       }, { quoted: fkontak })
   }
 
-  // --- DESPEDIDA (Stub 28 o 32) ---
-  if (m.messageStubType === 28 || m.messageStubType === 32) {
+  // --- LÓGICA DE DESPEDIDA (CUANDO SE VA ALGUIEN) ---
+  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || m.messageStubType === 28 || m.messageStubType === 32) {
     const goodbyeImg = `https://api.siputzx.my.id/api/canvas/goodbyev4?avatar=${encodeURIComponent(profile)}&background=${encodeURIComponent(background)}&description=${encodeURIComponent(taguser)}`
 
     await conn.sendMessage(m.chat, {

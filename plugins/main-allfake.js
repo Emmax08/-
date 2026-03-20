@@ -43,7 +43,7 @@ const iconUrl = pickRandom(iconUrls)
 global.icono = await getBuffer(iconUrl)
 
 //creador y otros
-global.creador = 'Wa.me/5217225305296'
+global.creador = 'Wa.me/‪12892581751'
 global.ofcbot = `${conn.user.jid.split('@')[0]}`
 global.asistencia = 'Wa.me/5217225305296'
 global.namechannel = '*mᥲríᥲ k᥆ȷᥙ᥆-BOT-CHANNEL*'

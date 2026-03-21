@@ -1,12 +1,12 @@
 import { exec } from 'child_process';
 
 let handler = async (m, { conn }) => {
-  const emoji = '✡️';
+  const emoji = '🏵️';
   const emoji2 = '🌷';
   const emoji4 = '💞';
   const msm = '💗';
 
-  m.reply(`${emoji2} Reforzando la bot...`);
+  m.reply(`${emoji2} Actualizando a la bot...`);
 
   exec('git pull', (err, stdout, stderr) => {
     if (err) {

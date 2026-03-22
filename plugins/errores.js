@@ -1,49 +1,53 @@
-// Manejador central de errores
-const errorHandler = (error, commandName) => {
-    // Extraer la línea y el archivo del stack trace
-    const stackLines = error.stack.split('\n');
-    const detailLine = stackLines[1].trim(); 
-    
-    // Intentar identificar la causa probable
-    let cause = "Error de lógica o sintaxis";
-    if (error.message.includes("API")) cause = "Falta de API Key o Error de Conexión";
-    if (error.message.includes("is not defined")) cause = "Variable no definida o falta de coma/importación";
-    if (error.message.includes("unexpected token")) cause = "Error de sintaxis (posible falta de coma o cierre)";
+// 1. Definimos la función que genera el reporte detallado
+function reportarError(error, comandoUsado) {
+    const stack = error.stack.split('\n');
+    // La línea 1 del stack suele tener el archivo y número de línea
+    const ubicacion = stack[1] ? stack[1].trim() : "Ubicación desconocida";
 
-    const report = {
-        comando: commandName,
-        mensaje: error.message,
-        ubicacion: detailLine,
-        causaProbable: cause,
-        fecha: new Date().toLocaleString()
+    return {
+        Comando: comandoUsado,
+        Error: error.message,
+        Linea: ubicacion,
+        Tipo: error.name,
+        Sugerencia: identificarCausa(error.message)
     };
+}
 
-    // Mostrar en consola y puedes enviarlo a un log o chat
-    console.error("--- REPORTE DE ERROR ---");
-    console.table(report);
-    
-    return report;
-};
+// 2. Función auxiliar para detectar "qué falta" (API, comas, etc.)
+function identificarCausa(msg) {
+    if (msg.includes("API")) return "Revisar Key de API o conexión.";
+    if (msg.includes("is not defined")) return "Falta definir variable o hay un error de dedo.";
+    if (msg.includes("unexpected token")) return "Error de sintaxis: falta una coma (,) o un paréntesis.";
+    return "Error de lógica interna.";
+}
 
-// Ejemplo de ejecución de comandos (.play o #play)
-const executeCommand = async (cmd, args) => {
+// 3. El Escuchador de Mensajes (Donde ocurre la magia)
+client.on('message', async (msg) => {
+    // Detectamos si empieza con . o #
+    if (!msg.content.startsWith('.') && !msg.content.startsWith('#')) return;
+
+    const args = msg.content.slice(1).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
     try {
-        if (cmd === 'play') {
-            // Simulación de error: falta de una API o variable
-            if (!process.env.MUSIC_API) {
-                throw new Error("Falta de API de música en el archivo .env");
-            }
-        }
-        // ... resto de tu lógica
-    } catch (err) {
-        const errorDetail = errorHandler(err, cmd);
+        // Aquí es donde intentas ejecutar el comando (ej: play)
+        // logicadeTuComando(commandName, args); 
         
-        // Opcional: Enviar la lista de errores al usuario o admin
-        console.log(`Error en [${errorDetail.comando}]: ${errorDetail.mensaje} en ${errorDetail.ubicacion}`);
-    }
-};
+        if (commandName === 'play') {
+            // Ejemplo de código que fallaría si no hay API
+            if (!process.env.YOUTUBE_API) throw new Error("Falta de API de YouTube");
+            // ... resto del código de play
+        }
 
-// Ejemplo de detección global para errores no capturados
-process.on('uncaughtException', (err) => {
-    errorHandler(err, 'Sistema Crítico');
+    } catch (error) {
+        // 4. Si algo falla, generamos la lista detallada
+        const detalle = reportarError(error, commandName);
+
+        // Imprimimos la lista en la consola de forma organizada
+        console.log("\n⚠️ LISTA DE ERROR DETECTADO:");
+        console.table([detalle]);
+
+        // Opcional: El bot responde con el error exacto (solo para admins)
+        msg.reply(`❌ **Error en comando ${commandName}:**\n- **Mensaje:** ${detalle.Error}\n- **Línea:** ${detalle.Linea}\n- **Sugerencia:** ${detalle.Sugerencia}`);
+    }
 });

@@ -85,6 +85,7 @@ async function sendTextMenu(conn, idChat, m, contextInfo, videoGif, caption) {
 }
 
 let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
+  try {
     // ── 1. Leer db.json ──────────────────────────────────────────────────────
     let enlacesMultimedia;
     try {
@@ -285,6 +286,14 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     if (!listSent) {
         await sendTextMenu(conn, idChat, m, contextInfo, videoGif, fullCaption);
     }
+
+  } catch (err) {
+      try {
+          await conn.sendMessage(m.chat, {
+              text: `❌ *Error en menu:*\n\`\`\`${err.message || String(err)}\`\`\``
+          }, { quoted: m });
+      } catch {}
+  }
 };
 
 handler.help = ['menu', 'menu <categoría>'];

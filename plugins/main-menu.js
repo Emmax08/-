@@ -6,13 +6,13 @@ import axios from 'axios';
 const more = String.fromCharCode(8206);
 const readMore = more.repeat(4001);
 
-const newsletterJid = '120363406360158608@newsletter';
-const newsletterName = '⏤͟͞ू⃪፝͜⁞⟡ 𝐌𝐚𝐫𝐢𝐚 𝐊𝐮𝐣𝐨𝐮\'s 𝐒ervice';
-const packname = '˚𝐌𝐚𝐫𝐢𝐚𝐊𝐮𝐣𝐨𝐮-bot';
+const newsletterJid  = '120363401893800327@newsletter';
+const newsletterName = '「🌸」𝑴𝒂𝒓𝒊𝒂 𝑲𝒖𝒋𝒐𝒖 ⟡ 𝑺𝒆𝒓𝒗𝒊𝒄𝒆 ✦';
+const packname       = '「🌸」𝑴𝒂𝒓𝒊𝒂 𝑲𝒖𝒋𝒐𝒖-𝒃𝒐𝒕 ✦';
 
 const GITHUB_REPO_OWNER = 'Emmax08';
-const GITHUB_REPO_NAME = '-';
-const GITHUB_BRANCH = 'main';
+const GITHUB_REPO_NAME  = '-';
+const GITHUB_BRANCH     = 'main';
 
 const redes = 'https://whatsapp.com/channel/0029VbBw362A2pL9BOnpbP0H';
 
@@ -63,11 +63,11 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     let nombre = 'Usuario';
     try { nombre = await conn.getName(m.sender); } catch {}
 
-    const esPrincipal     = conn.user.jid === global.conn.user.jid;
-    const totalComandos   = Object.keys(global.plugins || {}).length;
-    const tiempoActividad = clockString(process.uptime() * 1000);
-    const totalRegistros  = Object.keys(global.db?.data?.users || {}).length;
-    const rtotalreg       = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
+    const esPrincipal      = conn.user.jid === global.conn.user.jid;
+    const totalComandos    = Object.keys(global.plugins || {}).length;
+    const tiempoActividad  = clockString(process.uptime() * 1000);
+    const totalRegistros   = Object.keys(global.db?.data?.users || {}).length;
+    const rtotalreg        = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
     const totalChatsBanned = Object.entries(global.db?.data?.chats || {}).filter(([, c]) => c.isBanned).length;
     const totalUsersBanned = Object.entries(global.db?.data?.users || {}).filter(([, u]) => u.banned).length;
 
@@ -97,10 +97,14 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
         mentionedJid: [m.sender],
         isForwarded: true,
         forwardingScore: 999,
-        forwardedNewsletterMessageInfo: { newsletterJid, newsletterName, serverMessageId: -1 },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid,
+            newsletterName,
+            serverMessageId: -1
+        },
         externalAdReply: {
             title: packname,
-            body: '🌸 Menú de Comandos | 𝐌𝐚𝐫𝐢𝐚 𝐊𝐮𝐣𝐨𝐮-𝐛𝐨𝐭 ⚡️',
+            body: '🌸 Menú de Comandos | 𝑴𝒂𝒓𝒊𝒂 𝑲𝒖𝒋𝒐𝒖-𝒃𝒐𝒕 ⚡️',
             sourceUrl: redes,
             mediaType: 1,
             renderLargerThumbnail: false

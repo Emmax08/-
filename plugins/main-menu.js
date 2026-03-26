@@ -48,58 +48,13 @@ function getCommandsByTags(plugins, tags, usedPrefix) {
     return [...new Set(commands)].sort((a, b) => a.localeCompare(b));
 }
 
-// ─── FUNCIÓN PARA ENVIAR CON LISTA (funciona en WA actual) ───────────────────
-async function sendListMenu(conn, idChat, m, contextInfo, videoGif, title, body, listRows, footer) {
-    try {
-        // Método 1: Lista interactiva (funciona en WA Business y algunos clientes)
-        const listMsg = {
-            text: body,
-            footer: footer,
-            title: title,
-            buttonText: '📋 Ver Categorías',
-            sections: [{ title: '📂 Categorías disponibles', rows: listRows }],
-            contextInfo
-        };
-        await conn.sendMessage(idChat, listMsg, { quoted: m });
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-// ─── FUNCIÓN PARA ENVIAR MENÚ EN TEXTO PLANO (fallback universal) ────────────
-async function sendTextMenu(conn, idChat, m, contextInfo, videoGif, caption) {
-    try {
-        await conn.sendMessage(idChat, {
-            video: { url: videoGif },
-            gifPlayback: true,
-            caption: caption,
-            contextInfo
-        }, { quoted: m });
-        return true;
-    } catch (e) {
-        // Si tampoco funciona el GIF, solo texto
-        await conn.sendMessage(idChat, { text: caption, contextInfo }, { quoted: m });
-        return true;
-    }
-}
-
 let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
   try {
-    // ── 1. Leer db.json ──────────────────────────────────────────────────────
-    let enlacesMultimedia;
-    try {
-        const dbPath = path.join(process.cwd(), 'src', 'database', 'db.json');
-        enlacesMultimedia = JSON.parse(fs.readFileSync(dbPath)).links;
-    } catch {
-        enlacesMultimedia = { video: ['https://example.com/error.mp4'], imagen: ['https://example.com/error.jpg'] };
-    }
-
     if (m.quoted?.id && m.quoted?.fromMe) return;
 
     const idChat = m.chat;
 
-    // ── 2. Datos del bot ─────────────────────────────────────────────────────
+    // ── Datos del bot ────────────────────────────────────────────────────────
     let _package = {};
     try {
         _package = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
@@ -108,26 +63,21 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
     let nombre = 'Usuario';
     try { nombre = await conn.getName(m.sender); } catch {}
 
-    const esPrincipal    = conn.user.jid === global.conn.user.jid;
-    const numeroPrincipal = global.conn?.user?.jid?.split('@')[0] || 'Desconocido';
-    const totalComandos  = Object.keys(global.plugins || {}).length;
+    const esPrincipal     = conn.user.jid === global.conn.user.jid;
+    const totalComandos   = Object.keys(global.plugins || {}).length;
     const tiempoActividad = clockString(process.uptime() * 1000);
-    const totalRegistros = Object.keys(global.db?.data?.users || {}).length;
-    const rtotalreg      = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
+    const totalRegistros  = Object.keys(global.db?.data?.users || {}).length;
+    const rtotalreg       = Object.values(global.db?.data?.users || {}).filter(u => u.registered).length;
     const totalChatsBanned = Object.entries(global.db?.data?.chats || {}).filter(([, c]) => c.isBanned).length;
     const totalUsersBanned = Object.entries(global.db?.data?.users || {}).filter(([, u]) => u.banned).length;
 
-    // ── 3. Hora México ───────────────────────────────────────────────────────
+    // ── Hora México ──────────────────────────────────────────────────────────
     const lugarFecha = moment().tz('America/Mexico_City');
     lugarFecha.locale('es');
     const horarioFecha = lugarFecha.format('dddd, DD [de] MMMM [del] YYYY || HH:mm A')
         .replace(/^\w/, c => c.toUpperCase());
 
-    // ── 4. Multimedia aleatoria ──────────────────────────────────────────────
-    const videoGif       = enlacesMultimedia.video[Math.floor(Math.random() * enlacesMultimedia.video.length)];
-    const miniaturaRandom = enlacesMultimedia.imagen[Math.floor(Math.random() * enlacesMultimedia.imagen.length)];
-
-    // ── 5. Versión GitHub ────────────────────────────────────────────────────
+    // ── Versión GitHub ───────────────────────────────────────────────────────
     let localVersion = _package.version || 'N/A';
     let serverVersion = 'N/A', updateStatus = 'Desconocido';
     try {
@@ -142,7 +92,7 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
         updateStatus = '❌ No se pudo verificar';
     }
 
-    // ── 6. contextInfo ───────────────────────────────────────────────────────
+    // ── contextInfo ──────────────────────────────────────────────────────────
     const contextInfo = {
         mentionedJid: [m.sender],
         isForwarded: true,
@@ -151,14 +101,13 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
         externalAdReply: {
             title: packname,
             body: '🌸 Menú de Comandos | 𝐌𝐚𝐫𝐢𝐚 𝐊𝐮𝐣𝐨𝐮-𝐛𝐨𝐭 ⚡️',
-            thumbnailUrl: miniaturaRandom,
             sourceUrl: redes,
             mediaType: 1,
             renderLargerThumbnail: false
         }
     };
 
-    // ── 7. SUBMENÚ: cuando piden una categoría ───────────────────────────────
+    // ── SUBMENÚ ──────────────────────────────────────────────────────────────
     const selectedCategory = args[0]?.toLowerCase();
 
     if (selectedCategory && !/^\d+$/.test(selectedCategory)) {
@@ -201,21 +150,12 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
                 `*${packname}*`
             ].join('\n');
 
-            try {
-                await conn.sendMessage(idChat, {
-                    video: { url: videoGif },
-                    gifPlayback: true,
-                    caption: textoFinal,
-                    contextInfo: { ...contextInfo }
-                }, { quoted: m });
-            } catch {
-                await conn.sendMessage(idChat, { text: textoFinal, contextInfo }, { quoted: m });
-            }
+            await conn.sendMessage(idChat, { text: textoFinal, contextInfo }, { quoted: m });
             return;
         }
     }
 
-    // ── 8. MENÚ PRINCIPAL ────────────────────────────────────────────────────
+    // ── MENÚ PRINCIPAL ───────────────────────────────────────────────────────
     const encabezado = [
         `*╭┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╮*`,
         `*│ 🌸 |𝐌𝐀𝐑𝐈𝐀 𝐊𝐔𝐉𝐎𝐔 𝐁𝐎𝐓| 🖤*`,
@@ -239,7 +179,6 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
         `*╰┈┈┈┈┈┈┈┈┈୨୧┈┈┈┈┈┈┈┈┈╯*`,
     ].join('\n');
 
-    // ── 9. Construir lista de categorías en texto ────────────────────────────
     const categoriasTexto = Object.entries(CATEGORIES)
         .map(([name, data], i) => {
             const tag = data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -263,36 +202,17 @@ let handler = async (m, { conn, usedPrefix, args, __dirname }) => {
 
     const fullCaption = encabezado + menuCuerpo + readMore;
 
-    // ── 10. Intentar envío con lista interactiva, fallback a GIF+texto ────────
-    const listRows = Object.entries(CATEGORIES).map(([name, data]) => {
-        const tag = data.tags[0] || name.toLowerCase().replace(/[^a-z0-9]/g, '');
-        return {
-            title: `${data.emoji} ${name}`,
-            description: `Ver comandos → ${usedPrefix}menu ${tag}`,
-            rowId: `${usedPrefix}menu ${tag}`
-        };
-    });
-
-    // Intento 1: Lista interactiva
-    const listSent = await sendListMenu(
-        conn, idChat, m, contextInfo, videoGif,
-        '🌸 Maria Kujou Bot - Menú',
-        encabezado,
-        listRows,
-        `*${packname}* | Elige una categoría`
-    );
-
-    // Intento 2: GIF + texto completo (si la lista falló)
-    if (!listSent) {
-        await sendTextMenu(conn, idChat, m, contextInfo, videoGif, fullCaption);
-    }
+    await conn.sendMessage(idChat, { text: fullCaption, contextInfo }, { quoted: m });
 
   } catch (err) {
+      console.error('[MENU ERROR]', err);
       try {
           await conn.sendMessage(m.chat, {
               text: `❌ *Error en menu:*\n\`\`\`${err.message || String(err)}\`\`\``
           }, { quoted: m });
-      } catch {}
+      } catch (e2) {
+          console.error('[MENU SEND ERROR]', e2);
+      }
   }
 };
 

@@ -5,8 +5,8 @@ const { generateWAMessageFromContent, generateWAMessage, delay } = baileys;
 
 // --- FUNCIONES AUXILIARES (sendAlbumMessage) ---
 async function sendAlbumMessage(conn, jid, medias, options = {}) {
-  if (typeof jid !== "string") throw new TypeError(`⚠️ JID inválido.`);
-  if (medias.length < 2) throw new RangeError("⚠️ Se requieren al menos 2 imágenes para un álbum.");
+  if (typeof jid !== "string") throw new TypeError(`⚠️ El JID debe ser un texto válido.`);
+  if (medias.length < 2) throw new RangeError("⚠️ Se requieren al menos dos imágenes para crear un álbum.");
 
   const caption = options.text || options.caption || "";
   const albumDelay = !isNaN(options.delay) ? options.delay : 500; 
@@ -30,37 +30,40 @@ async function sendAlbumMessage(conn, jid, medias, options = {}) {
     },
   }, {});
 
-  await conn.relayMessage(jid, album.message, { messageId: album.key.id });
+  await conn.relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id });
 
   for (let i = 0; i < medias.length; i++) {
     const { type, data } = medias[i];
-    const img = await generateWAMessage(jid, 
-      { [type]: data, ...(i === 0 ? { caption } : {}) }, 
+    const img = await generateWAMessage(album.key.remoteJid,
+      { [type]: data, ...(i === 0 ? { caption } : {}) },
       { upload: conn.waUploadToServer }
     );
     img.message.messageContextInfo = {
       messageAssociation: { associationType: 1, parentMessageKey: album.key },
     };
-    await conn.relayMessage(jid, img.key.remoteJid, img.message, { messageId: img.key.id });
+    await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
     await delay(albumDelay);
   }
   return album;
 }
 
-// 🎯 SCRAPER / API ALTERNATIVA (Sin Dorratz)
-const pinterestSearch = async (query) => {
+// 🎯 FUNCIÓN PINTEREST YUKI-WABOT
+const pinterestYuki = async (query) => {
   try {
-    // Ejemplo usando una API pública alternativa o scraper
-    const res = await fetch(`https://api.vreden.my.id/api/pinterest?q=${encodeURIComponent(query)}`);
+    // Usamos la API que proporcionaste
+    const res = await fetch(`https://api.yuki-wabot.my.id/search/pinterestvideo?text=${encodeURIComponent(query)}`);
+
+    if (!res.ok) return [];
+
     const data = await res.json();
     
-    // Ajustamos según la estructura de la nueva API (usualmente data.result o data.data)
-    if (data.status === 200 && Array.isArray(data.result)) {
-        return data.result; // Retorna array de URLs
+    // Verificamos que la respuesta sea exitosa y contenga resultados
+    if (data.status && Array.isArray(data.result)) {
+        return data.result; // Retorna el array de URLs
     }
     return [];
   } catch (err) {
-    console.error('💥 Error en la búsqueda de Pinterest:', err.message);
+    console.error('💥 Error en Pinterest Yuki API:', err.message);
     return [];
   }
 };
@@ -68,38 +71,48 @@ const pinterestSearch = async (query) => {
 let handler = async (m, { conn, text }) => {
   const dev = 'Emmax 🌸';
 
-  if (!text) return conn.reply(m.chat, `📌 *Uso correcto:*\nEscribe lo que buscas.\n\n✨ *Ejemplo:* .pin masha kujou`, m);
+  if (!text) {
+    return conn.reply(m.chat, `📌 *Uso correcto:*\nEscribe lo que deseas buscar.\n\n✨ *Ejemplo:* .pin masha kujou`, m);
+  }
 
   try {
     await m.react('🔍');
-    const results = await pinterestSearch(text); 
+    const results = await pinterestYuki(text); 
     
-    if (!results.length) return conn.reply(m.chat, `❌ No encontré resultados para *${text}*.`, m);
+    if (!results || results.length === 0)
+      return conn.reply(m.chat, `❌ No encontré resultados para *${text}*.`, m);
 
-    const max = Math.min(results.length, 12);
+    const max = Math.min(results.length, 15);
     const medias = [];
 
     for (let i = 0; i < max; i++) {
-      const url = typeof results[i] === 'string' ? results[i] : (results[i].url || results[i].image);
+      const url = results[i]; // Yuki devuelve directamente los strings de las URLs en el array result
       if (url) {
-        medias.push({ type: 'image', data: { url } });
+        medias.push({
+          type: 'image',
+          data: { url }
+        });
       }
     }
 
+    // Validación mínima para el álbum
     if (medias.length < 2) {
-        return conn.sendMessage(m.chat, { image: medias[0].data, caption: `✨ Resultado para: ${text}` }, { quoted: m });
+        return conn.sendMessage(m.chat, { 
+            image: { url: medias[0].data.url }, 
+            caption: `🌸 *Masha Kujou* | Resultado Único\n📌 *Búsqueda:* ${text}` 
+        }, { quoted: m });
     }
 
     await sendAlbumMessage(conn, m.chat, medias, {
-      caption: `🌸 *Masha Kujou* - Pinterest Search\n\n📌 *Búsqueda:* ${text}\n🖼️ *Resultados:* ${medias.length}\n👤 *Dev:* ${dev}`,
+      caption: `🌸 *Masha Kujou* - Resultados de Pinterest\n\n📌 *Búsqueda:* ${text}\n🖼️ *Imágenes:* ${medias.length}\n👤 *Dev:* ${dev}`,
       quoted: m
     });
 
-    await m.react('🌺');
+    await conn.sendMessage(m.chat, { react: { text: '🌺', key: m.key } });
 
   } catch (e) {
     console.error(e);
-    return conn.reply(m.chat, '⚠️ Error al procesar las imágenes.', m);
+    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar la búsqueda.', m);
   }
 };
 
